@@ -1,0 +1,576 @@
+/* ========================================================================
+   RESTAURANTE GOURMET - ESTILOS PERSONALIZADOS
+   Bootstrap 5 se importa desde CDN - Este archivo solo tiene customizaciones
+   ======================================================================== */
+
+/* === IMPORTAR FUENTES GOOGLE === */
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+/* === VARIABLES CSS PERSONALIZADAS === */
+:root {
+    /* Colores Principales - Negro Elegante */
+    --primary-dark: #000000;
+    --primary: #1a1a1a;
+    --primary-light: #333333;
+    --primary-lighter: #4d4d4d;
+
+    /* Colores Accent - Dorado Premium */
+    --accent-gold: #d4af37;
+    --accent-gold-light: #e6c968;
+    --accent-gold-dark: #b8941f;
+    --accent-warm: #a0522d;
+    --accent-warm-light: #cd853f;
+
+    /* Neutros Limpios */
+    --neutral-cream: #ffffff;
+    --neutral-beige: #f8f8f8;
+    --neutral-light: #e5e5e5;
+    --neutral-border: #d1d1d1;
+
+    /* Textos */
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b6b6b;
+    --text-light: #999999;
+
+    /* Sombras Profesionales */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
+    --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.2);
+
+    /* Transiciones */
+    --transition-fast: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Bordes Minimalistas */
+    --radius-sm: 0.125rem;
+    --radius-md: 0.25rem;
+    --radius-lg: 0.375rem;
+    --radius-xl: 0.5rem;
+}
+
+/* === TIPOGRAFÍA BASE === */
+body {
+    font-family: "Poppins", sans-serif;
+    font-weight: 300;
+    letter-spacing: 0.01em;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.font-playfair {
+    font-family: "Montserrat", sans-serif;
+}
+
+.font-inter {
+    font-family: "Poppins", sans-serif;
+}
+
+/* === PERSONALIZACIONES DE BOOTSTRAP === */
+
+/* Botones Personalizados */
+.btn-primary {
+    background: var(--menu-btn-bg, #2c3e50);
+    border: none;
+    box-shadow: var(--shadow-md), 0 4px 20px rgba(0, 0, 0, 0.15);
+    transition: all var(--transition-base);
+}
+
+.btn-primary:hover {
+    background: var(--menu-btn-hover-bg, #1a252f);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg), 0 8px 32px rgba(0, 0, 0, 0.25);
+}
+
+.btn-secondary {
+    background: linear-gradient(
+        135deg,
+        var(--accent-warm) 0%,
+        var(--accent-warm-light) 100%
+    );
+    border: none;
+    box-shadow: var(--shadow-md), 0 4px 20px rgba(160, 82, 45, 0.25);
+    transition: all var(--transition-base);
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(
+        135deg,
+        var(--accent-warm-light) 0%,
+        var(--accent-warm) 100%
+    );
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg), 0 8px 32px rgba(160, 82, 45, 0.35);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid var(--accent-gold);
+    color: var(--accent-gold);
+    transition: all var(--transition-fast);
+}
+
+.btn-outline:hover {
+    background: var(--accent-gold);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Cards Personalizadas */
+.card {
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--neutral-border);
+    transition: all var(--transition-base);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.card-interactive {
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-interactive:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Badges Personalizados */
+.badge-gold {
+    background: linear-gradient(135deg, #fff9e6 0%, #ffe9b3 100%);
+    color: var(--accent-gold-dark);
+    border: 1px solid var(--accent-gold-light);
+}
+
+.badge-premium {
+    background: linear-gradient(
+        135deg,
+        var(--accent-gold) 0%,
+        var(--accent-gold-light) 100%
+    );
+    color: white;
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+}
+
+/* === COMPONENTES CUSTOM === */
+
+/* Navbar Personalizada */
+.navbar-custom {
+    background: linear-gradient(
+        135deg,
+        var(--primary-dark) 0%,
+        var(--primary) 100%
+    );
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-md);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    padding: 0.75rem 0;
+}
+
+/* Header del menú más fino en móvil */
+@media (max-width: 768px) {
+    .navbar-custom {
+        padding: 0.5rem 0;
+        min-height: 60px;
+    }
+
+    /* Logo más pequeño */
+    .navbar-brand img {
+        width: 35px !important;
+        height: 35px !important;
+    }
+
+    /* Botón toggle más pequeño */
+    .navbar-toggler {
+        padding: 0.25rem 0.5rem !important;
+        font-size: 1rem !important;
+    }
+
+    .navbar-toggler-icon {
+        width: 1.2em !important;
+        height: 1.2em !important;
+    }
+
+    /* Enlaces de navegación más pequeños */
+    .nav-link-custom {
+        padding: 0.4rem 0.8rem !important;
+        font-size: 0.9rem !important;
+    }
+
+    /* Botón del carrito más pequeño */
+    .btn-sm {
+        padding: 0.4rem 0.8rem !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* Badge del carrito más pequeño */
+    .badge {
+        font-size: 0.7rem !important;
+        padding: 0.25rem 0.5rem !important;
+    }
+
+    /* Container más compacto */
+    .container-fluid {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+}
+
+/* Para pantallas muy pequeñas (móviles) */
+@media (max-width: 480px) {
+    .navbar-custom {
+        padding: 0.4rem 0;
+        min-height: 55px;
+    }
+
+    /* Logo aún más pequeño */
+    .navbar-brand img {
+        width: 30px !important;
+        height: 30px !important;
+    }
+
+    /* Botón toggle aún más pequeño */
+    .navbar-toggler {
+        padding: 0.2rem 0.4rem !important;
+        font-size: 0.9rem !important;
+    }
+
+    .navbar-toggler-icon {
+        width: 1em !important;
+        height: 1em !important;
+    }
+
+    /* Enlaces aún más pequeños */
+    .nav-link-custom {
+        padding: 0.3rem 0.6rem !important;
+        font-size: 0.8rem !important;
+    }
+
+    /* Botón del carrito ultra pequeño */
+    .btn-sm {
+        padding: 0.3rem 0.6rem !important;
+        font-size: 0.8rem !important;
+    }
+
+    /* Badge ultra pequeño */
+    .badge {
+        font-size: 0.65rem !important;
+        padding: 0.2rem 0.4rem !important;
+    }
+
+    /* Container ultra compacto */
+    .container-fluid {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+}
+
+.nav-link-custom {
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+    text-decoration: none;
+}
+
+.nav-link-custom:hover,
+.nav-link-custom.active {
+    color: var(--accent-gold-light);
+    background: rgba(212, 175, 55, 0.1);
+}
+
+/* Precio Destacado */
+.price-display {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 700;
+    color: var(--accent-gold-dark);
+}
+
+.price-large {
+    font-size: 2.5rem;
+    background: linear-gradient(
+        135deg,
+        var(--accent-gold) 0%,
+        var(--accent-gold-dark) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Gradient Text */
+.text-gradient {
+    background: linear-gradient(
+        135deg,
+        var(--accent-gold) 0%,
+        var(--accent-warm) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Línea Decorativa Dorada */
+.gold-divider {
+    height: 2px;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--accent-gold) 50%,
+        transparent 100%
+    );
+    margin: 3rem 0;
+}
+
+/* Hero Section */
+.hero-section {
+    position: relative;
+    background: linear-gradient(
+        135deg,
+        var(--primary-dark) 0%,
+        var(--primary) 100%
+    );
+    padding: 6rem 0;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(
+            circle at 20% 50%,
+            rgba(212, 175, 55, 0.1) 0%,
+            transparent 50%
+        ),
+        radial-gradient(
+            circle at 80% 80%,
+            rgba(160, 82, 45, 0.08) 0%,
+            transparent 50%
+        );
+}
+
+/* Loading Spinner */
+.spinner-custom {
+    border: 4px solid var(--neutral-light);
+    border-top: 4px solid var(--accent-gold);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-scale-in {
+    animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Image Hover Effects */
+.img-hover-zoom {
+    overflow: hidden;
+}
+
+.img-hover-zoom img {
+    transition: transform var(--transition-slow);
+}
+
+.img-hover-zoom:hover img {
+    transform: scale(1.08);
+}
+
+/* Rating Stars */
+.rating-stars {
+    color: var(--accent-gold);
+}
+
+/* Scrollbar Personalizada */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--neutral-beige);
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+        180deg,
+        var(--accent-gold) 0%,
+        var(--accent-gold-dark) 100%
+    );
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(
+        180deg,
+        var(--accent-gold-light) 0%,
+        var(--accent-gold) 100%
+    );
+}
+
+/* Footer Personalizado */
+.footer-custom {
+    background: linear-gradient(
+        135deg,
+        var(--primary-dark) 0%,
+        var(--primary) 100%
+    );
+    color: rgba(255, 255, 255, 0.85);
+    border-top: 2px solid var(--accent-gold);
+}
+
+.footer-custom a {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+.footer-custom a:hover {
+    color: var(--accent-gold-light);
+}
+
+/* Toast Personalizado */
+.toast-custom {
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+}
+
+/* === SWIPER CAROUSEL CUSTOMIZATION === */
+.menuSwiper {
+    width: 100%;
+    padding: 0px !important;
+}
+
+.menuSwiper .swiper-slide {
+    width: 350px;
+    height: auto;
+}
+
+.menuSwiper .swiper-slide-active {
+    transform: scale(1.05);
+    z-index: 2;
+}
+
+/* Swiper Navigation Buttons */
+.swiper-button-next,
+.swiper-button-prev {
+    color: var(--accent-gold) !important;
+    background: white;
+    width: 45px;
+    height: 45px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-fast);
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+    background: var(--accent-gold);
+    color: white !important;
+    transform: scale(1.1);
+}
+
+.swiper-button-next::after,
+.swiper-button-prev::after {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Swiper Pagination */
+.swiper-pagination-bullet {
+    background: var(--neutral-border);
+    opacity: 1;
+    transition: all var(--transition-fast);
+}
+
+.swiper-pagination-bullet-active {
+    background: var(--accent-gold);
+    width: 24px;
+    border-radius: 4px;
+}
+
+/* View Toggle Buttons Active State */
+.btn-group .btn-outline.active {
+    background: var(--accent-gold);
+    color: white;
+    border-color: var(--accent-gold);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2.5rem;
+    }
+    h2 {
+        font-size: 2rem;
+    }
+    h3 {
+        font-size: 1.5rem;
+    }
+
+    .menuSwiper .swiper-slide {
+        width: 280px;
+    }
+
+    .swiper-button-next,
+    .swiper-button-prev {
+        width: 35px;
+        height: 35px;
+    }
+}

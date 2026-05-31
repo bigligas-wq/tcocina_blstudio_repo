@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'Panel de Administración - TCocina')</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('favicon.png') }}">
+    <style>
+        :root{
+            --brand-primary: {{ $businessSettings['brand_primary_color'] ?? '#00b4d8' }};
+            --brand-accent:  {{ $businessSettings['brand_accent_color'] ?? '#ff6b35' }};
+        }
+    </style>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Lucide Icons - Iconos modernos y profesionales -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        .sidebar {
+            height: 100vh;                 /* ocupar exactamente una pantalla */
+            min-height: 100vh;
+            /* Gradiente dinámico fijo: arriba color de marca, abajo negro */
+            background: linear-gradient(180deg,
+                var(--brand-primary) 0%,
+                color-mix(in srgb, var(--brand-primary), #0b1020 35%) 55%,
+                #000000 100%);
+            background-attachment: fixed;  /* no “se estira” cuando hay scroll interno */
+            transition: width 0.3s ease;
+            position: fixed;               /* sidebar fijo, independiente del alto del contenido */
+            top: 0;
+            left: 0;
+            z-index: 1040;
+            overflow-y: auto;              /* si el contenido supera 100vh, scrollea dentro */
+            overflow-x: hidden;
+        }
+
+        .sidebar.collapsed {
+            width: 70px !important;
+        }
+
+        .sidebar.expanded {
+            width: 250px !important;
+        }
+
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 0.5rem;
+            margin: 0.25rem 0;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar.collapsed .nav-link {
+            padding: 0.75rem 0.5rem;
+            text-align: center;
+            justify-content: center;
+        }
+
+        .sidebar.collapsed .nav-link span {
+            display: none;
+        }
+
+        .sidebar .nav-link:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar .nav-link.active {
+            color: #333;
+            background-color: white;
+            border-radius: 25px 0 0 25px;
+            margin-left: -5px;
+            margin-right: 0;
+            padding-left: 25px;
+            padding-right: 12px;
+            box-shadow: 
+                0 4px 20px rgba(0, 0, 0, 0.15),
+                0 2px 8px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            position: relative;
+            z-index: 10;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transform: translateX(0);
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar .nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: -15px;
+            top: 0;
+            width: 15px;
+            height: 100%;
+            background: white;
+            border-radius: 25px 0 0 25px;
+            z-index: 9;
+        }
+        
+        .sidebar .nav-link.active::after {
+            content: '';
+            position: absolute;
+            right: -1px;
+            top: 0;
+            width: 1px;
+            height: 100%;
+            background: white;
+            z-index: 8;
+            pointer-events: none;
+        }
+
+        .sidebar .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar.collapsed .nav-link i {
+            font-size: 1.2rem;
+        }
+        
+        /* Estilos para iconos modernos Lucide */
+        .modern-icon {
+            width: 24px !important;
+            height: 24px !important;
+            stroke-width: 2;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover .modern-icon {
+            transform: scale(1.1);
+            stroke-width: 2.5;
+        }
+        
+        .nav-link.active .modern-icon {
+            transform: scale(1.05);
+            stroke-width: 2.5;
+            stroke: #333 !important;
+        }
+        
+        /* Iconos más grandes en modo cocina */
+        .kitchen-mode-link .modern-icon {
+            width: 28px !important;
+            height: 28px !important;
+        }
+        
+        .kitchen-mode-link:hover .modern-icon {
+            transform: scale(1.15);
+        }
+        
+        /* Estilos especiales para el botón Home - Icono 3D realista */
+        .home-link {
+            background: transparent !important;
+            border-radius: 0.5rem !important;
+            margin: 0.25rem 0 !important;
+            padding: 0.75rem 1rem !important;
+            border: none !important;
+            transition: all 0.3s ease !important;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .home-link:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+            transform: translateY(-2px) !important;
+        }
+        
+        .home-link .home-icon {
+            fill: #ff6b6b !important;
+            stroke: #ff6b6b !important;
+            stroke-width: 2 !important;
+            filter: 
+                drop-shadow(0 2px 4px rgba(255, 107, 107, 0.4))
+                drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2)) !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .home-link:hover .home-icon {
+            transform: scale(1.15) !important;
+            fill: #ff5252 !important;
+            stroke: #ff5252 !important;
+            filter: 
+                drop-shadow(0 3px 6px rgba(255, 107, 107, 0.6))
+                drop-shadow(0 6px 12px rgba(0, 0, 0, 0.3)) !important;
+        }
+        
+        .home-link span {
+            font-weight: 600 !important;
+            color: #ff6b6b !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .home-link:hover span {
+            color: #ff5252 !important;
+        }
+        
+        /* Asegurar que el botón Home mantenga su estilo especial cuando está active */
+        .home-link.active {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #ff6b6b !important;
+            border-radius: 0.5rem !important;
+            margin-right: 0 !important;
+            padding: 0.75rem 1rem !important;
+        }
+        
+        .home-link.active .home-icon {
+            fill: #ff6b6b !important;
+            stroke: #ff6b6b !important;
+        }
+        
+        .home-link.active span {
+            color: #ff6b6b !important;
+        }
+
+        .main-content {
+            background-color: white;
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+
+        .sidebar.collapsed+.main-content {
+            margin-left: 70px;
+        }
+
+        .sidebar.expanded+.main-content {
+            margin-left: 250px;
+        }
+
+        /* Botón toggle con flecha - fondo azul como sidebar */
+        .sidebar-toggle-btn {
+            position: fixed;
+            left: 70px;
+            top: 40px;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 40px;
+            background: var(--brand-primary, #00b4d8);
+            border: none;
+            border-radius: 0 6px 6px 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            opacity: 0.8;
+        }
+
+        .sidebar-toggle-btn:hover {
+            background: color-mix(in srgb, var(--brand-primary, #00b4d8), #000 10%);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar-toggle-btn:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+
+        /* Flecha blanca apuntando a la derecha cuando está colapsado */
+        .sidebar-toggle-btn::before {
+            content: '';
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 4px 0 4px 6px;
+            border-color: transparent transparent transparent #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        /* Cuando el sidebar está expandido, la flecha apunta a la izquierda */
+        .sidebar-toggle-btn.expanded::before {
+            border-width: 4px 6px 4px 0;
+            border-color: transparent #ffffff transparent transparent;
+        }
+
+        .sidebar-header {
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed .sidebar-header {
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+        }
+
+        .kitchen-mode-section {
+            padding: 0.5rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .sidebar.collapsed .kitchen-mode-section {
+            padding: 0.5rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .kitchen-mode-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            border-radius: 0.5rem;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .kitchen-mode-link:hover {
+            background: linear-gradient(135deg, #e55a2b 0%, #e8821a 100%);
+            color: white;
+            text-decoration: none;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .kitchen-mode-link.active {
+            background: linear-gradient(135deg, #d44a1f 0%, #d6730f 100%);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+        }
+
+        .kitchen-mode-link i {
+            font-size: 1.2rem;
+            margin-right: 0.5rem;
+        }
+
+        .sidebar.collapsed .kitchen-mode-link {
+            padding: 0.5rem;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar.collapsed .kitchen-mode-link span {
+            display: none;
+        }
+
+        .sidebar.collapsed .kitchen-mode-link i {
+            font-size: 1.5rem;
+            margin-right: 0;
+        }
+
+        .config-section {
+            position: static;
+            margin-top: auto;
+            padding: 1rem;
+            text-align: center;
+            
+        }
+
+        .sidebar.collapsed .config-section {
+            width: 70px;
+            padding: 0 0.5rem;
+        }
+
+        .config-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .config-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .config-link.active {
+            background-color: #007bff;
+        }
+
+        .sidebar.collapsed .config-link {
+            padding: 0.5rem;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            margin: 0 auto;
+        }
+
+        .sidebar.collapsed .config-link span {
+            display: none;
+        }
+
+        .sidebar.collapsed .config-link i {
+            font-size: 1.2rem;
+        }
+
+        /* Logo Circle Styles */
+        .logo-circle {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            background: transparent;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .logo-circle img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+        }
+
+        /* Adjust sidebar padding to accommodate logo */
+        .sidebar {
+            padding-top: 80px;
+        }
+
+        /* Fix main content positioning to prevent profile image cutoff */
+        .main-content {
+            margin-left: 70px;
+            transition: margin-left 0.3s ease;
+            width: calc(100% - 70px);
+            padding-top: 10px;
+            /* Adjusted padding to move content higher */
+        }
+
+        .sidebar.expanded~.main-content {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+        }
+
+        .sidebar.collapsed~.main-content {
+            margin-left: 70px;
+            width: calc(100% - 70px);
+        }
+
+        /* Ensure proper positioning for all screen sizes */
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .sidebar.expanded~.main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--brand-primary) 0%, color-mix(in srgb, var(--brand-primary), #000 20%) 100%);
+            color: white;
+        }
+        /* Mantener el botón de Modo Cocina con su identidad naranja original */
+        .kitchen-mode-link { background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); }
+        .kitchen-mode-link:hover { background: linear-gradient(135deg, #e55a2b 0%, #e8821a 100%); }
+    </style>
+
+    @stack('styles')
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="sidebar collapsed" id="sidebar">
+                <!-- Logo Circle - Above Sidebar -->
+                <div class="logo-circle">
+                    @php
+                        $logoUrl = $businessSettings['brand_logo_url'] ?? null;
+                        if ($logoUrl) {
+                            // Normalizar la URL para que funcione tanto con rutas antiguas como nuevas
+                            if (str_starts_with($logoUrl, '/storage/') || str_starts_with($logoUrl, '/branding/') || str_starts_with($logoUrl, '/images/')) {
+                                $logoUrl = asset($logoUrl);
+                            }
+                        } else {
+                            $logoUrl = asset('images/log.png');
+                        }
+                    @endphp
+                    <img src="{{ $logoUrl }}" alt="{{ $businessSettings['business_name'] ?? 'TCocina' }}"
+                        onerror="this.onerror=null; this.src='{{ asset('images/log.png') }}';" />
+                </div>
+
+
+                <div class="position-sticky pt-3 d-flex flex-column" style="height: calc(100vh - 80px);">
+                    <!-- Header -->
+                    <div class="sidebar-header text-center mb-4">
+                        <h4 class="text-white">TCocina</h4>
+                        <small class="text-light">Panel de Administración</small>
+                    </div>
+
+                    <!-- Kitchen Mode - Top -->
+                    <div class="kitchen-mode-section mb-3">
+                        <a class="kitchen-mode-link {{ request()->routeIs('kitchen*') ? 'active' : '' }}"
+                            href="{{ route('kitchen.index') }}">
+                            <i data-lucide="flame" class="modern-icon"></i>
+                            <span>Modo Cocina</span>
+                        </a>
+                    </div>
+
+                    <!-- Main Navigation -->
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
+                                href="{{ route('admin.dashboard') }}">
+                                <i data-lucide="layout-dashboard" class="modern-icon"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.orders*') ? 'active' : '' }}"
+                                href="{{ route('admin.orders') }}">
+                                <i data-lucide="shopping-cart" class="modern-icon"></i>
+                                <span>Pedidos</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.products*') ? 'active' : '' }}"
+                                href="{{ route('admin.products') }}">
+                                <i data-lucide="chef-hat" class="modern-icon"></i>
+                                <span>Productos</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.coupons*') ? 'active' : '' }}"
+                                href="{{ route('admin.coupons') }}">
+                                <i data-lucide="ticket" class="modern-icon"></i>
+                                <span>Cupones</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.loyalty*') ? 'active' : '' }}"
+                                href="{{ route('admin.loyalty.index') }}">
+                                <i data-lucide="sun" class="modern-icon"></i>
+                                <span>Fidelización</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.turnos*') ? 'active' : '' }}"
+                                href="{{ route('admin.turnos') }}">
+                                <i data-lucide="clock" class="modern-icon"></i>
+                                <span>Gestión de Turnos</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link home-link" href="{{ route('home') }}">
+                                <i data-lucide="house" class="modern-icon home-icon"></i>
+                                <span>Volver al Sitio</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Configuration Section - Bottom -->
+                    <div class="config-section" style=" width: 50px;
+            padding: 0rem;">
+                        <a class="nav-link config-link {{ request()->routeIs('admin.settings*') ? 'active' : '' }}"
+                            href="{{ route('admin.settings') }}">
+                            <i data-lucide="settings" class="modern-icon"></i>
+                            <span>Configuración</span>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <!-- Botón toggle minimalista -->
+                <div class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Alternar menú"></div>
+                
+                <div
+                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-1 pb-1 mb-2 border-bottom">
+                    <!-- Removed Dashboard title as per user request -->
+                    <!-- Moved to turnos view -->
+                </div>
+
+                <!-- Alerts -->
+                @if (session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
+                <!-- Page Content -->
+                @yield('content')
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const configSection = document.querySelector('.config-section');
+            const toggleBtn = document.querySelector('.sidebar-toggle-btn');
+
+            if (sidebar.classList.contains('collapsed')) {
+                sidebar.classList.remove('collapsed');
+                sidebar.classList.add('expanded');
+                configSection.style.width = '250px';
+                mainContent.style.marginLeft = '250px';
+                mainContent.style.width = 'calc(100% - 250px)';
+                if (toggleBtn) {
+                    toggleBtn.style.left = '250px';
+                    toggleBtn.classList.add('expanded');
+                }
+                localStorage.setItem('sidebarState', 'expanded');
+            } else {
+                sidebar.classList.remove('expanded');
+                sidebar.classList.add('collapsed');
+                configSection.style.width = '50px';
+                mainContent.style.marginLeft = '70px';
+                mainContent.style.width = 'calc(100% - 70px)';
+                if (toggleBtn) {
+                    toggleBtn.style.left = '70px';
+                    toggleBtn.classList.remove('expanded');
+                }
+                localStorage.setItem('sidebarState', 'collapsed');
+            }
+        }
+
+        // Restore sidebar state on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedState = localStorage.getItem('sidebarState') || 'collapsed';
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const configSection = document.querySelector('.config-section');
+            const toggleBtn = document.querySelector('.sidebar-toggle-btn');
+
+            if (savedState === 'expanded') {
+                sidebar.classList.remove('collapsed');
+                sidebar.classList.add('expanded');
+                configSection.style.width = '250px';
+                mainContent.style.marginLeft = '250px';
+                mainContent.style.width = 'calc(100% - 250px)';
+                if (toggleBtn) {
+                    toggleBtn.style.left = '250px';
+                    toggleBtn.classList.add('expanded');
+                }
+            } else {
+                sidebar.classList.remove('expanded');
+                sidebar.classList.add('collapsed');
+                configSection.style.width = '50px';
+                mainContent.style.marginLeft = '70px';
+                mainContent.style.width = 'calc(100% - 70px)';
+                if (toggleBtn) {
+                    toggleBtn.style.left = '70px';
+                    toggleBtn.classList.remove('expanded');
+                }
+            }
+            
+            // Inicializar iconos Lucide
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+                console.log('🎨 Iconos Lucide inicializados');
+            }
+        });
+    </script>
+
+    {{-- =========================================================
+         Rescate global de overlays/backdrops "pegados" en el admin.
+         Casos cubiertos:
+           - Bootstrap deja un .modal-backdrop huérfano sin .modal.show.
+           - body queda con clase modal-open + padding-right inline.
+           - Overlays "futuristas" personalizados (turnos/settings) que
+             se crean con position:fixed; inset:0; backdrop-filter:blur
+             y se quedan en el DOM si una promesa/fetch falla.
+         Atajos: ESC simple = autocura suave. Doble ESC (<600ms) = pánico.
+       ========================================================= --}}
+    <script>
+        (function () {
+            'use strict';
+
+            function isFullscreenOverlay(el) {
+                if (!el || el.nodeType !== 1) return false;
+                if (el === document.body || el === document.documentElement) return false;
+                const cs = window.getComputedStyle(el);
+                if (cs.position !== 'fixed') return false;
+                if (cs.display === 'none' || cs.visibility === 'hidden') return false;
+                const rect = el.getBoundingClientRect();
+                const coversViewport = rect.width >= window.innerWidth * 0.9 &&
+                                       rect.height >= window.innerHeight * 0.9 &&
+                                       rect.top <= 5 && rect.left <= 5;
+                if (!coversViewport) return false;
+                const hasBlur = (cs.backdropFilter && cs.backdropFilter.indexOf('blur') !== -1) ||
+                                (cs.webkitBackdropFilter && cs.webkitBackdropFilter.indexOf('blur') !== -1);
+                const bg = cs.backgroundColor || '';
+                const hasDarkBg = /rgba?\(\s*0\s*,\s*0\s*,\s*0/.test(bg) || /rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0?\.[3-9]/.test(bg);
+                return hasBlur || hasDarkBg;
+            }
+
+            function visibleBootstrapModalExists() {
+                return !!document.querySelector('.modal.show');
+            }
+
+            function cleanBodyModalState() {
+                document.body.classList.remove('modal-open');
+                if (document.body.style.paddingRight) document.body.style.paddingRight = '';
+                if (document.body.style.overflow) document.body.style.overflow = '';
+            }
+
+            // Limpieza suave: solo elimina backdrops huérfanos (no hay modal visible).
+            function softCleanup() {
+                if (visibleBootstrapModalExists()) return false;
+                let removed = 0;
+                document.querySelectorAll('.modal-backdrop').forEach(function (b) {
+                    b.parentNode && b.parentNode.removeChild(b);
+                    removed++;
+                });
+                if (removed > 0 || document.body.classList.contains('modal-open')) {
+                    cleanBodyModalState();
+                    console.warn('[admin-rescue] Limpieza suave: ' + removed + ' backdrop(s) huérfanos removidos.');
+                    return true;
+                }
+                return false;
+            }
+
+            // Limpieza pánico: ESC doble. Borra TODOS los overlays a pantalla
+            // completa (incluidos los custom de turnos/settings) y backdrops.
+            function panicCleanup() {
+                let removed = 0;
+                document.querySelectorAll('.modal-backdrop').forEach(function (b) {
+                    b.parentNode && b.parentNode.removeChild(b); removed++;
+                });
+                Array.prototype.slice.call(document.body.children).forEach(function (el) {
+                    if (el.tagName === 'SCRIPT' || el.tagName === 'STYLE') return;
+                    if (el.classList && el.classList.contains('modal') && el.classList.contains('show')) return;
+                    if (isFullscreenOverlay(el)) {
+                        el.parentNode && el.parentNode.removeChild(el); removed++;
+                    }
+                });
+                cleanBodyModalState();
+                console.warn('[admin-rescue] Limpieza pánico: ' + removed + ' overlay(s) eliminados.');
+                return removed;
+            }
+
+            // Auto-cura tras cerrar un modal Bootstrap
+            document.addEventListener('hidden.bs.modal', function () {
+                setTimeout(softCleanup, 50);
+            });
+
+            // Auto-cura periódica defensiva: si hay backdrop pero ningún modal visible
+            // por más de 1.5s, limpia.
+            let stuckSince = 0;
+            setInterval(function () {
+                const hasBackdrop = !!document.querySelector('.modal-backdrop');
+                const hasVisibleModal = visibleBootstrapModalExists();
+                if (hasBackdrop && !hasVisibleModal) {
+                    if (!stuckSince) stuckSince = Date.now();
+                    else if (Date.now() - stuckSince > 1500) {
+                        softCleanup();
+                        stuckSince = 0;
+                    }
+                } else {
+                    stuckSince = 0;
+                }
+            }, 750);
+
+            // ESC doble = pánico
+            let lastEsc = 0;
+            document.addEventListener('keydown', function (e) {
+                if (e.key !== 'Escape' && e.keyCode !== 27) return;
+                const now = Date.now();
+                if (now - lastEsc < 600) {
+                    panicCleanup();
+                    lastEsc = 0;
+                } else {
+                    lastEsc = now;
+                    // ESC simple: dejar que Bootstrap cierre el modal, luego intentar cura suave
+                    setTimeout(softCleanup, 100);
+                }
+            }, true);
+
+            // Exponer helper manual desde consola
+            window.__adminRescue = { soft: softCleanup, panic: panicCleanup };
+        })();
+    </script>
+
+    @stack('scripts')
+</body>
+
+</html>

@@ -1,0 +1,37 @@
+
+RewriteEngine On
+
+# Redirigir todo el tráfico a la carpeta public
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteRule ^(.*)$ public/$1 [L]
+
+# Configuraciones de seguridad adicionales
+<Files ".env">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "composer.json">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "composer.lock">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "artisan">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Prevenir acceso a carpetas sensibles
+RedirectMatch 403 ^/app/
+RedirectMatch 403 ^/bootstrap/
+RedirectMatch 403 ^/config/
+RedirectMatch 403 ^/database/
+RedirectMatch 403 ^/resources/
+RedirectMatch 403 ^/routes/
+
+RedirectMatch 403 ^/vendor/

@@ -1,0 +1,112 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* Polo Font System - Based on polo HTML */
+:root {
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* Display font for headings, logos, titles */
+.font-display {
+    font-family: var(--font-display);
+}
+
+/* Body font for paragraphs, descriptions, content */
+.font-body {
+    font-family: var(--font-body);
+}
+
+/* Mono font for labels, tags, small text */
+.font-mono {
+    font-family: var(--font-mono);
+}
+
+/* Font weights for DM Sans */
+.font-light {
+    font-weight: 300;
+}
+.font-normal {
+    font-weight: 400;
+}
+.font-medium {
+    font-weight: 500;
+}
+
+/* Display font sizes (Bebas Neue) */
+.text-display-xl {
+    font-family: var(--font-display);
+    font-size: clamp(72px, 8vw, 120px);
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+}
+.text-display-lg {
+    font-family: var(--font-display);
+    font-size: clamp(48px, 5vw, 72px);
+    line-height: 0.95;
+    letter-spacing: 0.02em;
+}
+.text-display-md {
+    font-family: var(--font-display);
+    font-size: 32px;
+    line-height: 1.1;
+    letter-spacing: 0.04em;
+}
+.text-display-sm {
+    font-family: var(--font-display);
+    font-size: 28px;
+    line-height: 1.1;
+    letter-spacing: 0.04em;
+}
+.text-display-xs {
+    font-family: var(--font-display);
+    font-size: 22px;
+    line-height: 1.1;
+    letter-spacing: 0.04em;
+}
+
+/* Mono font sizes with letter-spacing (JetBrains Mono) */
+.text-mono-xs {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+.text-mono-sm {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+.text-mono-base {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+/* Body font weights */
+.body-light {
+    font-family: var(--font-body);
+    font-weight: 300;
+}
+.body-normal {
+    font-family: var(--font-body);
+    font-weight: 400;
+}
+.body-medium {
+    font-family: var(--font-body);
+    font-weight: 500;
+}

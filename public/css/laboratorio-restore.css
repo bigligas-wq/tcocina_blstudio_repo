@@ -1,0 +1,187 @@
+/* IMPORTACIÓN: agregar esta línea al archivo principal laboratorio.css */
+/* @import 'laboratorio-restore.css'; */
+
+/* Estilos mínimos de recuperación para mostrar contenido */
+
+.lab-app .lab-stat {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.08);
+}
+
+.lab-app .reaction-bar {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.lab-app .tagrow {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+
+.lab-app .lab-state-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: labBlink 1.5s ease-in-out infinite;
+}
+
+@keyframes labBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .5; }
+}
+
+.lab-app .cat-visual .cat-ic {
+    background: rgba(139,195,74,.12);
+    color: #8bc34a;
+}
+
+.lab-app .cat-ux .cat-ic {
+    background: rgba(56,182,255,.12);
+    color: #38b6ff;
+}
+
+.lab-app .cat-performance .cat-ic {
+    background: rgba(167,139,250,.12);
+    color: #a78bfa;
+}
+
+.lab-app .cat-admin .cat-ic {
+    background: rgba(245,166,35,.12);
+    color: #f5a623;
+}
+
+.lab-app [data-tw-copy], .lab-app [data-tw-free] {
+    display: inline;
+}
+
+.lab-app .dev-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 9px;
+    background: rgba(245,166,35,.12);
+    border: 1px solid rgba(245,166,35,.3);
+    border-radius: 7px;
+    font-family: var(--lab-font-mono);
+    font-size: 10.5px;
+    color: var(--lab-amber);
+    font-weight: 500;
+}
+
+.lab-app .dev-tag .bd {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--lab-amber);
+}
+
+.lab-app .sig-stats {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.lab-app .sig-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.lab-app .sig-item {
+    padding: 12px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 10px;
+    font-size: 13px;
+}
+
+.lab-app .lab-ba-toggle button {
+    font-family: var(--lab-font-mono);
+    font-size: 12.5px;
+    color: var(--lab-mut);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    padding: 8px 18px;
+    border-radius: 8px;
+    transition: .18s;
+}
+
+.lab-app .lab-ba-toggle button.on {
+    background: rgba(191,255,0,.15);
+    color: var(--lab-lime);
+    border: 1px solid rgba(191,255,0,.25);
+}
+
+.lab-app .lab-order-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.lab-app .lab-order-item {
+    padding: 10px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+}
+
+.lab-app .lab-order-item .nom {
+    flex: 1;
+    font-weight: 500;
+}
+
+.lab-app .lab-order-item .prc {
+    color: var(--lab-lime);
+    font-family: var(--lab-font-mono);
+    font-weight: 600;
+}
+
+.lab-app .meniscus {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, transparent, rgba(191,255,0,.08));
+    transition: height .45s ease;
+}
+
+.lab-app .lab-card:hover .meniscus {
+    height: 50%;
+}
+
+.lab-app .cbubbles {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.lab-app .cbubbles i {
+    position: absolute;
+    bottom: -12px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.4), rgba(191,255,0,.15) 60%, transparent);
+    opacity: 0;
+}
+
+.lab-app .lab-card:hover .cbubbles i {
+    opacity: 1;
+}

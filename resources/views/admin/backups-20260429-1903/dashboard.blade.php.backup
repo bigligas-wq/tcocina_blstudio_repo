@@ -1,0 +1,708 @@
+@extends('layouts.admin')
+
+@section('title', 'Dashboard - TCocina Admin')
+@section('page-title', 'Dashboard')
+
+@section('content')
+    <!-- Welcome Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #0096c7 0%, #0c6568 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="mb-1">¡Bienvenido al Dashboard!</h3>
+                            <p class="mb-0 opacity-75">Resumen completo de tu negocio</p>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <label for="timeFilter" class="form-label mb-0 text-white">Período:</label>
+                            <select id="timeFilter" class="form-select" style="width: auto; background: rgba(255,255,255,0.9);">
+                                <option value="week">Última Semana</option>
+                                <option value="month" selected>Último Mes</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4 stats-cards-container g-2">
+        <div class="col-3 stats-card-item">
+            <a href="{{ route('admin.orders') }}" class="text-decoration-none">
+                <div class="card stat-card-modern border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #0096c7 0%, #0c6568 100%);">
+                    <div class="card-body text-white">
+                        <div class="d-flex justify-content-between align-items-start stat-card-content">
+                            <div class="stat-card-text">
+                                <div class="text-white-50 small mb-1">Total Pedidos</div>
+                                <div class="h4 mb-0 fw-bold">{{ $stats['total_orders'] }}</div>
+                                <div class="small text-white-75">Todos los pedidos</div>
+                            </div>
+                            <div class="text-white-50 stat-card-icon">
+                                <i data-lucide="shopping-cart" class="modern-icon" style="width: 2.5rem; height: 2.5rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-3 stats-card-item">
+            <a href="{{ route('admin.orders') }}?status=pending" class="text-decoration-none">
+                <div class="card stat-card-modern border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #f9844a 0%, #f76b27 100%);">
+                    <div class="card-body text-white">
+                        <div class="d-flex justify-content-between align-items-start stat-card-content">
+                            <div class="stat-card-text">
+                                <div class="text-white-50 small mb-1">Pendientes</div>
+                                <div class="h4 mb-0 fw-bold">{{ $stats['pending_orders'] }}</div>
+                                <div class="small text-white-75">Requieren atención</div>
+                            </div>
+                            <div class="text-white-50 stat-card-icon">
+                                <i data-lucide="clock" class="modern-icon" style="width: 2.5rem; height: 2.5rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-3 stats-card-item">
+            <a href="{{ route('admin.products') }}" class="text-decoration-none">
+                <div class="card stat-card-modern border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #f9c74f 0%, #f7b82c 100%);">
+                    <div class="card-body text-white">
+                        <div class="d-flex justify-content-between align-items-start stat-card-content">
+                            <div class="stat-card-text">
+                                <div class="text-white-50 small mb-1">Productos</div>
+                                <div class="h4 mb-0 fw-bold">{{ $stats['total_products'] }}</div>
+                                <div class="small text-white-75">En el menú</div>
+                            </div>
+                            <div class="text-white-50 stat-card-icon">
+                                <i data-lucide="chef-hat" class="modern-icon" style="width: 2.5rem; height: 2.5rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-3 stats-card-item">
+            <a href="{{ route('admin.orders') }}" class="text-decoration-none">
+                <div class="card stat-card-modern border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                    <div class="card-body text-white">
+                        <div class="d-flex justify-content-between align-items-start stat-card-content">
+                            <div class="stat-card-text">
+                                <div class="text-white-50 small mb-1">Ingresos</div>
+                                <div class="h4 mb-0 fw-bold">${{ number_format($stats['total_revenue'], 2, ',', '.') }}</div>
+                                <div class="small text-white-75">{{ $timeFilter === 'month' ? 'Últimos 30 días' : 'Última semana' }}</div>
+                            </div>
+                            <div class="text-white-50 stat-card-icon">
+                                <i data-lucide="dollar-sign" class="modern-icon" style="width: 2.5rem; height: 2.5rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 fw-bold text-dark">
+                            <i data-lucide="trending-up" class="modern-icon me-2" style="width: 1.2rem; height: 1.2rem;"></i>
+                            Pedidos e Ingresos por Día
+                        </h6>
+                        <div class="d-flex gap-2">
+                            <span class="badge" style="background: linear-gradient(135deg, #0096c7 0%, #0c6568 100%); color: white;">
+                                <i data-lucide="shopping-cart" class="modern-icon me-1" style="width: 0.8rem; height: 0.8rem;"></i>
+                                Pedidos
+                            </span>
+                            <span class="badge" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white;">
+                                <i data-lucide="dollar-sign" class="modern-icon me-1" style="width: 0.8rem; height: 0.8rem;"></i>
+                                Ingresos
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <canvas id="dualChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-5">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h6 class="m-0 fw-bold text-dark">
+                        <i data-lucide="pie-chart" class="modern-icon me-2" style="width: 1.2rem; height: 1.2rem;"></i>
+                        Estado de Pedidos
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="statusChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 fw-bold text-dark">
+                        <i data-lucide="clock" class="modern-icon me-2" style="width: 1.2rem; height: 1.2rem;"></i>
+                        Pedidos Recientes
+                    </h6>
+                    <a href="{{ route('admin.orders') }}" class="btn btn-primary btn-sm" style="background: linear-gradient(135deg, #0096c7 0%, #0c6568 100%); border: none;">
+                        <i data-lucide="eye" class="modern-icon me-1" style="width: 1rem; height: 1rem;"></i>Ver Todos
+                    </a>
+                </div>
+                <div class="card-body">
+                    @if ($recentOrders->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="border-0">Pedido</th>
+                                        <th class="border-0">Cliente</th>
+                                        <th class="border-0">Total</th>
+                                        <th class="border-0">Estado</th>
+                                        <th class="border-0">Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($recentOrders as $order)
+                                        <tr class="border-0">
+                                            <td class="border-0">
+                                                <strong style="color: #0096c7;">#{{ $order->order_number }}</strong>
+                                            </td>
+                                            <td class="border-0">
+                                                @if($order->user && $order->user->name && trim($order->user->name) !== '')
+                                                    {{ $order->user->name }}
+                                                @elseif($order->contact_name && trim($order->contact_name) !== '')
+                                                    {{ $order->contact_name }}
+                                                @else
+                                                    <span class="text-muted">Sin nombre</span>
+                                                @endif
+                                            </td>
+                                            <td class="border-0 fw-bold text-success">${{ number_format($order->total_amount, 2, ',', '.') }}</td>
+                                            <td class="border-0">
+                                                <span class="badge rounded-pill px-3 py-2
+                                                    @if($order->status === 'pending') text-white
+                                                    @elseif($order->status === 'delivered') bg-success text-white
+                                                    @elseif($order->status === 'confirmed') text-white
+                                                    @elseif($order->status === 'preparing') text-white
+                                                    @else bg-secondary text-white @endif"
+                                                    style="@if($order->status === 'pending') background: linear-gradient(135deg, #f9844a 0%, #f76b27 100%);
+                                                    @elseif($order->status === 'confirmed') background: linear-gradient(135deg, #0096c7 0%, #0c6568 100%);
+                                                    @elseif($order->status === 'preparing') background: linear-gradient(135deg, #f9c74f 0%, #f7b82c 100%); @endif">
+                                                    {{ $order->status_label }}
+                                                </span>
+                                            </td>
+                                            <td class="border-0 text-muted">{{ $order->created_at->format('d/m/Y H:i') }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="text-center py-5">
+                            <i data-lucide="shopping-cart" class="modern-icon text-muted mb-3" style="width: 3rem; height: 3rem;"></i>
+                            <p class="text-muted">No hay pedidos recientes</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@push('styles')
+<style>
+    .stat-card-modern {
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    .stat-card-modern:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    .stat-card-modern .card-body {
+        padding: 1.5rem;
+    }
+    
+    .text-white-50 {
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
+    
+    .text-white-75 {
+        color: rgba(255, 255, 255, 0.75) !important;
+    }
+    
+    .card {
+        border-radius: 15px;
+    }
+    
+    .table th {
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .badge.rounded-pill {
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    /* Mobile Responsive Styles - Solo para mobile */
+    @media (max-width: 768px) {
+        /* Header de bienvenida MUY compacto - casi invisible */
+        .row.mb-4:first-child {
+            margin-bottom: 0.5rem !important;
+        }
+        
+        .row.mb-4:first-child .card-body {
+            padding: 0.5rem 0.75rem !important;
+        }
+        
+        .row.mb-4:first-child h3 {
+            font-size: 0.9rem !important;
+            margin-bottom: 0.1rem !important;
+            line-height: 1.2 !important;
+        }
+        
+        .row.mb-4:first-child p {
+            display: none !important; /* Ocultar subtítulo en mobile */
+        }
+        
+        .row.mb-4:first-child .d-flex {
+            flex-direction: row;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 0.5rem !important;
+        }
+        
+        .row.mb-4:first-child .form-label {
+            display: none !important; /* Ocultar label "Período:" */
+        }
+        
+        .row.mb-4:first-child .form-select {
+            width: auto !important;
+            min-width: 120px !important;
+            font-size: 0.75rem !important;
+            padding: 0.3rem 0.5rem !important;
+        }
+
+        /* Cards de estadísticas en scroll horizontal - MUY compactas */
+        .stats-cards-container {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.75rem !important;
+        }
+        
+        .stats-cards-container::-webkit-scrollbar {
+            height: 4px;
+        }
+        
+        .stats-cards-container::-webkit-scrollbar-thumb {
+            background: #0096c7;
+            border-radius: 2px;
+        }
+        
+        .stats-card-item {
+            flex: 0 0 140px !important;
+            max-width: 140px !important;
+            margin-right: 0.5rem;
+            margin-bottom: 0 !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+        
+        .stat-card-modern .card-body {
+            padding: 0.75rem 0.5rem !important;
+        }
+        
+        /* Optimizar textos - layout vertical compacto */
+        .stat-card-modern .stat-card-content {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 0.3rem !important;
+            position: relative;
+        }
+        
+        .stat-card-modern .stat-card-text {
+            width: 100%;
+        }
+        
+        .stat-card-modern .stat-card-icon {
+            position: absolute;
+            top: 0;
+            right: 0;
+            opacity: 0.5;
+        }
+        
+        .stat-card-modern .text-white-50.small {
+            font-size: 0.65rem !important;
+            margin-bottom: 0.15rem !important;
+            line-height: 1.2 !important;
+            display: block;
+        }
+        
+        .stat-card-modern .h4 {
+            font-size: 1.5rem !important;
+            line-height: 1.1 !important;
+            margin-bottom: 0.1rem !important;
+            display: block;
+        }
+        
+        .stat-card-modern .small.text-white-75 {
+            font-size: 0.6rem !important;
+            line-height: 1.2 !important;
+            display: block;
+            margin-top: 0 !important;
+        }
+        
+        .stat-card-modern .modern-icon {
+            width: 1.3rem !important;
+            height: 1.3rem !important;
+        }
+
+        /* Gráficos a ancho completo - MÁS IMPORTANCIA Y ESPACIO */
+        .row.mb-4:nth-child(3) {
+            margin-bottom: 1rem !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+        
+        .row.mb-4:nth-child(3) .col-xl-8,
+        .row.mb-4:nth-child(3) .col-xl-4,
+        .row.mb-4:nth-child(3) .col-lg-7,
+        .row.mb-4:nth-child(3) .col-lg-5 {
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+            margin-bottom: 0.75rem;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+        
+        .row.mb-4:nth-child(3) .col-xl-4:last-child,
+        .row.mb-4:nth-child(3) .col-lg-5:last-child {
+            margin-bottom: 0;
+        }
+        
+        .row.mb-4:nth-child(3) .card {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+        }
+        
+        .row.mb-4:nth-child(3) .card-body {
+            padding: 0.75rem !important;
+        }
+        
+        .row.mb-4:nth-child(3) .card-header {
+            padding: 0.6rem 0.75rem !important;
+            background: #f8f9fa !important;
+        }
+        
+        .row.mb-4:nth-child(3) .card-header h6 {
+            font-size: 0.85rem !important;
+            font-weight: 600 !important;
+        }
+        
+        /* Gráficos más grandes y prominentes */
+        .row.mb-4:nth-child(3) #dualChart {
+            max-height: 300px !important;
+            min-height: 280px !important;
+        }
+        
+        .row.mb-4:nth-child(3) #statusChart {
+            max-height: 280px !important;
+            min-height: 260px !important;
+        }
+
+        /* Tabla de pedidos recientes más compacta */
+        .row:last-child {
+            margin-top: 0.5rem !important;
+        }
+        
+        .row:last-child .card-body {
+            padding: 0.6rem !important;
+        }
+        
+        .row:last-child .table {
+            font-size: 0.75rem;
+        }
+        
+        .row:last-child .table th,
+        .row:last-child .table td {
+            padding: 0.4rem 0.3rem !important;
+        }
+        
+        .row:last-child .table th {
+            font-size: 0.65rem !important;
+        }
+        
+        .row:last-child .badge {
+            font-size: 0.6rem !important;
+            padding: 0.2rem 0.4rem !important;
+        }
+        
+        .row:last-child .card-header {
+            padding: 0.6rem !important;
+        }
+        
+        .row:last-child .card-header h6 {
+            font-size: 0.8rem !important;
+        }
+        
+        .row:last-child .btn-sm {
+            font-size: 0.7rem !important;
+            padding: 0.2rem 0.4rem !important;
+        }
+
+        /* Ajustes generales para mobile */
+        .main-content {
+            padding: 0.5rem !important;
+        }
+        
+        .mb-4 {
+            margin-bottom: 0.75rem !important;
+        }
+    }
+    
+    /* LANDSCAPE MODE - Mobile horizontal - Dashboard */
+    @media (max-width: 1024px) and (orientation: landscape) {
+        /* Aprovechar todo el ancho disponible */
+        .main-content {
+            padding: 0.75rem !important;
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+        }
+        
+        /* Header de bienvenida más compacto en landscape */
+        .row.mb-4:first-child .card-body {
+            padding: 0.5rem 0.75rem !important;
+        }
+        
+        /* Cards de estadísticas - más espacio horizontal */
+        .stats-cards-container {
+            margin-bottom: 0.75rem !important;
+        }
+        
+        .stats-card-item {
+            flex: 0 0 180px !important;
+            max-width: 180px !important;
+        }
+        
+        .stat-card-modern .card-body {
+            padding: 0.85rem 0.6rem !important;
+        }
+        
+        .stat-card-modern .h4 {
+            font-size: 1.6rem !important;
+        }
+        
+        /* Gráficos más grandes en landscape */
+        .row.mb-4:nth-child(3) #dualChart {
+            max-height: 350px !important;
+            min-height: 320px !important;
+        }
+        
+        .row.mb-4:nth-child(3) #statusChart {
+            max-height: 320px !important;
+            min-height: 300px !important;
+        }
+        
+        /* Gráficos lado a lado si hay espacio */
+        .row.mb-4:nth-child(3) .col-xl-8,
+        .row.mb-4:nth-child(3) .col-xl-4 {
+            flex: 0 0 50% !important;
+            max-width: 50% !important;
+        }
+        
+        /* Tabla más legible */
+        .row:last-child .table {
+            font-size: 0.85rem;
+        }
+        
+        .row:last-child .table th,
+        .row:last-child .table td {
+            padding: 0.5rem 0.5rem !important;
+        }
+        
+        /* Asegurar que no haya overflow */
+        * {
+            max-width: 100% !important;
+        }
+        
+        .container-fluid,
+        .row {
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+        }
+    }
+</style>
+@endpush
+
+@push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Datos del servidor
+        const chartData = @json($chartData);
+        const stats = @json($stats);
+        const currentFilter = '{{ $timeFilter }}';
+
+        // Dual Chart - Pedidos e Ingresos
+        const dualCtx = document.getElementById('dualChart').getContext('2d');
+        const dualChart = new Chart(dualCtx, {
+            type: 'line',
+            data: {
+                labels: chartData.orders_by_day.labels,
+                datasets: [{
+                    label: 'Pedidos',
+                    data: chartData.orders_by_day.data,
+                    borderColor: '#0096c7',
+                    backgroundColor: 'rgba(0, 150, 199, 0.1)',
+                    tension: 0.4,
+                    fill: false,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Ingresos ($)',
+                    data: chartData.revenue_by_day ? chartData.revenue_by_day.data : [],
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    tension: 0.4,
+                    fill: false,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Días'
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Cantidad de Pedidos'
+                        },
+                        beginAtZero: true
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Ingresos ($)'
+                        },
+                        beginAtZero: true,
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                if (context.datasetIndex === 1) {
+                                    return 'Ingresos: $' + context.parsed.y.toLocaleString();
+                                }
+                                return 'Pedidos: ' + context.parsed.y;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Status Chart
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        const statusChart = new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pendientes', 'Confirmados', 'En Preparación', 'Listos', 'Entregados'],
+                datasets: [{
+                    data: [
+                        stats.pending_orders || 0,
+                        stats.confirmed_orders || 0,
+                        stats.preparing_orders || 0,
+                        stats.ready_orders || 0,
+                        stats.delivered_orders || 0
+                    ],
+                    backgroundColor: [
+                        '#f9844a',  // Pendientes - Naranja TCocina
+                        '#0096c7',  // Confirmados - Azul TCocina
+                        '#f9c74f',  // En Preparación - Amarillo TCocina
+                        '#28a745',  // Listos - Verde
+                        '#6c757d'   // Entregados - Gris
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+
+        // Time filter functionality
+        document.getElementById('timeFilter').addEventListener('change', function() {
+            const selectedFilter = this.value;
+            const url = new URL(window.location);
+            url.searchParams.set('time_filter', selectedFilter);
+            window.location.href = url.toString();
+        });
+
+        // Set current filter value
+        document.getElementById('timeFilter').value = currentFilter;
+
+        // Inicializar iconos Lucide
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    </script>
+@endpush

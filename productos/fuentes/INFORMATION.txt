@@ -1,0 +1,19 @@
+PACKAGE 1: This package includes the 8 fonts available for free
+Ultramono Wide Light
+Ultramono Wide Light Italic
+Ultramono Wide Regular
+Ultramono Wide Italic
+Ultramono Wide Bold
+Ultramono Wide Bold Italic
+Ultramono Wide Black
+Ultramono Wide Black Italic
+*When purchased separately, all fonts in this package will remain free.
+
+PACKAGE 2: This package includes the 6 fonts available for $17.00
+Ultramono Wide Medium
+Ultramono Wide Medium Italic
+Ultramono Wide Semibold
+Ultramono Wide Semibold Italic
+Ultramono Wide Extrabold
+Ultramono Wide Extrabold Italic
+*When purchased separately, all fonts in this package will be available at a price of $5.00.

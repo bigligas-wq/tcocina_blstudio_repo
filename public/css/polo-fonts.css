@@ -1,0 +1,98 @@
+/* Polo Font System - Based on polo HTML */
+:root {
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* Display font for headings, logos, titles */
+.font-display {
+    font-family: var(--font-display) !important;
+}
+
+/* Body font for paragraphs, descriptions, content */
+.font-body {
+    font-family: var(--font-body) !important;
+}
+
+/* Mono font for labels, tags, small text */
+.font-mono {
+    font-family: var(--font-mono) !important;
+}
+
+/* Font weights for DM Sans */
+.font-light {
+    font-weight: 300;
+}
+.font-normal {
+    font-weight: 400;
+}
+.font-medium {
+    font-weight: 500;
+}
+
+/* Display font sizes (Bebas Neue) */
+.text-display-xl {
+    font-family: var(--font-display) !important;
+    font-size: clamp(72px, 8vw, 120px) !important;
+    line-height: 0.9 !important;
+    letter-spacing: 0.02em !important;
+}
+.text-display-lg {
+    font-family: var(--font-display) !important;
+    font-size: clamp(48px, 5vw, 72px) !important;
+    line-height: 0.95 !important;
+    letter-spacing: 0.02em !important;
+}
+.text-display-md {
+    font-family: var(--font-display) !important;
+    font-size: 32px !important;
+    line-height: 1.1 !important;
+    letter-spacing: 0.04em !important;
+}
+.text-display-sm {
+    font-family: var(--font-display) !important;
+    font-size: 28px !important;
+    line-height: 1.1 !important;
+    letter-spacing: 0.04em !important;
+}
+.text-display-xs {
+    font-family: var(--font-display) !important;
+    font-size: 22px !important;
+    line-height: 1.1 !important;
+    letter-spacing: 0.04em !important;
+}
+
+/* Mono font sizes with letter-spacing (JetBrains Mono) */
+.text-mono-xs {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+.text-mono-sm {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+.text-mono-base {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+/* Body font weights */
+.body-light {
+    font-family: var(--font-body) !important;
+    font-weight: 300 !important;
+}
+.body-normal {
+    font-family: var(--font-body) !important;
+    font-weight: 400 !important;
+}
+.body-medium {
+    font-family: var(--font-body) !important;
+    font-weight: 500 !important;
+}

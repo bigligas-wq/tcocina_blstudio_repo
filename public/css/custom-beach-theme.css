@@ -1,0 +1,592 @@
+@import url("https://fonts.googleapis.com/css2?family=Teachers:wght@400;500;600;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');
+
+/* ===== Mini loyalty bar (catálogo) - idéntica a mi-progreso ===== */
+.catalog-loyalty-wrap {
+    position: relative;
+    margin-top: .6rem;
+    width: 100%;
+}
+.catalog-loyalty-chart {
+    perspective: 1000px;
+    perspective-origin: 50% 50%;
+}
+.catalog-loyalty-bar {
+    --progress-value: 0%;
+    --progress-start: #dc2626;
+    --progress-end: #ef4444;
+    position: relative;
+    font-size: 11px;
+    height: 7.5em;
+    transform: rotateX(60deg);
+    transform-style: preserve-3d;
+}
+.catalog-loyalty-bar .face {
+    position: relative;
+    width: 100%;
+    height: 2em;
+    background: rgba(255,255,255,0.35);
+}
+.catalog-loyalty-bar .side-a,
+.catalog-loyalty-bar .side-b {
+    width: 2em;
+}
+.catalog-loyalty-bar .side-a {
+    transform: rotateX(90deg) rotateY(-90deg) translateX(2em) translateY(1em) translateZ(1em);
+}
+.catalog-loyalty-bar .side-b {
+    position: absolute;
+    right: 0;
+    transform: rotateX(90deg) rotateY(-90deg) translateX(4em) translateY(1em) translateZ(-1em);
+}
+.catalog-loyalty-bar .side-0 {
+    transform: rotateX(90deg) rotateY(0deg) translateX(0) translateY(1em) translateZ(-1em);
+}
+.catalog-loyalty-bar .side-1 {
+    transform: rotateX(90deg) rotateY(0deg) translateX(0) translateY(1em) translateZ(3em);
+}
+.catalog-loyalty-bar .top {
+    transform: rotateX(0deg) rotateY(0deg) translateX(0) translateY(4em) translateZ(2em);
+}
+.catalog-loyalty-bar .floor {
+    box-shadow: 0 .12em .8em rgba(0,0,0,.25), .5em -.5em 3em rgba(0,0,0,.18), 1em -1em 8em rgba(118,201,0,.35);
+}
+.catalog-loyalty-bar .growing-bar {
+    width: var(--progress-value);
+    height: 2em;
+    background: linear-gradient(90deg, var(--progress-start) 0%, var(--progress-end) 50%, var(--progress-start) 100%);
+    background-size: 200% 100%;
+    transition: width .35s ease-in-out;
+    will-change: background-position, filter, box-shadow, opacity;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+    animation: loyaltyProgressFlow 4s linear infinite, loyaltyProgressPump 3.6s cubic-bezier(0.42,0,0.58,1) infinite;
+}
+.catalog-loyalty-bar .side-a,
+.catalog-loyalty-bar .growing-bar {
+    background-color: var(--progress-start);
+}
+.catalog-loyalty-bar .side-0 .growing-bar {
+    box-shadow: -0.5em -1.5em 4em color-mix(in srgb, var(--progress-end), transparent 45%);
+}
+.catalog-loyalty-bar .floor .growing-bar {
+    box-shadow: 0 0 2.5em color-mix(in srgb, var(--progress-end), transparent 50%);
+}
+.catalog-progress-percent {
+    position: absolute;
+    right: 12px;
+    top: 52%;
+    transform: translateY(-50%);
+    font-family: 'Bangers', cursive;
+    font-size: clamp(1rem, 2vw, 1.4rem);
+    letter-spacing: .5px;
+    color: #111827;
+    text-shadow: 0 1px 0 rgba(255,255,255,.25);
+    z-index: 4;
+    pointer-events: none;
+}
+
+/* UltramonoWide local - pesos comunes */
+@font-face {
+    font-family: "UltramonoWide";
+    src: url("/fonts/UltramonoWide-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: "UltramonoWide";
+    src: url("/fonts/UltramonoWide-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: "UltramonoWide";
+    src: url("/fonts/UltramonoWide-Light.ttf") format("truetype");
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    /* Beach Theme Color Palette */
+    /* Primary Colors - Teal Oscuro */
+    --beach-primary: #0c6568; /* teal-oscuro */
+    --beach-primary-50: #f0fdfc;
+    --beach-primary-100: #ccfbf1;
+    --beach-primary-200: #99f6e4;
+    --beach-primary-300: #5eead4;
+    --beach-primary-400: #2dd4bf;
+    --beach-primary-500: #0c6568; /* teal-oscuro */
+    --beach-primary-600: #0a5255;
+    --beach-primary-700: #083f42;
+    --beach-primary-800: #062c2e;
+    --beach-primary-900: #04191b;
+
+    /* Secondary Colors - Naranja Dorado */
+    --beach-secondary: #f9844a; /* naranja-dorado */
+    --beach-secondary-50: #fef6f2;
+    --beach-secondary-100: #fdede5;
+    --beach-secondary-200: #fbdbcb;
+    --beach-secondary-300: #f9c9b1;
+    --beach-secondary-400: #f7b797;
+    --beach-secondary-500: #f9844a; /* naranja-dorado */
+    --beach-secondary-600: #f76b27;
+    --beach-secondary-700: #f55204;
+    --beach-secondary-800: #d14403;
+    --beach-secondary-900: #ae3903;
+
+    /* Accent Colors - Azul Cielo */
+    --beach-accent: #0096c7; /* azul-cielo */
+    --beach-accent-50: #e6f6fc;
+    --beach-accent-100: #ccecf9;
+    --beach-accent-200: #99d9f3;
+    --beach-accent-300: #66c6ed;
+    --beach-accent-400: #33b3e7;
+    --beach-accent-500: #0096c7; /* azul-cielo */
+    --beach-accent-600: #0078a0;
+    --beach-accent-700: #005a79;
+    --beach-accent-800: #003c52;
+    --beach-accent-900: #001e2b;
+
+    /* Background Colors */
+    --beach-sand: #eadca6; /* arena/beige */
+    --beach-light: #90e0ef; /* celeste claro */
+
+    /* Text Colors */
+    --beach-dark: #0d0d0d; /* negro-profundo */
+    --beach-brown: #6a3e2f; /* marrón-hamburguesa */
+
+    /* Border Colors */
+    --beach-border: #c4b79f; /* darker arena */
+    --beach-border-light: #e0d6b8; /* lighter arena */
+}
+
+/* Base Styles */
+body {
+    font-family: "Teachers", -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--beach-sand);
+    color: var(--beach-dark);
+}
+
+/* Fondo para flujo de creación de pedido (con overlay oscuro sutil) */
+.order-flow-bg {
+    background:
+        linear-gradient(
+            180deg,
+            rgba(10, 37, 64, 0.22) 0%,
+            rgba(10, 37, 64, 0.32) 100%
+        ),
+        url("/productos/fondo/fondo.png") center center / cover no-repeat fixed;
+}
+
+/* ── Cards flotantes con glow y hover profesional ── */
+.card-floating {
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    background: rgba(255, 255, 255, 0.97) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow:
+        0 1px 2px rgba(10, 37, 64, 0.06),
+        0 8px 24px rgba(10, 37, 64, 0.12),
+        0 24px 56px rgba(10, 37, 64, 0.14),
+        0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+    transition:
+        transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.32s ease;
+}
+
+.card-floating:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        0 2px 4px rgba(10, 37, 64, 0.08),
+        0 12px 32px rgba(10, 37, 64, 0.16),
+        0 32px 72px rgba(10, 37, 64, 0.20),
+        0 0 0 1px rgba(0, 180, 216, 0.18) inset,
+        0 0 36px rgba(0, 180, 216, 0.08);
+}
+
+/* Aplicar también a todas las .card dentro de .order-flow-bg para coherencia */
+.order-flow-bg .card:not(.card-floating) {
+    border: 1px solid rgba(255, 255, 255, 0.55) !important;
+    box-shadow:
+        0 1px 2px rgba(10, 37, 64, 0.05),
+        0 6px 18px rgba(10, 37, 64, 0.10),
+        0 18px 40px rgba(10, 37, 64, 0.10);
+    transition: transform 0.28s ease, box-shadow 0.28s ease;
+}
+
+.order-flow-bg .card:not(.card-floating):hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 2px 4px rgba(10, 37, 64, 0.08),
+        0 10px 24px rgba(10, 37, 64, 0.14),
+        0 24px 52px rgba(10, 37, 64, 0.14),
+        0 0 28px rgba(0, 180, 216, 0.07);
+}
+
+/* Excepción: no centrar el contenido de los selects */
+
+/* Tipografías por rol */
+/* Títulos por defecto: Teachers (negrita mediante clases Bootstrap o fw-bold) */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.display-1,
+.display-2,
+.display-3,
+.display-4,
+.navbar-brand,
+.brand,
+.logo-text,
+.offcanvas-title,
+.page-title {
+    font-family: "Teachers", -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, "Helvetica Neue", Arial, sans-serif;
+    letter-spacing: 0.2px;
+}
+
+/* Excepción: solo esta clase usa UltramonoWide */
+.ultramono-title {
+    font-family: "UltramonoWide", "Teachers", sans-serif !important;
+}
+
+/* Google Sans para el saludo del catálogo */
+.google-sans {
+    font-family: "Google Sans", "Nunito", sans-serif !important;
+}
+
+/* Precios y totales con Ultramono */
+.product-price,
+#cartTotal,
+#stickyCartTotal,
+#totalAmount,
+#finalTotal,
+#mobileFinalTotal,
+.item-total {
+    font-family: "Teachers", -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+
+p,
+span,
+a,
+li,
+button,
+.btn,
+input,
+select,
+textarea,
+.card,
+.alert,
+.table {
+    font-family: "Teachers", -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Beach Theme Utility Classes */
+.bg-beach-sand {
+    background-color: var(--beach-sand) !important;
+}
+.bg-beach-primary {
+    background-color: var(--beach-primary) !important;
+}
+.bg-beach-secondary {
+    background-color: var(--beach-secondary) !important;
+}
+.bg-beach-accent {
+    background-color: var(--beach-accent) !important;
+}
+.bg-beach-light {
+    background-color: var(--beach-light) !important;
+}
+
+.text-beach-dark {
+    color: var(--beach-dark) !important;
+}
+.text-beach-brown {
+    color: var(--beach-brown) !important;
+}
+.text-beach-primary {
+    color: var(--beach-primary) !important;
+}
+.text-beach-secondary {
+    color: var(--beach-secondary) !important;
+}
+.text-beach-accent {
+    color: var(--beach-accent) !important;
+}
+
+.border-beach {
+    border-color: var(--beach-border) !important;
+}
+.border-beach-light {
+    border-color: var(--beach-border-light) !important;
+}
+
+/* Custom Button Styles */
+.btn-beach-primary {
+    background-color: var(--beach-primary);
+    border-color: var(--beach-primary);
+    color: white;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-beach-primary:active {
+    background-color: var(--beach-primary-700) !important;
+    border-color: var(--beach-primary-700) !important;
+}
+
+.btn-outline-beach-primary {
+    background-color: transparent;
+    border-color: var(--beach-primary);
+    color: var(--beach-primary);
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-beach-primary:hover,
+.btn-outline-beach-primary:focus {
+    background-color: var(--beach-primary);
+    border-color: var(--beach-primary);
+    color: white;
+}
+
+.btn-beach-secondary {
+    background-color: var(--beach-secondary);
+    border-color: var(--beach-secondary);
+    color: white;
+    font-weight: 500;
+}
+
+.btn-beach-secondary:hover,
+.btn-beach-secondary:focus {
+    background-color: var(--beach-secondary-600);
+    border-color: var(--beach-secondary-600);
+    color: white;
+}
+
+.btn-beach-accent {
+    background-color: var(--beach-accent);
+    border-color: var(--beach-accent);
+    color: white;
+    font-weight: 500;
+}
+
+.btn-beach-accent:hover,
+.btn-beach-accent:focus {
+    background-color: var(--beach-accent-600);
+    border-color: var(--beach-accent-600);
+    color: white;
+}
+
+/* Custom Card Styles */
+.beach-card {
+    background-color: white;
+    border: 1px solid var(--beach-border-light);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s ease;
+}
+
+.beach-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Hover Effects */
+.hover-beach-primary {
+    transition: color 0.2s ease;
+}
+
+.hover-beach-primary:hover {
+    color: var(--beach-primary) !important;
+}
+
+/* Form Controls */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--beach-primary);
+    box-shadow: 0 0 0 0.2rem rgba(12, 101, 104, 0.25);
+}
+
+/* Scrollbar Styling */
+.beach-scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.beach-scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+/* Animation Keyframes */
+@keyframes beach-shimmer {
+    0% {
+        background-position: -200px 0;
+    }
+    100% {
+        background-position: calc(200px + 100%) 0;
+    }
+}
+
+/* Loading Animation */
+.beach-shimmer {
+    animation: beach-shimmer 2s linear infinite;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(12, 101, 104, 0.2),
+        transparent
+    );
+    background-size: 200px 100%;
+}
+
+/* Toast Customization */
+.toast.bg-beach-primary .toast-body {
+    color: white;
+}
+
+.toast.bg-beach-primary .btn-close {
+    filter: invert(1);
+}
+
+/* Badge Customization */
+.badge.bg-beach-primary {
+    color: white;
+}
+
+.badge.bg-beach-secondary {
+    color: white;
+}
+
+.badge.bg-beach-accent {
+    color: white;
+}
+
+/* Títulos de productos: usar Teachers y en negrita */
+.product-card .card-title,
+.product-card .product-name {
+    font-family: "Teachers", -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, "Helvetica Neue", Arial, sans-serif !important;
+    font-weight: 700 !important;
+}
+
+/* Centrar solo títulos y descripciones de productos */
+.product-card .product-name,
+.product-card .product-description {
+    text-align: center;
+}
+
+/* Alineación y alturas consistentes en tarjetas de producto */
+.product-card .card-body {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Título: forzar 2 líneas máx para igualar alturas */
+.product-card .product-name {
+    line-height: 1.25;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Descripción: forzar 3 líneas máx/min */
+.product-card .product-description {
+    line-height: 1.4;
+    min-height: 4.2em; /* ~3 líneas */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Bloque de personalización: separación y altura mínima para alinear */
+.product-card .product-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-height: 120px;
+}
+
+.product-card .product-options .form-label {
+    margin-bottom: 0.25rem;
+}
+
+.product-card .product-options .form-select {
+    min-height: 34px;
+}
+
+/* Asegurar que el bloque de precio/botón quede al pie */
+.product-card .card-body .mt-auto {
+    margin-top: auto !important;
+}
+
+/* Responsive Design Helpers */
+@media (max-width: 576px) {
+    .btn-beach-primary,
+    .btn-outline-beach-primary,
+    .btn-beach-secondary,
+    .btn-beach-accent {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* Enhanced Focus States for Accessibility */
+.btn:focus,
+.form-control:focus,
+.form-select:focus {
+    outline: 2px solid var(--beach-accent);
+    outline-offset: 2px;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .btn-beach-primary {
+        border: 2px solid var(--beach-dark);
+    }
+
+    .btn-outline-beach-primary {
+        border: 2px solid var(--beach-primary);
+    }
+
+    .beach-card {
+        border: 2px solid var(--beach-border);
+    }
+}
+
+/* Print Styles */
+@media print {
+    .btn,
+    .toast,
+    .offcanvas,
+    .fixed-bottom,
+    .sticky-top {
+        display: none !important;
+    }
+
+    body {
+        background: white !important;
+        color: black !important;
+    }
+}

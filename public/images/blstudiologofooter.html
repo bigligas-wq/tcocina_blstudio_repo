@@ -1,0 +1,82 @@
+
+<h2 class="sr-only">Logo blstudio con punto verde pegado</h2>
+<div style="padding: 2rem 0; display:flex; align-items:center; justify-content:center;">
+<svg id="logo-svg" width="100%" viewBox="0 0 660 160" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="m" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#f0f0f0"/>
+      <stop offset="30%"  stop-color="#c0c0c0"/>
+      <stop offset="55%"  stop-color="#e8e8e8"/>
+      <stop offset="80%"  stop-color="#909090"/>
+      <stop offset="100%" stop-color="#c8c8c8"/>
+    </linearGradient>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#a8d400"/>
+      <stop offset="100%" stop-color="#6a8a00"/>
+    </linearGradient>
+    <clipPath id="tc">
+      <rect x="0" y="0" width="660" height="130"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#tc)" opacity="0.52">
+    <line x1="75"  y1="38"  x2="148" y2="60"  stroke="#8db600" stroke-width="0.7" opacity="0.5"/>
+    <line x1="148" y1="60"  x2="218" y2="36"  stroke="#8db600" stroke-width="0.7" opacity="0.4"/>
+    <line x1="218" y1="36"  x2="295" y2="52"  stroke="#8db600" stroke-width="0.7" opacity="0.5"/>
+    <line x1="295" y1="52"  x2="368" y2="32"  stroke="#8db600" stroke-width="0.7" opacity="0.38"/>
+    <line x1="368" y1="32"  x2="438" y2="48"  stroke="#8db600" stroke-width="0.7" opacity="0.45"/>
+    <line x1="75"  y1="38"  x2="218" y2="36"  stroke="#c8c8c8" stroke-width="0.5" opacity="0.18"/>
+    <line x1="148" y1="60"  x2="295" y2="52"  stroke="#c8c8c8" stroke-width="0.5" opacity="0.16"/>
+    <line x1="218" y1="36"  x2="368" y2="32"  stroke="#c8c8c8" stroke-width="0.5" opacity="0.18"/>
+    <line x1="295" y1="52"  x2="438" y2="48"  stroke="#c8c8c8" stroke-width="0.5" opacity="0.16"/>
+    <circle cx="75"  cy="38"  r="2.6" fill="#8db600"/>
+    <circle cx="218" cy="36"  r="2.6" fill="#8db600"/>
+    <circle cx="368" cy="32"  r="3.0" fill="#8db600"/>
+    <circle cx="148" cy="60"  r="1.8" fill="#e0e0e0"/>
+    <circle cx="295" cy="52"  r="1.8" fill="#e0e0e0"/>
+    <circle cx="438" cy="48"  r="1.8" fill="#e0e0e0"/>
+  </g>
+
+  <text
+    id="logo-text"
+    x="32"
+    y="128"
+    font-family="'DM Sans','Helvetica Neue',Arial,sans-serif"
+    font-size="122"
+    font-weight="300"
+    letter-spacing="-4"
+    fill="url(#m)">blstudio</text>
+
+  <circle id="dot"    cx="0" cy="0" r="7" fill="url(#g)"/>
+  <circle id="pulse1" cx="0" cy="0" r="7" fill="none" stroke="#8db600" stroke-width="1.2">
+    <animate attributeName="r"       values="7;22;7"    dur="2.2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.7;0;0.7" dur="2.2s" repeatCount="indefinite"/>
+  </circle>
+  <circle id="pulse2" cx="0" cy="0" r="7" fill="none" stroke="#8db600" stroke-width="0.6">
+    <animate attributeName="r"       values="7;36;7"      dur="2.2s" begin="0.5s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.35;0;0.35" dur="2.2s" begin="0.5s" repeatCount="indefinite"/>
+  </circle>
+</svg>
+</div>
+
+<script>
+(function() {
+  const svg    = document.getElementById('logo-svg');
+  const textEl = document.getElementById('logo-text');
+  const els    = ['dot','pulse1','pulse2'].map(id => document.getElementById(id));
+
+  function place() {
+    try {
+      const bbox = textEl.getBBox();
+      // X: justo después del borde derecho del texto + espacio de kerning natural de un punto
+      const dotX = bbox.x + bbox.width + 10;
+      // Y: alineado al centro vertical de la letra — misma altura que el centro de la 'o'
+      const dotY = bbox.y + bbox.height * 0.72;
+      svg.setAttribute('viewBox', `0 0 ${dotX + 30} 160`);
+      els.forEach(el => { el.setAttribute('cx', dotX); el.setAttribute('cy', dotY); });
+    } catch(e) {}
+  }
+
+  document.fonts && document.fonts.ready ? document.fonts.ready.then(place) : setTimeout(place, 400);
+})();
+</script>
