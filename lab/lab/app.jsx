@@ -153,6 +153,8 @@ function App(){
       {order && <OrderModal items={cartItems} subtotal={subtotal} freeOff={freeOff} total={total} copy={copy} onClose={()=>setOrder(false)}/>}
       {signals && <SignalsPanel ratings={ratings} onClose={()=>setSignals(false)} onClear={clearRatings}/>}
 
+      <ChatFloat/>
+
       {!loaded && <Loader onDone={()=>setLoaded(true)}/>}
 
       <TweaksPanel>

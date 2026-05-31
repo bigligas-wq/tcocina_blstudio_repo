@@ -48,6 +48,10 @@
     --lab-font-body: 'Instrument Sans', 'DM Sans', system-ui, sans-serif;
 
     /* VIEWPORT ÚNICO: overflow en el root */
+
+    /* Overrides de colores: cambio de azul y verde a otros acentos */
+    --lab-green: #10b981;          /* Esmeralda más profundo (de verde lime) */
+    --lab-blue:  #06b6d4;          /* Cyan (de azul royal) */
     background: var(--lab-bg) !important;
     color: var(--lab-ink);
     font-family: var(--lab-font-body);
@@ -1335,5 +1339,325 @@ html[data-theme="dark"] .main-content:has(.lab-app) {
     }
     .lab-app .lab-featured-vis {
         padding: 16px;
+    }
+}
+
+/* ============= HISTORIAL DE COMPRAS ============= */
+.lab-app .lab-history-card {
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+}
+
+.lab-app .lab-history-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.lab-app .lab-history-num {
+    font-family: var(--lab-font-mono);
+    font-size: 13px;
+    color: var(--lab-lime);
+    font-weight: 600;
+}
+
+.lab-app .lab-history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+}
+
+.lab-app .lab-history-item:last-child {
+    border-bottom: none;
+}
+
+.lab-app .lab-history-item-info {
+    flex: 1;
+}
+
+.lab-app .lab-history-item-info strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.lab-app .lab-history-item-info .note {
+    font-size: 12px;
+    color: var(--lab-text-muted);
+}
+
+/* ============= BADGES DE ESTADO ============= */
+.lab-app .lab-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--lab-font-mono);
+}
+
+.lab-app .lab-badge.amber {
+    background: rgba(245,166,35,.12);
+    color: #f5a623;
+    border: 1px solid rgba(245,166,35,.25);
+}
+
+.lab-app .lab-badge.blue {
+    background: rgba(6,182,212,.12);
+    color: #06b6d4;
+    border: 1px solid rgba(6,182,212,.25);
+}
+
+.lab-app .lab-badge.green {
+    background: rgba(16,185,129,.12);
+    color: #10b981;
+    border: 1px solid rgba(16,185,129,.25);
+}
+
+.lab-app .lab-badge.red {
+    background: rgba(239,68,68,.12);
+    color: #ef4444;
+    border: 1px solid rgba(239,68,68,.25);
+}
+
+.lab-app .lab-badge.purple {
+    background: rgba(167,139,250,.12);
+    color: #a78bfa;
+    border: 1px solid rgba(167,139,250,.25);
+}
+
+.lab-app .lab-badge.muted {
+    background: rgba(255,255,255,.05);
+    color: var(--lab-text-muted);
+    border: 1px solid rgba(255,255,255,.08);
+}
+
+/* ============= CREDITS PILL ============= */
+.lab-app .lab-credits-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: rgba(191,255,0,.1);
+    border: 1px solid rgba(191,255,0,.25);
+    border-radius: 12px;
+    font-family: var(--lab-font-mono);
+    font-size: 12px;
+    color: var(--lab-lime);
+}
+
+/* ============= FLOTANTE DEL ÁTOMO (CHAT) ============= */
+.lab-app .lab-chat-float {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.lab-app .lab-atom-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(191,255,0,.15);
+    border: 2px solid rgba(191,255,0,.3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .3s ease;
+    box-shadow: 0 8px 24px rgba(191,255,0,.2);
+    position: relative;
+}
+
+.lab-app .lab-atom-btn:hover {
+    background: rgba(191,255,0,.25);
+    border-color: rgba(191,255,0,.5);
+    transform: scale(1.1);
+    box-shadow: 0 12px 32px rgba(191,255,0,.3);
+}
+
+.lab-app .lab-atom-btn svg {
+    width: 28px;
+    height: 28px;
+    fill: var(--lab-lime);
+}
+
+.lab-app .lab-atom-btn.active {
+    background: var(--lab-lime);
+}
+
+.lab-app .lab-atom-btn.active svg {
+    fill: var(--lab-bg);
+}
+
+/* Chat Modal */
+.lab-app .lab-chat-modal {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    width: 380px;
+    max-width: calc(100vw - 40px);
+    background: rgba(15,23,42,.95);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.8);
+    display: flex;
+    flex-direction: column;
+    max-height: 500px;
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+    transition: all .3s ease;
+}
+
+.lab-app .lab-chat-modal.open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+}
+
+.lab-app .lab-chat-header {
+    padding: 16px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.lab-app .lab-chat-header h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.lab-app .lab-chat-close {
+    background: none;
+    border: none;
+    color: var(--lab-text-muted);
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: .2s;
+}
+
+.lab-app .lab-chat-close:hover {
+    color: var(--lab-ink);
+}
+
+.lab-app .lab-chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.lab-app .lab-chat-message {
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.lab-app .lab-chat-message.user {
+    background: rgba(191,255,0,.15);
+    color: var(--lab-lime);
+    align-self: flex-end;
+    max-width: 85%;
+}
+
+.lab-app .lab-chat-message.system {
+    background: rgba(255,255,255,.04);
+    color: var(--lab-text-muted);
+    font-size: 11px;
+}
+
+.lab-app .lab-chat-input-area {
+    padding: 12px;
+    border-top: 1px solid rgba(255,255,255,.08);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.lab-app .lab-chat-input {
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 8px;
+    color: var(--lab-ink);
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 13px;
+    resize: none;
+    max-height: 80px;
+    transition: .2s;
+}
+
+.lab-app .lab-chat-input:focus {
+    outline: none;
+    border-color: rgba(191,255,0,.3);
+    background: rgba(255,255,255,.08);
+    box-shadow: 0 0 0 3px rgba(191,255,0,.1);
+}
+
+.lab-app .lab-chat-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.lab-app .lab-chat-btn {
+    flex: 1;
+    padding: 8px 12px;
+    background: rgba(191,255,0,.15);
+    border: 1px solid rgba(191,255,0,.25);
+    border-radius: 6px;
+    color: var(--lab-lime);
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    transition: .2s;
+}
+
+.lab-app .lab-chat-btn:hover {
+    background: rgba(191,255,0,.25);
+    border-color: rgba(191,255,0,.4);
+}
+
+.lab-app .lab-chat-btn.send {
+    background: var(--lab-lime);
+    border-color: var(--lab-lime);
+    color: var(--lab-bg);
+}
+
+.lab-app .lab-chat-btn.send:hover {
+    opacity: .9;
+}
+
+.lab-app .lab-file-input {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    .lab-app .lab-chat-modal {
+        width: calc(100vw - 40px);
+        bottom: 80px;
     }
 }
