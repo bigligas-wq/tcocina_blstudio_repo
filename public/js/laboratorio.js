@@ -898,10 +898,42 @@
     function hideLoader() {
         const ld = document.getElementById('lab-loader');
         if (!ld) return;
-        // Da tiempo al typewriter y a que el cliente registre la marca BLStudio
         runLoaderTypewriter();
-        setTimeout(() => ld.classList.add('gone'), 2600);
+        setTimeout(() => {
+            ld.classList.add('gone');
+            // Mostrar intro overlay después del preloader
+            const intro = document.getElementById('lab-intro');
+            if (intro) {
+                intro.hidden = false;
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => intro.classList.add('visible'));
+                });
+            }
+        }, 2600);
         setTimeout(() => ld.remove(), 3600);
+    }
+
+    function setupIntro() {
+        const intro = document.getElementById('lab-intro');
+        if (!intro) return;
+        const dismiss = () => {
+            intro.classList.add('exiting');
+            setTimeout(() => { intro.hidden = true; intro.remove(); }, 400);
+        };
+        // Botón principal
+        const enterBtn = document.getElementById('lab-intro-enter');
+        if (enterBtn) enterBtn.addEventListener('click', dismiss);
+        // Botón X
+        const closeBtn = document.getElementById('lab-intro-close');
+        if (closeBtn) closeBtn.addEventListener('click', dismiss);
+        // Click en el fondo (fuera del panel interior)
+        intro.addEventListener('click', e => {
+            if (e.target === intro) dismiss();
+        });
+        // ESC
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && !intro.hidden) dismiss();
+        }, { once: true });
     }
 
     /* ============================================================
@@ -927,6 +959,7 @@
         updateAddButtons();
         updateCartDock();
         setupIdea();
+        setupIntro();
         if (BOOT.isDeveloper) setupTweaks();
         hideLoader();
 

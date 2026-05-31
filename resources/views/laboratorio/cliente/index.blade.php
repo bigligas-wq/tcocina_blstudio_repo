@@ -444,6 +444,102 @@
         </div>
     </div>
 
+    {{-- ============ INTRO OVERLAY (aparece post-preloader) ============ --}}
+    <div class="lab-intro" id="lab-intro" hidden>
+
+        {{-- Botón cerrar siempre visible --}}
+        <button class="lab-intro-close" id="lab-intro-close" aria-label="Entrar al laboratorio">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+
+        {{-- Panel de contenido --}}
+        <div class="lab-intro-inner">
+
+            <div class="lab-intro-eyebrow">
+                <span class="ln"></span>
+                <span>BLSTUDIO · LABORATORIO</span>
+            </div>
+
+            <h1 class="lab-intro-title">
+                Un espacio para<br>
+                <em>hacer crecer tu web.</em>
+            </h1>
+
+            <div class="lab-intro-items">
+                <div class="lab-intro-item">
+                    <svg class="lab-intro-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+                    <div>
+                        <b>Actualizaciones listas para activar</b>
+                        <p>Mejoras concretas para tu web y panel, con precio fijo y activación en 24&nbsp;h.</p>
+                    </div>
+                </div>
+                <div class="lab-intro-item">
+                    <svg class="lab-intro-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    <div>
+                        <b>Proponé tus propias ideas</b>
+                        <p>Si se te ocurre algo, tirála. Si tiene sentido la desarrollo y la sumamos al catálogo.</p>
+                    </div>
+                </div>
+                <div class="lab-intro-item">
+                    <svg class="lab-intro-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <div>
+                        <b>Sin compromisos</b>
+                        <p>Mirás todo el catálogo, elegís lo que te cierra y avanzás cuando quieras.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lab-intro-actions">
+                <button class="btn btn-primary" id="lab-intro-enter">
+                    Ver actualizaciones disponibles →
+                </button>
+                <a href="{{ route('laboratorio.historial') }}" class="btn btn-ghost">Ver historial</a>
+            </div>
+
+            @php $walletBal = isset($wallet) ? $wallet->balance_usd : 0; @endphp
+            @if ($walletBal > 0)
+            <div class="lab-intro-credits">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="14" height="14"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                Tenés <b>USD {{ number_format($walletBal, 2) }}</b> en créditos disponibles
+            </div>
+            @endif
+
+        </div>
+
+        {{-- Visual decorativo lado derecho --}}
+        <div class="lab-intro-vis" aria-hidden="true">
+            <div class="lab-intro-glow"></div>
+            <svg class="lab-intro-atom-bg" viewBox="0 0 200 200" fill="none">
+                <circle cx="100" cy="100" r="6" fill="var(--lab-lime)" opacity=".8"/>
+                <circle cx="100" cy="100" r="14" fill="none" stroke="rgba(191,255,0,.3)" stroke-width="1"/>
+                <ellipse cx="100" cy="100" rx="88" ry="30" stroke="rgba(191,255,0,.2)" stroke-width="1.2"/>
+                <ellipse cx="100" cy="100" rx="88" ry="30" stroke="rgba(191,255,0,.14)" stroke-width="1" transform="rotate(60 100 100)"/>
+                <ellipse cx="100" cy="100" rx="88" ry="30" stroke="rgba(191,255,0,.14)" stroke-width="1" transform="rotate(120 100 100)"/>
+                <circle cx="188" cy="100" r="4" fill="rgba(191,255,0,.5)"/>
+                <circle cx="56" cy="43" r="3" fill="rgba(191,255,0,.35)"/>
+                <circle cx="56" cy="157" r="3" fill="rgba(191,255,0,.35)"/>
+            </svg>
+            <div class="lab-intro-vis-label">
+                <span class="lab-eyebrow">centro de actualizaciones</span>
+                <div class="lab-intro-stat-row">
+                    <div class="lab-intro-stat">
+                        <span class="n">{{ $catCounts['todas'] ?? 0 }}</span>
+                        <span class="l">mejoras disponibles</span>
+                    </div>
+                    <div class="lab-intro-stat">
+                        <span class="n">24h</span>
+                        <span class="l">tiempo de activación</span>
+                    </div>
+                    <div class="lab-intro-stat">
+                        <span class="n">$0</span>
+                        <span class="l">para mirar y elegir</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
     {{-- Botón flotante de ideas --}}
     <div class="lab-float-idea" id="lab-float-idea">
         {{-- Popup (viñeta de diálogo) --}}
