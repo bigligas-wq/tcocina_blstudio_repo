@@ -33,13 +33,13 @@
 
     const COPY = {
         tranquilo: {
-            add: 'Sumar', added: 'Sumada', featuredAdd: 'Sumar a mi web', previewAdd: 'Esta la sumo',
-            pedido: 'Lo que vas a sumar', whats: 'Pasármelo por WhatsApp',
+            add: 'Me interesa', added: 'Agregada', featuredAdd: 'Me interesa', previewAdd: 'Me interesa →',
+            pedido: 'Lo que elegiste', whats: 'Enviármelo por WhatsApp',
             eyebrow: 'fábrica',
         },
         entusiasta: {
-            add: 'La quiero', added: 'Sumada', featuredAdd: 'La quiero en mi web', previewAdd: '¡Esta la quiero!',
-            pedido: 'Tu selección', whats: 'Mandar por WhatsApp',
+            add: 'Me interesa', added: 'Agregada', featuredAdd: 'Me interesa', previewAdd: 'Me interesa →',
+            pedido: 'Lo que elegiste', whats: 'Enviármelo por WhatsApp',
             eyebrow: 'la fábrica',
         },
     };
