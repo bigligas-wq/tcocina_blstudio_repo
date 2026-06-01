@@ -147,7 +147,7 @@
                                 <div class="tagrow">
                                     <span class="lab-badge featured"><span class="bd" style="background:var(--lab-lime)"></span>Destacada</span>
                                     @if ($featuredData['nuevo'])
-                                        <span class="lab-badge nuevo">🧪 Muestra fresca</span>
+                                        <span class="lab-badge nuevo">Muestra fresca</span>
                                     @endif
                                     <span class="lab-badge cat">{{ ucfirst($featuredData['cat']) }}</span>
                                 </div>
@@ -240,7 +240,7 @@
                                 <div class="lab-card-top">
                                     <span class="cat-ic">{{ $imp['icon'] }}</span>
                                     <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;">
-                                        @if ($imp['nuevo']) <span class="lab-badge nuevo">🧪 Fresca</span> @endif
+                                        @if ($imp['nuevo']) <span class="lab-badge nuevo">Fresca</span> @endif
                                         @if ($imp['activa'])
                                             <span class="lab-badge activa"><span class="bd"></span>Reactor activo</span>
                                         @elseif ($imp['proceso'])
