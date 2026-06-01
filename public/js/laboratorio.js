@@ -707,11 +707,9 @@
             ta.style.height = Math.min(ta.scrollHeight, 160) + 'px';
         });
 
-        // adjuntar imagen
-        fileIn && fileIn.addEventListener('change', () => {
-            const file = fileIn.files[0];
-            if (!file) return;
-            if (!file.type.startsWith('image/')) return;
+        // adjuntar imagen (input file o pegado con Ctrl+V)
+        const attachImage = file => {
+            if (!file || !file.type.startsWith('image/')) return;
             currentFile = file;
             const reader = new FileReader();
             reader.onload = e => {
@@ -720,6 +718,20 @@
                 updateUI();
             };
             reader.readAsDataURL(file);
+        };
+
+        fileIn && fileIn.addEventListener('change', () => attachImage(fileIn.files[0]));
+
+        // pegar captura de pantalla con Ctrl+V
+        ta.addEventListener('paste', e => {
+            const items = (e.clipboardData || window.clipboardData || {}).items || [];
+            for (const it of items) {
+                if (it.type && it.type.startsWith('image/')) {
+                    const file = it.getAsFile();
+                    if (file) { attachImage(file); e.preventDefault(); }
+                    break;
+                }
+            }
         });
 
         // quitar imagen
@@ -1227,19 +1239,34 @@ function setupFloatIdea() {
         });
     }
 
-    // Adjuntar imagen
+    // Adjuntar imagen (input file o pegado con Ctrl+V)
+    const attachImage = f => {
+        if (!f || !f.type.startsWith('image/')) return;
+        currentFile = f;
+        const reader = new FileReader();
+        reader.onload = ev => {
+            if (imgPrev) imgPrev.src = ev.target.result;
+            if (imgWrap) imgWrap.style.display = '';
+            updateUI();
+        };
+        reader.readAsDataURL(f);
+    };
+
     if (fileIn) {
-        fileIn.addEventListener('change', () => {
-            const f = fileIn.files[0];
-            if (!f || !f.type.startsWith('image/')) return;
-            currentFile = f;
-            const reader = new FileReader();
-            reader.onload = ev => {
-                if (imgPrev) imgPrev.src = ev.target.result;
-                if (imgWrap) imgWrap.style.display = '';
-                updateUI();
-            };
-            reader.readAsDataURL(f);
+        fileIn.addEventListener('change', () => attachImage(fileIn.files[0]));
+    }
+
+    // pegar captura de pantalla con Ctrl+V
+    if (ta) {
+        ta.addEventListener('paste', e => {
+            const items = (e.clipboardData || window.clipboardData || {}).items || [];
+            for (const it of items) {
+                if (it.type && it.type.startsWith('image/')) {
+                    const f = it.getAsFile();
+                    if (f) { attachImage(f); e.preventDefault(); }
+                    break;
+                }
+            }
         });
     }
     if (imgX) imgX.addEventListener('click', () => { currentFile = null; if (fileIn) fileIn.value = ''; if (imgWrap) imgWrap.style.display = 'none'; updateUI(); });
