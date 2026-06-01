@@ -2537,7 +2537,37 @@
     function toggleUserMenu(event) {
         event.stopPropagation();
         var section = document.getElementById('userPillSection');
-        if (section) section.classList.toggle('open');
+        var menu    = document.getElementById('userPillMenu');
+        var btn     = document.getElementById('userPillBtn');
+        if (!section) return;
+
+        var isOpen = section.classList.toggle('open');
+
+        // Si el sidebar está colapsado, posicionamos el menú con fixed
+        // para escapar del overflow:hidden del sidebar
+        var sidebar = document.querySelector('.rocker-sidebar');
+        var collapsed = sidebar && (sidebar.classList.contains('collapsed') || sidebar.classList.contains('ultra-mini'));
+        if (menu && btn && collapsed) {
+            if (isOpen) {
+                var r = btn.getBoundingClientRect();
+                menu.style.position = 'fixed';
+                menu.style.left     = (r.right + 10) + 'px';
+                menu.style.bottom   = (window.innerHeight - r.bottom) + 'px';
+                menu.style.top      = 'auto';
+                menu.style.right    = 'auto';
+                menu.style.width    = '220px';
+            } else {
+                menu.style.position = '';
+                menu.style.left = '';
+                menu.style.bottom = '';
+                menu.style.width = '';
+            }
+        } else if (menu) {
+            menu.style.position = '';
+            menu.style.left = '';
+            menu.style.bottom = '';
+            menu.style.width = '';
+        }
     }
     document.addEventListener('click', function(e) {
         var section = document.getElementById('userPillSection');
