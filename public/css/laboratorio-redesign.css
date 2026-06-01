@@ -5,6 +5,53 @@
    ========================================================================= */
 
 /* =====================================================================
+   FONDO DEEP SPACE — negro con profundidad y nebulosas sutiles
+   ===================================================================== */
+
+/* Base: negro con mínimo tinte índigo (no #000 plano, no #0f172a azulado) */
+.lab-app {
+    background: #070b14 !important;
+}
+
+/* Capas de luz atmosférica */
+.lab-app::before {
+    background:
+        /* Nebulosa lima — marca BLStudio, esquina superior izquierda */
+        radial-gradient(ellipse 70% 55% at -5% 5%,
+            rgba(191,255,0,.08), transparent 60%),
+
+        /* Nebulosa índigo profunda — esquina inferior derecha */
+        radial-gradient(ellipse 65% 60% at 105% 100%,
+            rgba(99,60,200,.09), transparent 58%),
+
+        /* Resplandor cyan frío — borde superior derecho */
+        radial-gradient(ellipse 45% 35% at 100% 0%,
+            rgba(34,211,238,.05), transparent 55%),
+
+        /* Calor ámbar muy sutil — centro inferior */
+        radial-gradient(ellipse 80% 30% at 50% 115%,
+            rgba(251,191,36,.04), transparent 60%),
+
+        /* Viñeta de profundidad — oscurece bordes, focaliza el centro */
+        radial-gradient(ellipse 130% 130% at 50% 50%,
+            transparent 30%, rgba(0,0,0,.7) 100%);
+}
+
+/* Capa adicional: ruido sutil para romper el degradado plano */
+.lab-app::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: .025;
+    background-image:
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 200px 200px;
+}
+
+/* =====================================================================
    VARIABLES DE CATEGORÍA
    ===================================================================== */
 .lab-app .lab-card                  { --c: #bfff00; --c-rgb: 191,255,0; }
