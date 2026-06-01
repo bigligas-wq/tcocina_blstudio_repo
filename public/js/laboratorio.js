@@ -540,7 +540,7 @@
         `).join('');
 
         const stars = m.querySelector('[data-pv-stars]');
-        renderStars(stars, imp.id, { big: true });
+        if (stars) renderStars(stars, imp.id, { big: true });
 
         const addBtn = m.querySelector('[data-pv-add]');
         const refreshAdd = () => {
