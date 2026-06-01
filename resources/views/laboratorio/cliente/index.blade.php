@@ -236,15 +236,14 @@
                                         <i style="left: {{ 12 + $b * 11 }}%; width: {{ 6 + ($b % 4) * 3 }}px; height: {{ 6 + ($b % 4) * 3 }}px; animation-delay: {{ ($b * 0.18) }}s; animation-duration: {{ 2.2 + ($b * 0.12) }}s;"></i>
                                     @endfor
                                 </div>
-                                <span class="lab-code">LAB-{{ str_pad($imp['id'], 3, '0', STR_PAD_LEFT) }}</span>
                                 <div class="lab-card-top">
                                     <span class="cat-ic">{{ $imp['icon'] }}</span>
                                     <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;">
-                                        @if ($imp['nuevo']) <span class="lab-badge nuevo">Fresca</span> @endif
+                                        @if ($imp['nuevo']) <span class="lab-badge nuevo">Nuevo</span> @endif
                                         @if ($imp['activa'])
-                                            <span class="lab-badge activa"><span class="bd"></span>Reactor activo</span>
+                                            <span class="lab-badge activa"><span class="bd"></span>Ya activo en tu web</span>
                                         @elseif ($imp['proceso'])
-                                            <span class="lab-badge proceso"><span class="bd"></span>En síntesis</span>
+                                            <span class="lab-badge proceso"><span class="bd"></span>En camino</span>
                                         @else
                                             <span class="lab-badge cat">{{ ucfirst($imp['cat']) }}</span>
                                         @endif
@@ -266,7 +265,7 @@
                                                     <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>
                                                 </svg>
                                             </button>
-                                            <button class="lab-add-btn" data-lab-action="add" data-id="{{ $imp['id'] }}" data-lab-add="{{ $imp['id'] }}">+ <span data-tw-copy="add">Sumar</span></button>
+                                            <button class="lab-add-btn" data-lab-action="add" data-id="{{ $imp['id'] }}" data-lab-add="{{ $imp['id'] }}"><span data-tw-copy="add">Me interesa →</span></button>
                                         </div>
                                     @endif
                                 </div>
@@ -329,20 +328,22 @@
                         </div>
                         <div class="pane" data-pv-after style="opacity: 1;">
                             <span class="ptag" style="background: rgba(255,76,12,.85); border-color: transparent;">con la mejora</span>
+                            <span class="pane-atom-badge">
+                                <img src="{{ asset('blstudiosinfondo.png') }}" alt="BLStudio" style="width:18px;height:18px;object-fit:contain;opacity:.7;">
+                                <span style="font-family:var(--lab-font-mono);font-size:9px;letter-spacing:.1em;color:rgba(255,255,255,.5);text-transform:uppercase;">BLStudio</span>
+                            </span>
                         </div>
                     </div>
                     <p style="font-size: 15px; line-height: 1.6; color: var(--lab-ink-2); margin: 4px 0 18px;" data-pv-desc></p>
                     <div class="lab-diffs" data-pv-diffs style="margin-bottom: 22px;"></div>
-                    <div style="text-align:center; margin: 4px 0 20px; padding: 18px 0; border-top: 1px solid var(--lab-line); border-bottom: 1px solid var(--lab-line);">
-                        <div style="font-family: var(--lab-font-mono); font-size: 12px; color: var(--lab-mut); margin-bottom: 12px;">¿qué tan a tu medida la ves?</div>
-                        <div data-pv-stars></div>
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
-                        <div class="lab-price big">
-                            <div class="amt"><span>USD </span><span data-pv-price>0</span></div>
-                            <div class="meta">pago único · online en 24 h</div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-top: 16px; border-top: 1px solid var(--lab-line);">
+                        <div>
+                            <div class="lab-price big">
+                                <div class="amt"><span>USD </span><span data-pv-price>0</span></div>
+                            </div>
+                            <div style="font-family: var(--lab-font-mono); font-size: 11px; color: var(--lab-mut); margin-top: 4px;">pago único · activo en 24 h</div>
                         </div>
-                        <button class="btn btn-primary" data-pv-add><span data-tw-copy="previewAdd">Esta la sumo</span> →</button>
+                        <button class="btn btn-primary" data-pv-add><span data-tw-copy="previewAdd">Me interesa →</span></button>
                     </div>
                 </div>
             </div>

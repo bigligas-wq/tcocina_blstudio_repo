@@ -463,6 +463,33 @@
 }
 
 /* =====================================================================
+   MODAL PREVIEW — fixes
+   ===================================================================== */
+
+/* Ocultar estrellas del modal */
+.lab-app #lab-modal-preview [data-pv-stars] { display: none !important; }
+
+/* Badge átomo en pane "después" */
+.lab-app .pane-atom-badge {
+    position: absolute;
+    bottom: 10px;
+    right: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(0,0,0,.45);
+    backdrop-filter: blur(6px);
+    padding: 5px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,.1);
+}
+
+/* Pane necesita position relative para el badge */
+.lab-app .lab-ba .pane {
+    position: relative;
+}
+
+/* =====================================================================
    SECCIÓN "GUARDADAS PARA DESPUÉS"
    ===================================================================== */
 .lab-app .lab-skipped-section {
