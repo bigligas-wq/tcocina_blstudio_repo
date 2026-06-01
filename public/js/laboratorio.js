@@ -956,6 +956,105 @@
     }
 
     /* ============================================================
+       SEÑALES: ME GUSTA / NO ME INTERESA
+       ============================================================ */
+    const PREFS_KEY = 'bl_lab_prefs_v1';
+    let prefs = load(PREFS_KEY, { liked: [], skipped: [] });
+
+    function savePrefs() { save(PREFS_KEY, prefs); }
+
+    function applyCardState(id) {
+        const wrap = document.querySelector(`.fade-up[data-lab-cat] > [data-improvement-id="${id}"]`)?.closest('.fade-up');
+        if (!wrap) return;
+        const card = wrap.querySelector('article');
+        if (!card) return;
+        const likeBtn = card.querySelector('.lab-sig-like');
+        const isLiked   = prefs.liked.includes(id);
+        const isSkipped = prefs.skipped.includes(id);
+        card.classList.toggle('lab-card--liked', isLiked);
+        card.classList.toggle('lab-card--skipped', isSkipped);
+        if (likeBtn) likeBtn.classList.toggle('active', isLiked);
+    }
+
+    function rebuildSkippedSection() {
+        const section  = document.getElementById('lab-skipped-section');
+        const grid     = document.getElementById('lab-skipped-grid');
+        const cntEl    = document.getElementById('lab-skipped-cnt');
+        if (!section || !grid) return;
+
+        const cnt = prefs.skipped.length;
+        if (cnt === 0) { section.style.display = 'none'; return; }
+
+        section.style.display = '';
+        cntEl && (cntEl.textContent = cnt);
+
+        // Mover cards skipped al grid oculto
+        prefs.skipped.forEach(id => {
+            const wrap = document.querySelector(`.fade-up[data-lab-cat] > [data-improvement-id="${id}"]`)?.closest('.fade-up');
+            if (wrap && wrap.parentElement?.id !== 'lab-skipped-grid') {
+                grid.appendChild(wrap);
+            }
+        });
+
+        // Devolver al grid principal las que ya no son skipped
+        grid.querySelectorAll('.fade-up').forEach(w => {
+            const id = parseInt(w.querySelector('[data-improvement-id]')?.dataset?.improvementId);
+            if (id && !prefs.skipped.includes(id)) {
+                document.getElementById('lab-grid')?.appendChild(w);
+            }
+        });
+    }
+
+    function setupSignals() {
+        // Aplicar estados guardados
+        [...prefs.liked, ...prefs.skipped].forEach(id => applyCardState(id));
+        rebuildSkippedSection();
+
+        // Toggle sección colapsada
+        document.getElementById('lab-skipped-toggle')?.addEventListener('click', () => {
+            const grid = document.getElementById('lab-skipped-grid');
+            if (!grid) return;
+            const open = grid.style.display !== 'none';
+            grid.style.display = open ? 'none' : '';
+            const label = document.getElementById('lab-skipped-label');
+            if (label) label.textContent = open ? 'Guardadas para después' : 'Ocultar guardadas';
+        });
+
+        // Clicks en botones de señal
+        document.addEventListener('click', e => {
+            const likeBtn = e.target.closest('.lab-sig-like');
+            const skipBtn = e.target.closest('.lab-sig-skip');
+
+            if (likeBtn) {
+                const id = parseInt(likeBtn.dataset.sigId);
+                if (!id) return;
+                if (prefs.liked.includes(id)) {
+                    prefs.liked = prefs.liked.filter(x => x !== id);
+                } else {
+                    prefs.liked.push(id);
+                    // Si estaba en skipped, quitarlo
+                    prefs.skipped = prefs.skipped.filter(x => x !== id);
+                }
+                savePrefs();
+                applyCardState(id);
+                rebuildSkippedSection();
+            }
+
+            if (skipBtn) {
+                const id = parseInt(skipBtn.dataset.sigId);
+                if (!id) return;
+                if (!prefs.skipped.includes(id)) {
+                    prefs.skipped.push(id);
+                    prefs.liked = prefs.liked.filter(x => x !== id);
+                }
+                savePrefs();
+                applyCardState(id);
+                rebuildSkippedSection();
+            }
+        });
+    }
+
+    /* ============================================================
        BOOT
        ============================================================ */
     document.addEventListener('DOMContentLoaded', () => {
@@ -972,6 +1071,7 @@
         updateCartDock();
         setupIdea();
         setupIntro();
+        setupSignals();
         if (BOOT.isDeveloper) setupTweaks();
         hideLoader();
 

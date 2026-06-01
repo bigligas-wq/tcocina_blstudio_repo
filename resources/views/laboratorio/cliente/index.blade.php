@@ -271,14 +271,30 @@
                                     @endif
                                 </div>
 
-                                <div class="reaction-bar">
-                                    <div data-lab-stars="{{ $imp['id'] }}"></div>
+                                <div class="lab-card-signals">
+                                    <button class="lab-sig-like" data-sig-id="{{ $imp['id'] }}" title="Me gusta">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                                        <span>Me gusta</span>
+                                    </button>
+                                    <button class="lab-sig-skip" data-sig-id="{{ $imp['id'] }}" title="No me interesa ahora">
+                                        No me interesa
+                                    </button>
                                 </div>
                             </article>
                         </div>
                     @endforeach
                 </div>
             @endif
+
+            {{-- Sección: mejoras guardadas para después (ocultas por el usuario) --}}
+            <div class="lab-skipped-section" id="lab-skipped-section" style="display:none;">
+                <div class="lab-skipped-toggle" id="lab-skipped-toggle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    <span id="lab-skipped-label">Guardadas para después</span>
+                    <span class="lab-skipped-cnt" id="lab-skipped-cnt">0</span>
+                </div>
+                <div class="lab-grid lab-skipped-grid" id="lab-skipped-grid" style="display:none;"></div>
+            </div>
 
         </div>{{-- /.lab-inner --}}
 

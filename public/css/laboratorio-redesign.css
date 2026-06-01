@@ -368,12 +368,151 @@
 .lab-app .lab-card .lab-state-line.proceso { color: var(--lab-amber); }
 
 /* =====================================================================
-   REACTION BAR (estrellas)
+   OCULTAR ESTRELLAS (reemplazadas por me gusta / no me interesa)
    ===================================================================== */
-.lab-app .lab-card .reaction-bar {
-    margin-top: 12px;
+.lab-app .lab-card .reaction-bar,
+.lab-app .lab-card [data-lab-stars] { display: none !important; }
+
+/* =====================================================================
+   SEÑALES: ME GUSTA / NO ME INTERESA
+   ===================================================================== */
+.lab-app .lab-card-signals {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
     padding-top: 12px;
-    border-top: 1px solid rgba(255,255,255,.04);
+    border-top: 1px solid rgba(255,255,255,.05);
+}
+
+/* Botón "Me gusta" */
+.lab-app .lab-sig-like {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 20px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    color: var(--lab-mut);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .2s;
+    white-space: nowrap;
+}
+
+.lab-app .lab-sig-like svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    transition: all .2s;
+}
+
+.lab-app .lab-sig-like:hover {
+    color: #fb7185;
+    border-color: rgba(251,113,133,.3);
+    background: rgba(251,113,133,.08);
+}
+
+.lab-app .lab-sig-like:hover svg {
+    fill: rgba(251,113,133,.4);
+}
+
+/* Estado activo (gustó) */
+.lab-app .lab-sig-like.active {
+    color: #fb7185;
+    border-color: rgba(251,113,133,.35);
+    background: rgba(251,113,133,.1);
+}
+
+.lab-app .lab-sig-like.active svg {
+    fill: #fb7185;
+    stroke: #fb7185;
+}
+
+/* Botón "No me interesa" */
+.lab-app .lab-sig-skip {
+    background: none;
+    border: none;
+    color: var(--lab-mut-2);
+    font-size: 11px;
+    cursor: pointer;
+    padding: 4px 2px;
+    transition: color .2s;
+    white-space: nowrap;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 3px;
+}
+
+.lab-app .lab-sig-skip:hover {
+    color: var(--lab-mut);
+}
+
+/* =====================================================================
+   CARD GUSTADA — borde sutil del color de categoría
+   ===================================================================== */
+.lab-app .lab-card.lab-card--liked {
+    border-color: rgba(var(--c-rgb), .25);
+    box-shadow: 0 0 0 1px rgba(var(--c-rgb), .08);
+}
+
+.lab-app .lab-card.lab-card--liked::after {
+    opacity: .6;
+}
+
+/* =====================================================================
+   SECCIÓN "GUARDADAS PARA DESPUÉS"
+   ===================================================================== */
+.lab-app .lab-skipped-section {
+    margin-top: 48px;
+}
+
+.lab-app .lab-skipped-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.07);
+    color: var(--lab-mut);
+    font-family: var(--lab-font-mono);
+    font-size: 11px;
+    letter-spacing: .06em;
+    cursor: pointer;
+    transition: all .2s;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+}
+
+.lab-app .lab-skipped-toggle:hover {
+    background: rgba(255,255,255,.06);
+    color: var(--lab-ink-2);
+}
+
+.lab-app .lab-skipped-cnt {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 10px;
+    background: rgba(255,255,255,.08);
+    font-size: 10px;
+    color: var(--lab-mut);
+}
+
+/* Cards en la sección de skipped — más atenuadas */
+.lab-app .lab-skipped-grid .lab-card {
+    opacity: .55;
+    transition: opacity .3s;
+}
+
+.lab-app .lab-skipped-grid .lab-card:hover {
+    opacity: 1;
 }
 
 /* =====================================================================
