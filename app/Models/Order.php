@@ -44,6 +44,7 @@ class Order extends Model
         'last_modified_at',
         'last_modified_by',
         'change_log',
+        'review_prompt_sent_at',
     ];
 
     protected function casts(): array
@@ -58,6 +59,7 @@ class Order extends Model
             'ready_at' => 'datetime',
             'out_for_delivery_at' => 'datetime',
             'delivered_at' => 'datetime',
+            'review_prompt_sent_at' => 'datetime',
             'last_modified_at' => 'datetime',
             'change_log' => 'array',
         ];
@@ -79,6 +81,11 @@ class Order extends Model
         return $this->belongsTo(Coupon::class);
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
     // Método para obtener el microturno dinámico correspondiente
     public function getMicroturnoAttribute()
     {
@@ -98,6 +105,15 @@ class Order extends Model
             // Si hay algún error, retornar null
             return null;
         }
+    }
+
+    /**
+     * Etiqueta del turno asignado (ej: "20:15 - 20:30"), para la pantalla de cocina.
+     */
+    public function getTurnoLabelAttribute()
+    {
+        $m = $this->microturno;
+        return $m ? $m->getFormattedTimeAttribute() : null;
     }
 
     public function items(): HasMany

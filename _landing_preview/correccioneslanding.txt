@@ -1,0 +1,42 @@
+http://127.0.0.1:8000/landing/index.html
+
+rayito,joya, cheese bacon, libra, queso azul/piruco +2
+
+1
+Doble medallón de 120 g
+Carne aplastada en plancha caliente para esa costra crocante y los jugos adentro.
+
+(solo se condimenta con sal, sin condimentos agregados)
+
+No es una mas es smash, agregar 1 punto que hable del pan, trabajamos con el mejor pan de la ciudad,
+hacer enfasis en la calidad del pan, produccion local. en la calidad de los ingredientes del pan, 
+elaborado en el dia y local. sin conservantes. panaderia boston, nombrar el productor.
+
+
+
+historia, 2021, en mar del plata, buscando aprender, haciendo todo desde los panes, despues labure como planchero en otro emprendimiento
+despues en hamburgo y la hamburgueseria, aprendiendo de cada lugar. 3 años aprendiendo hasta arrancar tcocina . TCO BURGER
+Agregar fotos del proceso,
+
+No va sola (mas grande, destacar mas, resolver la duda del cliente sobhre si viene o no con acompañamiento
+hay p ublicaciona en ig
+
+agregar resultados al ranking 
+
+1 oklavarria
+2 libra
+joya
+Rayito
+cheesebacon
+4 quesos azul
+cheese gold
+4 amarilla
+piruco
+
+hacer un plan para votar desde la web para usuarios conectados por google y guardar registro,
+registrar reseñas individuales de cada producto para mostrarlos despues en el catalogo 
+
+aordenar automaticamente el orden de las hamburguesas en la seccion del menu, en base a las mas rankeadas
+
+
+t albuam cambiar imagen por la de uina captura real deal aalbum , 

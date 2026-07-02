@@ -155,7 +155,7 @@ class AdminController extends Controller
         $hoy = now()->format('Y-m-d');
 
         // Pedidos de hoy
-        $queryHoy = Order::with(['user', 'items.product', 'address', 'coupon'])
+        $queryHoy = Order::with(['user', 'items.product', 'address', 'coupon', 'reviews'])
             ->whereDate('created_at', $hoy);
 
         // Filtros para pedidos de hoy
@@ -167,7 +167,7 @@ class AdminController extends Controller
 
         // Pedidos anteriores: SOLO los del día anterior, sin paginación (todos visibles)
         $ayer = now()->subDay()->format('Y-m-d');
-        $queryHistorico = Order::with(['user', 'items.product', 'address', 'coupon'])
+        $queryHistorico = Order::with(['user', 'items.product', 'address', 'coupon', 'reviews'])
             ->whereDate('created_at', $ayer);
 
         // Filtros para pedidos históricos
@@ -192,7 +192,7 @@ class AdminController extends Controller
 
         // Filtro de fecha para totales
         if ($selectedDate) {
-            $pedidosFecha = Order::with(['user', 'items.product', 'address', 'coupon'])
+            $pedidosFecha = Order::with(['user', 'items.product', 'address', 'coupon', 'reviews'])
                 ->whereDate('created_at', $selectedDate)
                 ->orderBy('created_at', 'desc')
                 ->get();
@@ -641,6 +641,15 @@ class AdminController extends Controller
                     => \App\Services\NotificationService::notifyOrderDelivered($orderFresh->user, $orderFresh),
                 default => null,
             };
+
+            // Enviar solicitud de reseña Google cuando se marca como entregado
+            if ($newStatus === 'delivered' && $oldStatus !== 'delivered') {
+                try {
+                    (new \App\Services\ReviewRequestService)->sendReviewRequest($orderFresh);
+                } catch (\Exception $e) {
+                    \Log::error('Error sending review request from admin: ' . $e->getMessage());
+                }
+            }
         }
 
         // Revertir figuritas si el pedido se cancela.
@@ -681,6 +690,16 @@ class AdminController extends Controller
             'from_ts' => optional($fromTs)->toIso8601String(),
             'status' => $newStatus,
         ]);
+    }
+
+    /**
+     * Marcar pedido como "review solicitado" desde el panel admin
+     */
+    public function markReviewPrompted(Request $request, $id)
+    {
+        $order = Order::findOrFail($id);
+        $order->update(['review_prompt_sent_at' => now()]);
+        return response()->json(['success' => true]);
     }
 
     /**
@@ -2372,14 +2391,14 @@ class AdminController extends Controller
 
             // Obtener pedidos del día objetivo (con relación user y campos de contacto)
             $pedidosHoy = Order::whereDate('created_at', $targetDate)
-                ->with(['items.product', 'user', 'coupon'])
+                ->with(['items.product', 'user', 'coupon', 'reviews'])
                 ->orderBy('created_at', 'desc')
                 ->get();
 
             // Pedidos anteriores: solo el día anterior al objetivo, sin paginación
             $ayer = \Carbon\Carbon::parse($targetDate)->subDay()->toDateString();
             $pedidosHistorico = Order::whereDate('created_at', $ayer)
-                ->with(['items.product', 'user', 'coupon'])
+                ->with(['items.product', 'user', 'coupon', 'reviews'])
                 ->orderBy('created_at', 'desc')
                 ->get();
 

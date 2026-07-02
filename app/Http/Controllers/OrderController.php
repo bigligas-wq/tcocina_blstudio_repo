@@ -596,6 +596,7 @@ class OrderController extends Controller
             'delivered_at'    => optional($order->delivered_at)->toIso8601String(),
             'eta'             => $eta,
             'site_offline'    => (bool) BusinessSetting::get('site_offline', false),
+            'show_review_prompt' => ($order->status === 'delivered') && !($order->user && $order->user->google_review_completed_at),
             'loyalty'         => [
                 'current_stickers' => $wallet?->current_stickers ?? 0,
                 'target_stickers'  => $setting?->target_stickers ?? 8,
@@ -623,6 +624,59 @@ class OrderController extends Controller
         $last = count($parts) > 1 ? implode(' ', array_slice($parts, 1)) : '';
 
         return [$first, $last];
+    }
+
+    /**
+     * Pantalla de agradecimiento post-entrega con solicitud de reseña
+     */
+    public function thanks($orderNumber)
+    {
+        return redirect('https://g.page/r/CepJ7XpQQOkyEBM/review');
+    }
+
+    /**
+     * El cliente eligió "En otro momento" — registrar dismiss
+     */
+    public function dismissThanks(Request $request, $orderNumber)
+    {
+        $order = Order::where('order_number', $orderNumber)->firstOrFail();
+
+        // Marcar el pedido como prompteado para no repetir
+        $order->update(['review_prompt_sent_at' => now()]);
+
+        // Marcar al usuario como prompteado
+        if ($order->user) {
+            $order->user->update(['review_prompted_at' => now()]);
+        }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->route('thanks.show', $orderNumber);
+    }
+
+    /**
+     * El cliente confirmó que ya dejó su reseña en Google
+     */
+    public function markReviewCompleted(Request $request, $orderNumber)
+    {
+        $order = Order::where('order_number', $orderNumber)->firstOrFail();
+
+        if ($order->user) {
+            $order->user->update([
+                'google_review_completed_at' => now(),
+                'review_prompted_at' => now(),
+            ]);
+        }
+
+        $order->update(['review_prompt_sent_at' => now()]);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->route('thanks.show', $orderNumber);
     }
 
     private function splitStreetNumber(string $rawAddress): array

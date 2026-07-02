@@ -1173,8 +1173,15 @@
                 ¡Pedido enviado!
             </h1>
             <p id="oco-sub" style="font-family:'DM Sans',sans-serif; color:rgba(255,255,255,.85); font-size:1rem; margin-top:.4rem; opacity:0; transition: opacity .5s ease .8s;">
-                Abrimos WhatsApp para confirmar tu pedido
+                Si WhatsApp no se abrió solo, tocá el botón verde para enviar tu pedido
             </p>
+
+            {{-- Botón directo a WhatsApp — fallback universal (funciona en iOS, Android y navegadores in-app de Instagram/Facebook donde la apertura automática falla) --}}
+            <a id="oco-wa-btn" href="#" target="_blank" rel="noopener"
+               style="display:none; margin-top:1.6rem; opacity:0; background:#25D366; color:#fff; padding:.95rem 2.4rem; border-radius:50px; font-family:'DM Sans',sans-serif; font-weight:700; font-size:1.05rem; text-decoration:none; box-shadow:0 6px 28px rgba(0,0,0,.28); transition: opacity .4s ease, transform .4s ease; transform:translateY(10px); align-items:center; gap:.6rem;">
+                <i class="fab fa-whatsapp" style="font-size:1.35rem;"></i>
+                Abrir WhatsApp
+            </a>
 
             {{-- Botón Ver estado — público para todos --}}
             <a id="oco-action-btn" href="#"
@@ -2187,7 +2194,9 @@
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         let isDelivery = false;
         let cashDiscountPercentage = {{ $businessSettings['cash_discount_percentage'] ?? 0 }};
-        let whatsappNumber = '{{ $businessSettings['whatsapp_number'] ?? '5492494015745' }}';
+        // Solo dígitos: wa.me rechaza '+', espacios, guiones o paréntesis y muestra la pantalla de descarga.
+        let whatsappNumber = '{{ preg_replace('/\D/', '', $businessSettings['whatsapp_number'] ?? '5492494015745') }}';
+        whatsappNumber = String(whatsappNumber).replace(/\D/g, ''); // doble red de seguridad en cliente
 
         let appliedCoupon = null;
         let otpLength = 8;
@@ -4669,9 +4678,21 @@
             const title     = document.getElementById('oco-title');
             const sub       = document.getElementById('oco-sub');
             const actionBtn = document.getElementById('oco-action-btn');
+            const waBtn     = document.getElementById('oco-wa-btn');
             if (!overlay) return;
 
             if (actionBtn) actionBtn.href = trackingUrl;
+
+            // Botón directo a WhatsApp: garantiza la apertura por gesto del usuario en cualquier dispositivo.
+            if (waBtn && whatsappUrl) {
+                waBtn.href = whatsappUrl;
+                waBtn.style.display = 'inline-flex';
+                waBtn.style.alignItems = 'center';
+                requestAnimationFrame(() => {
+                    waBtn.style.opacity = '1';
+                    waBtn.style.transform = 'translateY(0)';
+                });
+            }
 
             // Mostrar overlay
             overlay.style.display = 'block';

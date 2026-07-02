@@ -33,7 +33,7 @@ class KitchenController extends Controller
                 'user',
                 'address',
                 'items' => function ($query) {
-                    $query->with('product');
+                    $query->with('product.category');
                 }
             ])
             ->orderBy('created_at', 'asc')
@@ -168,7 +168,7 @@ class KitchenController extends Controller
                 'user',
                 'address',
                 'items' => function ($query) {
-                    $query->with('product');
+                    $query->with('product.category');
                 }
             ])
             ->orderBy('created_at', 'asc')
@@ -187,11 +187,12 @@ class KitchenController extends Controller
             $pedidosPorMicroturno->put($microturno->getSortOrderAttribute(), $pedidosDelMicroturno);
         }
 
-        // Agregar configuration_text a cada item
+        // Agregar configuration_text a cada item + etiqueta del turno asignado
         $orders->each(function ($order) {
             $order->items->each(function ($item) {
                 $item->configuration_text = $item->configuration_text;
             });
+            $order->append('turno_label');
         });
 
         return response()->json([

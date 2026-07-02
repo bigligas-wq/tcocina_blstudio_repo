@@ -51,6 +51,11 @@ Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->
 Route::get('/pedido/{orderNumber}/seguimiento', [OrderController::class, 'tracking'])->name('orders.tracking');
 Route::get('/mi-pedido', [OrderController::class, 'myLatestTracking'])->name('orders.my-latest');
 
+// Pantalla de gracias / solicitud de reseña (pública)
+Route::get('/gracias/{orderNumber}', [OrderController::class, 'thanks'])->name('thanks.show');
+Route::post('/gracias/{orderNumber}/dismiss', [OrderController::class, 'dismissThanks'])->name('thanks.dismiss');
+Route::match(['get', 'post'], '/gracias/{orderNumber}/completada', [OrderController::class, 'markReviewCompleted'])->name('thanks.completed');
+
 // Rutas protegidas para clientes
 Route::middleware('auth')->group(function () {
     Route::get('/mi-progreso', [LoyaltyController::class, 'dashboard'])->name('loyalty.dashboard');
@@ -169,6 +174,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/orders/{id}/loyalty-impact', [AdminController::class, 'getOrderLoyaltyImpact'])->name('admin.order.loyalty-impact');
     Route::post('/orders/{id}/award-loyalty', [AdminController::class, 'awardOrderLoyalty'])->name('admin.order.award-loyalty');
     Route::put('/orders/{id}/status', [AdminController::class, 'updateOrderStatus'])->name('admin.order.status');
+    Route::post('/orders/{id}/mark-review-prompted', [AdminController::class, 'markReviewPrompted'])->name('admin.order.mark-review-prompted');
     Route::put('/orders/{id}/microturno', [AdminController::class, 'updateOrderMicroturno'])->name('admin.order.microturno');
     Route::put('/orders/{id}/details', [AdminController::class, 'updateOrderDetails'])->name('admin.order.details.update');
     Route::delete('/orders/{id}', [AdminController::class, 'destroyOrder'])->name('admin.order.destroy');

@@ -167,11 +167,15 @@
                         </div>
                         <div class="col-md-6">
                             <label for="whatsapp_number" class="form-label">Número de WhatsApp</label>
-                            <input type="text" class="form-control" id="whatsapp_number" name="whatsapp_number"
-                                value="{{ old('whatsapp_number', optional($settings['whatsapp_number'] ?? null)->value) }}"
-                                placeholder="5492494015745" required>
-                            <small class="form-text text-muted">Formato: código país + número sin espacios ni
-                                símbolos</small>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fab fa-whatsapp text-success"></i></span>
+                                <input type="text" class="form-control" id="whatsapp_number" name="whatsapp_number"
+                                    value="{{ old('whatsapp_number', optional($settings['whatsapp_number'] ?? null)->value) }}"
+                                    placeholder="5492284647634" required
+                                    inputmode="numeric" autocomplete="off">
+                            </div>
+                            <div id="whatsapp_number_feedback" class="mt-1"></div>
+                            <small class="form-text text-muted">Formato internacional: <code>54 9 [área] [número]</code> — solo dígitos, sin +, espacios ni guiones.<br>Ej: <code>5492284647634</code> (54 = Argentina, 9 = celular, 2284 = área, 647634 = número)</small>
                         </div>
                     </div>
 
@@ -996,6 +1000,41 @@
                 
                 bindColorPair('brand_primary_color_picker','brand_primary_color_text');
                 bindColorPair('brand_accent_color_picker','brand_accent_color_text');
+
+                // ── WhatsApp number: auto-sanitize + validación en tiempo real ──
+                (function() {
+                    const input    = document.getElementById('whatsapp_number');
+                    const feedback = document.getElementById('whatsapp_number_feedback');
+                    if (!input || !feedback) return;
+
+                    function validate(val) {
+                        const digits = val.replace(/\D/g, '');
+                        let html = '';
+                        if (!digits) { feedback.innerHTML = ''; input.classList.remove('is-valid','is-invalid'); return; }
+
+                        // Auto-sanitizar: si el valor tenía caracteres no numéricos, limpiarlos
+                        if (digits !== val) input.value = digits;
+
+                        if (!digits.startsWith('54')) {
+                            html = '<span class="text-danger small"><i class="fas fa-times-circle me-1"></i>Falta el código de Argentina: debe empezar con <strong>54</strong></span>';
+                            input.classList.add('is-invalid'); input.classList.remove('is-valid');
+                        } else if (!digits.startsWith('549')) {
+                            html = '<span class="text-warning small"><i class="fas fa-exclamation-circle me-1"></i>Para celulares argentinos debe llevar <strong>9</strong> después del 54 → <strong>549</strong>...</span>';
+                            input.classList.add('is-invalid'); input.classList.remove('is-valid');
+                        } else if (digits.length < 12 || digits.length > 13) {
+                            html = '<span class="text-warning small"><i class="fas fa-exclamation-circle me-1"></i>Longitud incorrecta ('+digits.length+' dígitos). Esperado: 13 dígitos. Ej: <strong>5492284647634</strong></span>';
+                            input.classList.add('is-invalid'); input.classList.remove('is-valid');
+                        } else {
+                            html = '<span class="text-success small"><i class="fas fa-check-circle me-1"></i>Formato correcto — <a href="https://wa.me/'+digits+'" target="_blank" class="text-success fw-semibold">probar enlace wa.me</a></span>';
+                            input.classList.add('is-valid'); input.classList.remove('is-invalid');
+                        }
+                        feedback.innerHTML = html;
+                    }
+
+                    input.addEventListener('input',  () => validate(input.value));
+                    input.addEventListener('paste',  () => setTimeout(() => validate(input.value), 10));
+                    validate(input.value); // validar al cargar
+                })();
 
                 // Asegurar que los campos de estado (sitio + Mi album) se envíen con el form principal
                 const form = document.getElementById('settingsForm');

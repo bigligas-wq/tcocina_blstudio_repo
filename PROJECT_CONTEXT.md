@@ -1,6 +1,6 @@
 # PROJECT_CONTEXT.md — TCocina
 
-Contexto completo para retomar el trabajo sin leer el código. Fecha de escritura: 2026-05-24.
+Contexto completo para retomar el trabajo sin leer el código. Última actualización: 2026-07-02 (sesión 3 · landing).
 
 ---
 
@@ -18,7 +18,7 @@ Contexto completo para retomar el trabajo sin leer el código. Fecha de escritur
 | Frontend | Blade templates (SSR) |
 | CSS | TailwindCSS v4 + Bootstrap 5 |
 | JS | Vite 7, Axios, vanilla JS |
-| BD (dev) | SQLite (`database/database.sqlite`) |
+| BD (dev) | MySQL (`u361088648_tcocina` en localhost, root sin password) |
 | BD (prod) | MySQL |
 | Auth | Laravel UI + Google OAuth (Socialite) |
 | Imágenes | intervention/image-laravel |
@@ -66,7 +66,11 @@ app/
     NotificationService.php
     ReviewModerationService.php
     ReviewNotificationService.php
-    ReviewRequestService.php
+    ReviewRequestService.php    ← envío de email de reseña con anti-spam (7 días)
+
+  Mail/
+    ReviewRequestMail.php
+    ReviewReminderMail.php
 
 resources/views/
   layouts/app.blade.php       ← layout público
@@ -76,7 +80,9 @@ resources/views/
   turnos.blade.php
   checkout.blade.php
   order-confirmation.blade.php
-  orders/tracking.blade.php   ← seguimiento en tiempo real
+  orders/tracking.blade.php   ← seguimiento en tiempo real (prompt de reseña Google en celebración)
+  thanks.blade.php            ← redirect a Google Reviews (fallback)
+  emails/review-request.blade.php  ← email de solicitud de reseña Google
   kitchen/index.blade.php
   kitchen/display.blade.php
   admin/dashboard.blade.php
@@ -163,6 +169,42 @@ pending → confirmed → preparing → ready → on_the_way → delivered
 - `LoyaltyRedemption`: solicitudes de canje con estados `pending`, `approved`, `delivered`.
 - Se acreditan soles al confirmar pedidos desde el admin.
 - Configuración en `LoyaltySetting` y `config/loyalty.php`.
+
+### Sistema de reseñas de Google (Google Reviews)
+Link de reseña: `https://g.page/r/CepJ7XpQQOkyEBM/review`
+
+**Prompt en página de tracking** (`orders/tracking.blade.php`):
+- Aparece en la celebración de entrega (overlay) cuando el pedido está en estado `delivered` **y el usuario NO tiene `google_review_completed_at`**.
+- Muestra: logo G de Google + "¿Cómo estuvo tu experiencia?" + 5 estrellas interactivas (hover + pulse).
+- Al tocar una estrella se abre un modal dividido en dos partes:
+  - **Parte superior (blanca):** 5 estrellas ⭐, "¡TU OPINIÓN ES IMPORTANTE!", "CLASIFICANOS EN Google" (colores de marca), G grande de Google.
+  - **Parte inferior (azul con curva oval):** botón blanco "Escribir reseña en Google" → link directo a Google Reviews, 5 estrellas ⭐, logo **T COCINA** (T en recuadro blanco).
+- Botón secundario "Ya dejé mi reseña en Google" → marca `google_review_completed_at = now()`, nunca más se muestra el prompt ni se envía email.
+- Botón "En otro momento" → registra dismiss vía AJAX y aparecen los botones originales ("Volver al menú", "Ver mis figuritas").
+- Anti-spam visual: si el usuario confirmó que ya dejó reseña, el prompt no aparece nunca más.
+
+**Email automático post-entrega** (`app/Services/ReviewRequestService.php`):
+- Se dispara desde `KitchenController::markReady()` cuando la cocina marca el pedido como entregado.
+- **Anti-spam por pedido:** si `orders.review_prompt_sent_at` ya tiene fecha, no envía.
+- **Anti-spam por usuario (7 días):** si `users.review_prompted_at` es menor a 7 días, no envía.
+- **Anti-spam por teléfono (7 días):** si existe otro pedido del mismo `contact_phone` con prompt en los últimos 7 días, no envía.
+- Email: plantilla `emails/review-request.blade.php` con logo Google, estrellas, CTA directo al link de reseña, y link secundario "¿Ya dejaste tu reseña? Hacé clic aquí para no recibir más recordatorios" → ruta `thanks.completed`.
+
+**Endpoints relacionados** (`routes/web.php`):
+- `GET /gracias/{orderNumber}` → redirige inmediatamente a Google Reviews (fallback).
+- `POST /gracias/{orderNumber}/dismiss` → marca `review_prompt_sent_at` y `review_prompted_at`, devuelve JSON.
+- `GET|POST /gracias/{orderNumber}/completada` → marca `google_review_completed_at = now()`, nunca más se envía/muestra solicitud. Devuelve JSON (AJAX) o redirige a Google Reviews (GET desde email).
+- `POST /admin/orders/{id}/mark-review-prompted` → admin marca manualmente que se pidió reseña.
+
+**Panel de admin** (`admin/orders.blade.php`):
+- Botón "⭐ Solicitar reseña" en dropdown de cada pedido.
+- Abre WhatsApp con mensaje pre-armado: "¡Hola {nombre}! ¿Te gustaron nuestras hamburguesas? Si tenés un minuto, nos ayudaría mucho tu opinión en Google: [link]".
+- Al clickear, marca el pedido vía AJAX (`markReviewPrompted`).
+
+**Migraciones**:
+- `orders.review_prompt_sent_at` (timestamp nullable)
+- `users.review_prompted_at` (timestamp nullable)
+- `users.google_review_completed_at` (timestamp nullable) — si existe, nunca más se muestra/envía solicitud de reseña
 
 ### Cupones
 - `Coupon` con soft-deletes.
@@ -265,7 +307,7 @@ LOYALTY_WELCOME_EMAIL_QUEUE=false
 
 ---
 
-## Estado actual del trabajo (2026-05-24)
+## Estado actual del trabajo (2026-06-26)
 
 ### Implementado y funcional
 - Flujo completo de pedidos (catálogo → carrito → turnos → checkout → confirmación → tracking)
@@ -280,10 +322,27 @@ LOYALTY_WELCOME_EMAIL_QUEUE=false
 - Perfil de usuario + gestión de direcciones guardadas
 - Estados `ready` y `on_the_way` recién agregados (mayo 2026) para tracking más granular
 - Seguimiento de pedido en tiempo real (`/pedido/{n}/seguimiento`)
+- **Sistema de reseñas de Google** (junio 2026): prompt en celebración de entrega con modal estilo Google + T Cocina, email automático post-entrega con anti-spam (7 días), botón admin para solicitar reseña vía WhatsApp, botón "Ya dejé mi reseña en Google" para que el usuario confirme y nunca más reciba solicitudes
 - Descuento por pago en efectivo (15%, configurable)
 - Modo offline del sitio (`site_offline` en BusinessSetting)
 - Build de producción en `build/release/`
 - **Laboratorio BLStudio (Fase 1)**: gestión de roles, permisos granulares para `cajero`, dashboard de agencia, datos de transferencia
+- **Fix: pedidos nuevos aparecen en tabla admin tras toast** (`updateOrdersTable` usa API de DataTables en vez de manipular `innerHTML` directamente)
+- **Fix: dropdown Acciones no se corta** (`overflow: visible` en wrappers de tabla)
+- **UI: hover en items del dropdown Acciones** (transiciones suaves con colores por tipo de acción)
+- **Indicador de reseña en lista de pedidos**: estrella dorada (⭐) junto al nombre del cliente si el pedido tiene reseñas asociadas (`order.reviews`)
+- **Fila verde para pedidos entregados** (`order-row-delivered`): fondo verde translúcido (`rgba(34,197,94,0.18)`) visible en tema oscuro + borde izquierdo verde en ambas tablas
+- **Overlay "Repartir figuritas" simplificado**: solo el botón verde centrado, sin avatar ni nombre de usuario que desbordaban la celda
+
+### Trabajo reciente (junio 2026)
+- **Fix WhatsApp link** (junio 2026): el número de teléfono se sanitiza con `preg_replace('/\D/', '', ...)` en PHP (server-side) y `.replace(/\D/g, '')` en JS (client-side). `wa.me` rechaza caracteres no numéricos (`+`, espacios, guiones) y mostraba la pantalla de descarga de WhatsApp en vez de abrir el chat. Fix aplicado en:
+  - `resources/views/order-confirmation.blade.php` línea ~62 (PHP, server-side)
+  - `resources/views/checkout.blade.php` líneas ~2197-2199 (PHP + JS, doble seguridad)
+- **Botón WhatsApp en vista de confirmación** (`order-confirmation.blade.php`): Se agregó botón prominente "Confirmar pedido por WhatsApp" con mensaje pre-armado (número de pedido, cliente, productos, total, método de pago, horario) generado en PHP con `rawurlencode()`.
+- **Laboratorio — Catálogo rediseñado**: cards con glow por categoría, iconos SVG (sin emojis), hover premium, color por categoría
+- **Laboratorio — Sistema me gusta / no me interesa**: reacciones en cards del catálogo del laboratorio
+- **Laboratorio — Fondo deep space**: negro con nebulosas y profundidad atmosférica
+- **Laboratorio — Fixes varios**: modal antes/después con altura correcta, null check en `renderStars`, menú "cerrar sesión" visible con sidebar colapsado, paste de imágenes Ctrl+V en chat de ideas
 
 ### Archivos de referencia existentes
 - `ANALISIS_COMPORTAMIENTO_APP.md` — análisis profundo de flujos y puntos críticos
@@ -327,5 +386,33 @@ php artisan optimize:clear
 6. **El usuario invitado** se crea automáticamente si no hay sesión; no bloquear pedidos sin login.
 7. **`skip_turno_selection`** en BusinessSetting puede estar activo — en ese caso, el flujo salta directamente de carrito a checkout.
 8. **Google OAuth** requiere que `GOOGLE_REDIRECT_URI` coincida exactamente con lo configurado en Google Cloud Console.
-9. **Producción usa MySQL**, desarrollo usa SQLite — no asumir comportamiento idéntico en enums/tipos.
+9. **Producción y desarrollo usan MySQL** — el `.env` local apunta a `u361088648_tcocina` con `root` sin password. No asumir comportamiento idéntico en enums/tipos.
 10. Los estados `ready` y `on_the_way` son recientes — verificar que las vistas de cocina, admin y tracking los soporten al modificar lógica de estados.
+11. **Sistema de reseñas de Google** — el prompt visual en tracking tiene anti-spam por `google_review_completed_at` (si el usuario confirmó que ya dejó reseña, nunca más se muestra). El email tiene anti-spam de 7 días por usuario/teléfono/pedido, y además nunca envía si `google_review_completed_at` existe. El link de reseña es `https://g.page/r/CepJ7XpQQOkyEBM/review`.
+12. **Tablas del admin usan DataTables** — si se actualizan filas dinámicamente (ej. tras toast de pedido nuevo), se debe usar la API de DataTables (`dt.clear()`, `dt.row.add()`, `dt.draw()`). No manipular `tbody.innerHTML` directamente porque rompe el estado interno del plugin.
+13. **Número de WhatsApp en `BusinessSetting`** — siempre sanitizar con `preg_replace('/\D/', '', $number)` antes de usar en `wa.me/`. El número puede estar guardado con `+`, espacios o guiones; `wa.me` rechaza todo eso y muestra la pantalla de descarga de WhatsApp en lugar de abrir el chat. El doble-sanitizado (PHP + JS) es intencional.
+    - **⚠️ Valor actual en BD local:** `2284647634` — le falta el código de país. El valor correcto para `wa.me` es `5492284647634` (`54` = Argentina, `9` = celular, `2284` = área Olavarría, `647634` = número local). Para corregirlo: en el admin (`/admin/settings`) actualizar el campo WhatsApp a `5492284647634`. También verificar el valor en producción (BD `u412425830_tcocina` en Hostinger).
+14. **Laboratorio BLStudio** — la URL de gestión para el rol `developer` es `/admin/laboratorio/gestionar` (no `/admin/laboratorio`). El rol `developer` **no** tiene acceso a `/admin` (devuelve 403 correcto). La cuenta `admin@tcocina.org` tiene su propio password no documentado en seeders; se creó directo en BD.
+
+
+---
+
+## Landing institucional (sesión 2026-07-02)
+
+**Qué es:** una landing de marca separada del catálogo (vidriera que cuenta la historia de Tcocina y linkea a `/catalog`). **Regla de oro: el catálogo `/catalog` NO se toca.**
+
+- **Fuente / prototipo:** `_landing_preview/index.html` — HTML + CSS + JS inline, self-contained. Assets en `_landing_preview/assets/` (`burgers/`, `foto/`, `scene/`).
+- **Servida en local:** copiada a `public/landing/` → visible en `http://127.0.0.1:8000/landing/index.html`. Todavía NO está repunteada a `/`; al aprobar, definir ruta definitiva (`/` o `/inicio`) y portar a Blade.
+- **Orden de secciones actual:** Hero → **Reseñas** → Menú → Cheese pull → La posta → Historia → Acompañamientos → Copa → Fidelización → Local.
+
+**Cambios de esta sesión (hero + estructura):**
+1. Hero descomprimido: se quitaron el badge/eyebrow, el subtítulo y la fila de stats.
+2. Título nuevo: **"Mejor hamburguesa smash de Olavarría"**.
+3. Botones CTA con efecto **WOW** (glow + brillo animado): "Pedí la tuya ahora" (→ `/catalog`) + "Ver el menú".
+4. Sección de **reseñas movida al 2.º lugar** (debajo del hero); muestra 6 reseñas 5★ + botón a Google.
+5. **Menú recortado a 5 hamburguesas** destacadas (Rayito, La Joya, Cheese Bacon, Piruco, Playita), título "Parte de las estrellas de nuestro catálogo" y un único botón "Ver menú completo" → `/catalog`.
+
+**Pendiente comercial (trabajo presupuestado a Tcocina):** conectar en la sección de reseñas las reseñas reales del sistema propio de la web (modelo `Review`, todas 5★), combinables con las de Google. Presupuesto BLStudio entregado por $150.000 (o $125.000 pago total).
+
+> Handoff detallado de marca, colores, fuentes y secciones en `_CONTEXTO_LANDING.md`.
+

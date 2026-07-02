@@ -380,6 +380,14 @@
         if (key === 'regalo') updateCartDock();
     }
 
+    /* ─── badge helper (declarado antes de CART para uso temprano) ─── */
+    function updateSidenavBadge(id, count) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (count > 0) { el.textContent = count; el.style.display = ''; }
+        else { el.style.display = 'none'; }
+    }
+
     /* ============================================================
        CART
        ============================================================ */
@@ -428,11 +436,19 @@
 
     function updateCartDock() {
         const dock = document.getElementById('lab-cart-dock');
-        if (!dock) return;
         const { items, freeOff, total } = cartTotals();
+
+        // Badge sidebar
+        updateSidenavBadge('snav-carrito-cnt', items.length);
+
+        // Refrescar panel carrito si está activo
+        const panelActive = document.getElementById('panel-carrito')?.classList.contains('active');
+        if (panelActive) renderPanelCarrito();
+
+        if (!dock) return;
         if (items.length === 0) { dock.innerHTML = ''; return; }
         dock.innerHTML = `
-            <div class="lab-cart-dock">
+            <div class="lab-cart-dock vis">
                 <div class="ci"><b>${items.length}</b> ${items.length === 1 ? 'mejora elegida' : 'mejoras elegidas'}
                     ${freeOff > 0 ? '<span style="color:var(--lab-lime-soft)"> · primera gratis</span>' : ''}
                 </div>
@@ -1009,18 +1025,11 @@
         // Aplicar estados guardados
         [...prefs.liked, ...prefs.skipped].forEach(id => applyCardState(id));
         rebuildSkippedSection();
+        // Badges iniciales
+        updateSidenavBadge('snav-megusta-cnt', prefs.liked.length);
+        updateSidenavBadge('snav-guardadas-cnt', prefs.skipped.length);
 
-        // Toggle sección colapsada
-        document.getElementById('lab-skipped-toggle')?.addEventListener('click', () => {
-            const grid = document.getElementById('lab-skipped-grid');
-            if (!grid) return;
-            const open = grid.style.display !== 'none';
-            grid.style.display = open ? 'none' : '';
-            const label = document.getElementById('lab-skipped-label');
-            if (label) label.textContent = open ? 'Guardadas para después' : 'Ocultar guardadas';
-        });
-
-        // Clicks en botones de señal
+        // Clicks en botones de señal (delegación global)
         document.addEventListener('click', e => {
             const likeBtn = e.target.closest('.lab-sig-like');
             const skipBtn = e.target.closest('.lab-sig-skip');
@@ -1032,12 +1041,16 @@
                     prefs.liked = prefs.liked.filter(x => x !== id);
                 } else {
                     prefs.liked.push(id);
-                    // Si estaba en skipped, quitarlo
                     prefs.skipped = prefs.skipped.filter(x => x !== id);
                 }
                 savePrefs();
                 applyCardState(id);
                 rebuildSkippedSection();
+                updateSidenavBadge('snav-megusta-cnt', prefs.liked.length);
+                updateSidenavBadge('snav-guardadas-cnt', prefs.skipped.length);
+                // Refrescar panel activo si corresponde
+                const activePanel = document.querySelector('.lab-panel.active')?.dataset?.panel;
+                if (activePanel === 'me-gusta' || activePanel === 'guardadas') populatePanel(activePanel);
             }
 
             if (skipBtn) {
@@ -1050,8 +1063,390 @@
                 savePrefs();
                 applyCardState(id);
                 rebuildSkippedSection();
+                updateSidenavBadge('snav-megusta-cnt', prefs.liked.length);
+                updateSidenavBadge('snav-guardadas-cnt', prefs.skipped.length);
+                const activePanel = document.querySelector('.lab-panel.active')?.dataset?.panel;
+                if (activePanel === 'me-gusta' || activePanel === 'guardadas') populatePanel(activePanel);
             }
         });
+    }
+
+    /* ============================================================
+       SIDENAV — panel switching
+       ============================================================ */
+    function setupSidenav() {
+        const btns = document.querySelectorAll('.lab-sidenav-btn[data-nav]');
+        const titleEl = document.getElementById('lab-panel-title');
+        const TITLES = {
+            actualizaciones: 'Actualizaciones',
+            guardadas:        'Guardadas para después',
+            'me-gusta':       'Me gusta',
+            activas:          'Mis mejoras activas',
+            carrito:          'Carrito',
+            idea:             'Sugerir una idea',
+        };
+
+        function activatePanel(nav) {
+            // Botones
+            btns.forEach(b => b.classList.toggle('active', b.dataset.nav === nav));
+            // Panels
+            document.querySelectorAll('.lab-panel[data-panel]').forEach(p => {
+                p.classList.toggle('active', p.dataset.panel === nav);
+            });
+            // Título topbar
+            if (titleEl) titleEl.textContent = TITLES[nav] || nav;
+            // Poblar panel
+            populatePanel(nav);
+        }
+
+        btns.forEach(btn => {
+            btn.addEventListener('click', () => activatePanel(btn.dataset.nav));
+        });
+    }
+
+    /* ============================================================
+       POPULATE PANELS — poblar paneles secundarios desde localStorage
+       ============================================================ */
+    function renderImpCard(imp) {
+        const activa  = imp.activa;
+        const proceso = imp.proceso;
+        const bubbles = Array.from({ length: 8 }, (_, b) =>
+            `<i style="left:${12+b*11}%;width:${6+(b%4)*3}px;height:${6+(b%4)*3}px;animation-delay:${b*0.18}s;animation-duration:${2.2+b*0.12}s;"></i>`
+        ).join('');
+        const badgeState = activa
+            ? `<span class="lab-badge activa"><span class="bd"></span>Ya activo en tu web</span>`
+            : proceso
+                ? `<span class="lab-badge proceso"><span class="bd"></span>En camino</span>`
+                : `<span class="lab-badge cat">${escapeHtml(imp.cat ? imp.cat.charAt(0).toUpperCase() + imp.cat.slice(1) : '')}</span>`;
+        const foot = activa
+            ? `<div class="lab-state-line activa"><span class="lab-state-dot"></span>REACTOR ACTIVO</div>`
+            : proceso
+                ? `<div class="lab-state-line proceso"><span class="lab-state-dot"></span>EN SÍNTESIS</div>`
+                : `<div class="lab-price"><div class="amt"><span>USD </span>${Math.round(imp.price || 0)}</div></div>
+                   <div class="lab-card-actions">
+                     <button class="lab-icon-btn" title="Ver cómo queda" data-lab-action="preview" data-id="${imp.id}">
+                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                     </button>
+                     <button class="lab-add-btn${inCart(imp.id) ? ' added' : ''}" data-lab-action="add" data-id="${imp.id}" data-lab-add="${imp.id}">
+                       <span data-tw-copy="add">${inCart(imp.id) ? '✓ Agregada' : 'Me interesa →'}</span>
+                     </button>
+                   </div>`;
+        return `
+        <div class="fade-up" data-lab-cat="${escapeHtml(imp.cat || '')}">
+          <article class="lab-card cat-${escapeHtml(imp.cat || '')}" data-improvement-id="${imp.id}">
+            <div class="meniscus"></div>
+            <div class="cbubbles">${bubbles}</div>
+            <div class="lab-card-top">
+              <span class="cat-ic">${escapeHtml(imp.icon || '✨')}</span>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+                ${imp.nuevo ? '<span class="lab-badge nuevo">Nuevo</span>' : ''}
+                ${badgeState}
+              </div>
+            </div>
+            <h4>${escapeHtml(imp.nombre || '')}</h4>
+            <p class="cdesc">${escapeHtml(imp.short || '')}</p>
+            <div class="lab-card-foot">${foot}</div>
+            <div class="lab-card-signals">
+              <button class="lab-sig-like${prefs.liked.includes(imp.id) ? ' active' : ''}" data-sig-id="${imp.id}" title="Me gusta">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                <span>Me gusta</span>
+              </button>
+              <button class="lab-sig-skip" data-sig-id="${imp.id}" title="No me interesa ahora">No me interesa</button>
+            </div>
+          </article>
+        </div>`;
+    }
+
+    function populatePanel(nav) {
+        if (nav === 'guardadas') {
+            const grid  = document.getElementById('guardadas-grid');
+            const empty = document.getElementById('guardadas-empty');
+            if (!grid) return;
+            const items = prefs.skipped.map(id => IMP_BY_ID[id]).filter(Boolean);
+            grid.innerHTML = items.map(renderImpCard).join('');
+            if (empty) empty.style.display = items.length ? 'none' : '';
+            mountAllStars();
+        } else if (nav === 'me-gusta') {
+            const grid  = document.getElementById('megusta-grid');
+            const empty = document.getElementById('megusta-empty');
+            if (!grid) return;
+            const items = prefs.liked.map(id => IMP_BY_ID[id]).filter(Boolean);
+            grid.innerHTML = items.map(renderImpCard).join('');
+            if (empty) empty.style.display = items.length ? 'none' : '';
+            mountAllStars();
+        } else if (nav === 'activas') {
+            const grid  = document.getElementById('activas-grid');
+            const empty = document.getElementById('activas-empty');
+            if (!grid) return;
+            const items = IMPS.filter(i => i.activa);
+            grid.innerHTML = items.map(renderImpCard).join('');
+            if (empty) empty.style.display = items.length ? 'none' : '';
+            mountAllStars();
+        } else if (nav === 'carrito') {
+            renderPanelCarrito();
+        }
+    }
+
+    function renderPanelCarrito() {
+        const itemsEl  = document.getElementById('panel-carrito-items');
+        const emptyEl  = document.getElementById('panel-carrito-empty');
+        const totalsEl = document.getElementById('panel-carrito-totals');
+        if (!itemsEl) return;
+        const { items, freeOff, subtotal, total } = cartTotals();
+
+        if (items.length === 0) {
+            itemsEl.innerHTML = '';
+            if (emptyEl)  emptyEl.style.display  = '';
+            if (totalsEl) totalsEl.style.display = 'none';
+            return;
+        }
+        if (emptyEl)  emptyEl.style.display  = 'none';
+        if (totalsEl) totalsEl.style.display = '';
+
+        itemsEl.innerHTML = items.map(imp => `
+            <div class="lab-pc-item">
+                <div class="lab-pc-item-icon">${escapeHtml(imp.icon || '✨')}</div>
+                <div class="lab-pc-item-info">
+                    <div class="lab-pc-item-name">${escapeHtml(imp.nombre || '')}</div>
+                    <div class="lab-pc-item-price">USD ${Math.round(imp.price || 0)}</div>
+                </div>
+                <button class="lab-pc-remove" data-lab-action="add" data-id="${imp.id}" title="Quitar">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>`).join('');
+
+        const subEl  = document.getElementById('panel-cart-subtotal');
+        const freeEl = document.getElementById('panel-cart-free');
+        const freeRow= document.getElementById('panel-cart-free-row');
+        const totEl  = document.getElementById('panel-cart-total');
+        if (subEl) subEl.textContent = fmt(subtotal);
+        if (totEl) totEl.textContent = fmt(total);
+        if (freeEl) freeEl.textContent = fmt(freeOff);
+        if (freeRow) freeRow.style.display = freeOff > 0 ? 'flex' : 'none';
+    }
+
+    /* ============================================================
+       SETUP IDEA PANEL
+       ============================================================ */
+    function setupIdeaPanel() {
+        const ta      = document.getElementById('lab-idea-text');
+        const countEl = document.getElementById('lab-idea-count');
+        const sendBtn = document.getElementById('lab-idea-send');
+        const fileIn  = document.getElementById('lab-idea-file');
+        const imgWrap = document.getElementById('lab-idea-img-wrap');
+        const imgPrev = document.getElementById('lab-idea-img-prev');
+        const imgX    = document.getElementById('lab-idea-img-x');
+        const formEl  = document.getElementById('lab-idea-form-panel');
+        const sentEl  = document.getElementById('lab-idea-sent');
+        if (!ta) return;
+
+        let currentFile = null;
+
+        const updateUI = () => {
+            if (countEl) countEl.textContent = ta.value.length;
+            sendBtn.disabled = !(ta.value.trim().length > 0 || currentFile);
+        };
+
+        ta.addEventListener('input', () => { updateUI(); ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 180) + 'px'; });
+
+        const attachImage = file => {
+            if (!file || !file.type.startsWith('image/')) return;
+            currentFile = file;
+            const reader = new FileReader();
+            reader.onload = e => { imgPrev.src = e.target.result; imgWrap.style.display = ''; updateUI(); };
+            reader.readAsDataURL(file);
+        };
+
+        fileIn && fileIn.addEventListener('change', () => attachImage(fileIn.files[0]));
+
+        ta.addEventListener('paste', e => {
+            const items = (e.clipboardData || window.clipboardData || {}).items || [];
+            for (const it of items) {
+                if (it.type && it.type.startsWith('image/')) { attachImage(it.getAsFile()); e.preventDefault(); break; }
+            }
+        });
+
+        imgX && imgX.addEventListener('click', () => {
+            currentFile = null; fileIn.value = ''; imgWrap.style.display = 'none'; imgPrev.src = ''; updateUI();
+        });
+
+        sendBtn.addEventListener('click', () => {
+            const txt = ta.value.trim();
+            if (!txt && !currentFile) return;
+            sendBtn.disabled = true;
+            const form = new FormData();
+            form.append('_token', BOOT.csrf);
+            if (txt) form.append('idea', txt);
+            if (currentFile) form.append('imagen', currentFile);
+            fetch(BOOT.urls.idea, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }, body: form })
+            .then(r => r.json())
+            .then(() => {
+                ta.value = ''; ta.style.height = 'auto'; currentFile = null; fileIn.value = ''; imgWrap.style.display = 'none'; imgPrev.src = '';
+                if (formEl) formEl.style.display = 'none';
+                if (sentEl) sentEl.style.display = 'flex';
+                setTimeout(() => {
+                    if (sentEl) sentEl.style.display = 'none';
+                    if (formEl) formEl.style.display = '';
+                    updateUI();
+                }, 4000);
+            })
+            .catch(() => alert('No se pudo enviar la idea. Probá de nuevo.'))
+            .finally(() => { sendBtn.disabled = false; updateUI(); });
+        });
+    }
+
+    /* ============================================================
+       SHADER BACKGROUND (WebGL · líneas plasma)
+       ============================================================ */
+    function setupShaderBg() {
+        const canvas = document.getElementById('lab-shader-bg');
+        if (!canvas) return;
+
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (!gl) { canvas.style.display = 'none'; return; }
+
+        const VS = `
+            attribute vec4 aVertexPosition;
+            void main() { gl_Position = aVertexPosition; }
+        `;
+        const FS = `
+            precision highp float;
+            uniform vec2 iResolution;
+            uniform float iTime;
+
+            const float overallSpeed = 0.2;
+            const float gridSmoothWidth = 0.015;
+            const float axisWidth = 0.05;
+            const float majorLineWidth = 0.025;
+            const float minorLineWidth = 0.0125;
+            const float majorLineFrequency = 5.0;
+            const float minorLineFrequency = 1.0;
+            const float scale = 5.0;
+            const vec4 lineColor = vec4(0.35, 0.45, 0.95, 1.0);
+            const float minLineWidth = 0.01;
+            const float maxLineWidth = 0.2;
+            const float lineSpeed = 1.0 * overallSpeed;
+            const float lineAmplitude = 1.0;
+            const float lineFrequency = 0.2;
+            const float warpSpeed = 0.2 * overallSpeed;
+            const float warpFrequency = 0.5;
+            const float warpAmplitude = 1.0;
+            const float offsetFrequency = 0.5;
+            const float offsetSpeed = 1.33 * overallSpeed;
+            const float minOffsetSpread = 0.6;
+            const float maxOffsetSpread = 2.0;
+            const int linesPerGroup = 16;
+
+            #define drawCircle(pos, radius, coord) smoothstep(radius + gridSmoothWidth, radius, length(coord - (pos)))
+            #define drawSmoothLine(pos, halfWidth, t) smoothstep(halfWidth, 0.0, abs(pos - (t)))
+            #define drawCrispLine(pos, halfWidth, t) smoothstep(halfWidth + gridSmoothWidth, halfWidth, abs(pos - (t)))
+            #define drawPeriodicLine(freq, width, t) drawCrispLine(freq / 2.0, width, abs(mod(t, freq) - (freq) / 2.0))
+
+            float random(float t) {
+                return (cos(t) + cos(t * 1.3 + 1.3) + cos(t * 1.4 + 1.4)) / 3.0;
+            }
+            float getPlasmaY(float x, float horizontalFade, float offset) {
+                return random(x * lineFrequency + iTime * lineSpeed) * horizontalFade * lineAmplitude + offset;
+            }
+            void main() {
+                vec2 fragCoord = gl_FragCoord.xy;
+                vec4 fragColor;
+                vec2 uv = fragCoord.xy / iResolution.xy;
+                vec2 space = (fragCoord - iResolution.xy / 2.0) / iResolution.x * 2.0 * scale;
+
+                float horizontalFade = 1.0 - (cos(uv.x * 6.28) * 0.5 + 0.5);
+                float verticalFade = 1.0 - (cos(uv.y * 6.28) * 0.5 + 0.5);
+
+                space.y += random(space.x * warpFrequency + iTime * warpSpeed) * warpAmplitude * (0.5 + horizontalFade);
+                space.x += random(space.y * warpFrequency + iTime * warpSpeed + 2.0) * warpAmplitude * horizontalFade;
+
+                vec4 lines = vec4(0.0);
+                vec4 bgColor1 = vec4(0.04, 0.07, 0.16, 1.0);
+                vec4 bgColor2 = vec4(0.10, 0.08, 0.22, 1.0);
+
+                for(int l = 0; l < linesPerGroup; l++) {
+                    float normalizedLineIndex = float(l) / float(linesPerGroup);
+                    float offsetTime = iTime * offsetSpeed;
+                    float offsetPosition = float(l) + space.x * offsetFrequency;
+                    float rand = random(offsetPosition + offsetTime) * 0.5 + 0.5;
+                    float halfWidth = mix(minLineWidth, maxLineWidth, rand * horizontalFade) / 2.0;
+                    float offset = random(offsetPosition + offsetTime * (1.0 + normalizedLineIndex)) * mix(minOffsetSpread, maxOffsetSpread, horizontalFade);
+                    float linePosition = getPlasmaY(space.x, horizontalFade, offset);
+                    float line = drawSmoothLine(linePosition, halfWidth, space.y) / 2.0 + drawCrispLine(linePosition, halfWidth * 0.15, space.y);
+
+                    float circleX = mod(float(l) + iTime * lineSpeed, 25.0) - 12.0;
+                    vec2 circlePosition = vec2(circleX, getPlasmaY(circleX, horizontalFade, offset));
+                    float circle = drawCircle(circlePosition, 0.01, space) * 4.0;
+
+                    line = line + circle;
+                    lines += line * lineColor * rand;
+                }
+
+                fragColor = mix(bgColor1, bgColor2, uv.x);
+                fragColor *= verticalFade;
+                fragColor.a = 1.0;
+                fragColor += lines;
+                gl_FragColor = fragColor;
+            }
+        `;
+
+        function compile(type, src) {
+            const sh = gl.createShader(type);
+            gl.shaderSource(sh, src);
+            gl.compileShader(sh);
+            if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+                console.error('Shader compile:', gl.getShaderInfoLog(sh));
+                gl.deleteShader(sh);
+                return null;
+            }
+            return sh;
+        }
+
+        const prog = gl.createProgram();
+        const vs = compile(gl.VERTEX_SHADER, VS);
+        const fs = compile(gl.FRAGMENT_SHADER, FS);
+        if (!vs || !fs) { canvas.style.display = 'none'; return; }
+        gl.attachShader(prog, vs);
+        gl.attachShader(prog, fs);
+        gl.linkProgram(prog);
+        if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+            console.error('Shader link:', gl.getProgramInfoLog(prog));
+            canvas.style.display = 'none';
+            return;
+        }
+
+        const buf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+
+        const aPos = gl.getAttribLocation(prog, 'aVertexPosition');
+        const uRes = gl.getUniformLocation(prog, 'iResolution');
+        const uTime = gl.getUniformLocation(prog, 'iTime');
+
+        function resize() {
+            const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+            const w = canvas.clientWidth, h = canvas.clientHeight;
+            canvas.width = Math.max(1, Math.floor(w * dpr));
+            canvas.height = Math.max(1, Math.floor(h * dpr));
+            gl.viewport(0, 0, canvas.width, canvas.height);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const start = Date.now();
+        function render() {
+            const t = reduce ? 0 : (Date.now() - start) / 1000;
+            gl.useProgram(prog);
+            gl.uniform2f(uRes, canvas.width, canvas.height);
+            gl.uniform1f(uTime, t);
+            gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+            gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(aPos);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            if (!reduce) requestAnimationFrame(render);
+        }
+        requestAnimationFrame(render);
     }
 
     /* ============================================================
@@ -1059,6 +1454,7 @@
        ============================================================ */
     document.addEventListener('DOMContentLoaded', () => {
         ensureLottieReady(mountLotties);
+        setupShaderBg();
 
         // ELIMINADO: canvas matrix (rediseño minimalista sin matrix)
         // ensureBgCanvases();
@@ -1070,6 +1466,8 @@
         updateAddButtons();
         updateCartDock();
         setupIdea();
+        setupIdeaPanel();
+        setupSidenav();
         setupIntro();
         setupSignals();
         if (BOOT.isDeveloper) setupTweaks();
@@ -1108,9 +1506,13 @@
             }
         });
 
-        // submit order
+        // submit order (modal)
         const orderBtn = document.getElementById('lab-order-submit');
         orderBtn && orderBtn.addEventListener('click', submitOrder);
+
+        // submit order desde panel carrito
+        const panelCartBtn = document.getElementById('panel-cart-submit');
+        panelCartBtn && panelCartBtn.addEventListener('click', submitOrder);
 
         // signals clear
         const sigClear = document.getElementById('lab-sig-clear');

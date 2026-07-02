@@ -58,8 +58,8 @@
             </div>
 
             @php
-                // Formatear el número de WhatsApp (eliminar espacios y caracteres especiales)
-                $whatsappNumber = \App\Models\BusinessSetting::get('whatsapp_number', '5492494015745');
+                // Formatear el número de WhatsApp: solo dígitos (wa.me rechaza '+', espacios, guiones, etc. y muestra la pantalla de descarga)
+                $whatsappNumber = preg_replace('/\D/', '', \App\Models\BusinessSetting::get('whatsapp_number', '5492494015745'));
 
                 // Construir el mensaje para WhatsApp sin emojis
                 $lines = [];
@@ -430,6 +430,25 @@
     if (!btn) return;
 
     btn.addEventListener('click', function () {
+        // GA4 — evento purchase al confirmar por WhatsApp
+        if (typeof gtag === 'function') {
+            gtag('event', 'purchase', {
+                transaction_id: '{{ $order->order_number }}',
+                value: {{ $order->total_amount }},
+                currency: 'ARS',
+                items: [
+                    @foreach($order->items as $item)
+                    {
+                        item_id: '{{ $item->product_id }}',
+                        item_name: '{{ addslashes($item->product->name ?? "Producto") }}',
+                        quantity: {{ $item->quantity }},
+                        price: {{ $item->unit_price ?? $item->total_price / max($item->quantity, 1) }},
+                    },
+                    @endforeach
+                ]
+            });
+        }
+
         if (!notice) return;
         notice.style.display = 'block';
         let seconds = 3;

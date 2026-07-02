@@ -265,13 +265,54 @@
         }
     }
 
+    /* Romper el overflow del table-responsive para que los dropdowns salgan */
+    .card-body .table-responsive:has(#orders-table) {
+        overflow: visible !important;
+    }
+    /* También para el wrapper de DataTables de la tabla histórica */
+    #orders-table-historico_wrapper {
+        overflow: visible !important;
+    }
+
+    /* Hover en items del dropdown de acciones */
+    .dropdown-menu .dropdown-item {
+        transition: background-color 0.2s ease, color 0.2s ease;
+        border-radius: 6px;
+        margin: 2px 6px;
+        padding: 0.5rem 0.75rem;
+    }
+    .dropdown-menu .dropdown-item:hover {
+        background-color: #e0f7fa;
+        color: #006064;
+    }
+    .dropdown-menu .dropdown-item.text-success:hover {
+        background-color: #e8f5e9;
+        color: #1b5e20;
+    }
+    .dropdown-menu .dropdown-item.text-warning:hover {
+        background-color: #fff3e0;
+        color: #e65100;
+    }
+    .dropdown-menu .dropdown-item.text-danger:hover {
+        background-color: #ffebee;
+        color: #b71c1c;
+    }
+
+    /* Fila de pedido entregado — verde visible en tema oscuro */
+    .order-row-delivered {
+        background-color: rgba(34, 197, 94, 0.18) !important;
+        border-left: 3px solid #22c55e;
+    }
+    .order-row-delivered td {
+        background-color: rgba(34, 197, 94, 0.18) !important;
+    }
+    .order-row-delivered:hover td,
+    .order-row-delivered:hover {
+        background-color: rgba(34, 197, 94, 0.30) !important;
+    }
+
     /* ===== TABLA PEDIDOS DEL DÍA — MOBILE CARDS ===== */
     @media (max-width: 768px) {
-        /* Romper el table-responsive wrapper */
-        .card-body .table-responsive:has(#orders-table) {
-            overflow: visible !important;
-        }
-
         /* Quitar el min-width heredado */
         table#orders-table,
         table#orders-table.dataTable {
@@ -597,6 +638,17 @@
                                         </a>
                                     @endif
                                 </div>
+                                @if($order->user && $order->user->email)
+                                <div class="input-group input-group-sm mt-1">
+                                    <span class="input-group-text">Email</span>
+                                    <input type="text" class="form-control" value="{{ $order->user->email }}" readonly>
+                                    @if($order->user->google_id)
+                                        <span class="input-group-text" title="Login con Google">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 7.293C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+                                        </span>
+                                    @endif
+                                </div>
+                                @endif
                             </div>
                             <div class="col-md-6">
                                 <h6 class="mb-2">Detalles</h6>
@@ -843,6 +895,17 @@
                                         </a>
                                     @endif
                                 </div>
+                                @if($order->user && $order->user->email)
+                                <div class="input-group input-group-sm mt-1">
+                                    <span class="input-group-text">Email</span>
+                                    <input type="text" class="form-control" value="{{ $order->user->email }}" readonly>
+                                    @if($order->user->google_id)
+                                        <span class="input-group-text" title="Login con Google">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 7.293C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+                                        </span>
+                                    @endif
+                                </div>
+                                @endif
                             </div>
                             <div class="col-md-6">
                                 <h6 class="mb-2">Detalles</h6>
@@ -1133,10 +1196,10 @@
                                 </thead>
                                 <tbody id="orders-tbody-hoy">
                                     @foreach ($pedidosFecha as $order)
-                                        <tr>
+                                        <tr class="{{ $order->status === 'delivered' ? 'order-row-delivered' : '' }}">
                                             <td>
                                                 <div class="form-check">
-                                                <input type="checkbox" class="form-check-input order-checkbox" 
+                                                <input type="checkbox" class="form-check-input order-checkbox"
                                                            value="{{ $order->id }}" data-order-number="{{ $order->order_number }}">
                                                     <label class="form-check-label visually-hidden">Seleccionar pedido</label>
                                                 </div>
@@ -1151,6 +1214,9 @@
                                                             {{ $order->user && $order->user->name !== 'Invitado' ? $order->user->name : ($order->contact_name ?: 'Invitado') }}
                                                             @if($order->user && $order->user->google_id)
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 18 18" style="flex-shrink:0;vertical-align:middle" title="Login con Google"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 7.293C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+                                                            @endif
+                                                            @if($order->reviews->isNotEmpty())
+                                                            <i class="fas fa-star text-warning" style="font-size: 0.75rem;" title="Dejó reseña"></i>
                                                             @endif
                                                         </div>
                                                         <div class="d-flex align-items-center gap-1">
@@ -1247,22 +1313,14 @@
                                                     @endif
                                                 @endif
 
-                                                @if ($order->status === 'delivered' && $order->user_id && !orderHasLoyaltyAwarded($order, $alreadyAwardedIds))
+                                                @if ($order->status === 'delivered' && $order->user_id && $order->user && $order->user->email !== 'guest@tecocina.local' && !orderHasLoyaltyAwarded($order, $alreadyAwardedIds))
                                                     <div class="loyalty-blur-overlay">
-                                                        <div class="loyalty-overlay-card">
-                                                            <div class="loyalty-overlay-avatar">
-                                                                <i class="fas fa-user-circle"></i>
-                                                            </div>
-                                                            <div class="loyalty-overlay-name">
-                                                                {{ $order->user?->name ?? ($order->contact_name ?: 'Usuario') }}
-                                                            </div>
-                                                            <button type="button" class="btn btn-loyalty-green"
-                                                                onclick="openAwardLoyaltyModal({{ $order->id }})"
-                                                                title="Repartir figuritas al usuario">
-                                                                <i class="fas fa-envelope-open-text"></i>
-                                                                <span>Repartir figuritas</span>
-                                                            </button>
-                                                        </div>
+                                                        <button type="button" class="btn btn-loyalty-green"
+                                                            onclick="openAwardLoyaltyModal({{ $order->id }})"
+                                                            title="Repartir figuritas al usuario">
+                                                            <i class="fas fa-envelope-open-text"></i>
+                                                            <span>Repartir figuritas</span>
+                                                        </button>
                                                     </div>
                                                 @endif
                                             </td>
@@ -1326,6 +1384,18 @@
                                                             @if($phone && $cleanPhone)
                                                                 <a href="{{ $whatsappLink }}" target="_blank" class="dropdown-item text-success">
                                                                     <i class="fab fa-whatsapp me-2"></i>Enviar WhatsApp
+                                                                </a>
+                                                            @endif
+                                                        </li>
+                                                        <li>
+                                                            @php
+                                                                $reviewMsg = urlencode("¡Hola {$name}! ¿Te gustaron nuestras hamburguesas? Si tenés un minuto, nos ayudaría mucho tu opinión en Google: https://g.page/r/CepJ7XpQQOkyEBM/review");
+                                                                $reviewWhatsappLink = "https://wa.me/{$cleanPhone}?text={$reviewMsg}";
+                                                            @endphp
+                                                            @if($phone && $cleanPhone)
+                                                                <a href="{{ $reviewWhatsappLink }}" target="_blank" class="dropdown-item text-warning"
+                                                                   onclick="markReviewPrompted({{ $order->id }})" id="review-btn-{{ $order->id }}">
+                                                                    <i class="fas fa-star me-2"></i>Solicitar reseña
                                                                 </a>
                                                             @endif
                                                         </li>
@@ -1426,7 +1496,7 @@
                                                         }
                                                     }
                                                 @endphp
-                                                <tr data-hamb="{{ $hambCount }}" data-side="{{ $sideCount }}" data-other="{{ $otherCount }}">
+                                                <tr class="{{ $order->status === 'delivered' ? 'order-row-delivered' : '' }}" data-hamb="{{ $hambCount }}" data-side="{{ $sideCount }}" data-other="{{ $otherCount }}">
                                                     <td>
                                                         <div class="form-check">
                                                         <input type="checkbox" class="form-check-input order-checkbox" 
@@ -1449,6 +1519,9 @@
                                                                         {{ $order->user && $order->user->name !== 'Invitado' ? $order->user->name : ($order->contact_name ?: 'Invitado') }}
                                                                         @if($order->user && $order->user->google_id)
                                                                         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 18 18" style="flex-shrink:0;vertical-align:middle" title="Login con Google"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 7.293C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+                                                                        @endif
+                                                                        @if($order->reviews->isNotEmpty())
+                                                                        <i class="fas fa-star text-warning" style="font-size: 0.75rem;" title="Dejó reseña"></i>
                                                                         @endif
                                                                     </div>
                                                                     <div class="d-flex align-items-center gap-1">
@@ -1538,22 +1611,14 @@
                                                             <span class="badge bg-secondary">Sin horario</span>
                                                         @endif
 
-                                                        @if ($order->status === 'delivered' && $order->user_id && !orderHasLoyaltyAwarded($order, $alreadyAwardedIds))
+                                                        @if ($order->status === 'delivered' && $order->user_id && $order->user && $order->user->email !== 'guest@tecocina.local' && !orderHasLoyaltyAwarded($order, $alreadyAwardedIds))
                                                             <div class="loyalty-blur-overlay">
-                                                                <div class="loyalty-overlay-card">
-                                                                    <div class="loyalty-overlay-avatar">
-                                                                        <i class="fas fa-user-circle"></i>
-                                                                    </div>
-                                                                    <div class="loyalty-overlay-name">
-                                                                        {{ $order->user?->name ?? ($order->contact_name ?: 'Usuario') }}
-                                                                    </div>
-                                                                    <button type="button" class="btn btn-loyalty-green"
-                                                                        onclick="openAwardLoyaltyModal({{ $order->id }})"
-                                                                        title="Repartir figuritas al usuario">
-                                                                        <i class="fas fa-envelope-open-text"></i>
-                                                                        <span>Repartir figuritas</span>
-                                                                    </button>
-                                                                </div>
+                                                                <button type="button" class="btn btn-loyalty-green"
+                                                                    onclick="openAwardLoyaltyModal({{ $order->id }})"
+                                                                    title="Repartir figuritas al usuario">
+                                                                    <i class="fas fa-envelope-open-text"></i>
+                                                                    <span>Repartir figuritas</span>
+                                                                </button>
                                                             </div>
                                                         @endif
                                                     </td>
@@ -3125,48 +3190,14 @@
         .loyalty-blur-overlay {
             position: absolute;
             inset: 0;
-            backdrop-filter: blur(8px) saturate(120%);
-            -webkit-backdrop-filter: blur(8px) saturate(120%);
-            background: rgba(255,255,255,0.82);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            background: rgba(255,255,255,0.25);
             z-index: 10;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 6px;
-            animation: fadeInOverlay 0.35s ease-out;
-        }
-        @keyframes fadeInOverlay {
-            from { opacity: 0; }
-            to   { opacity: 1; }
-        }
-
-        .loyalty-overlay-card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.3rem;
-            padding: 0.35rem;
-            text-align: center;
-        }
-
-        .loyalty-overlay-avatar {
-            color: #198754;
-            font-size: 1.1rem;
-            line-height: 1;
-        }
-        .loyalty-overlay-avatar i {
-            font-size: 1.1rem !important;
-        }
-
-        .loyalty-overlay-name {
-            font-size: 0.65rem;
-            font-weight: 600;
-            color: #0f5132;
-            max-width: 90px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            line-height: 1.2;
         }
 
         .btn-loyalty-green {
@@ -3284,35 +3315,48 @@
 
         function updateOrdersTable(data) {
             // Actualizar tabla de pedidos de hoy
-            const tbody = document.getElementById('orders-tbody-hoy');
-            if (tbody && data.pedidos_hoy) {
-                tbody.innerHTML = '';
-                
-                // Debug: Log del orden de pedidos recibidos
-                console.log('📋 Pedidos recibidos del servidor:', data.pedidos_hoy.map(order => ({
-                    id: order.id,
-                    created_at: order.created_at,
-                    microturno_sort_order: order.microturno_sort_order,
-                    status: order.status
-                })));
-                
-                data.pedidos_hoy.forEach(order => {
-                    const row = createOrderRow(order, data.microturnos_hoy);
-                    tbody.appendChild(row);
-                });
-            }
-            
-            // Actualizar tabla de pedidos históricos si es necesario
-            const historicoTbody = document.getElementById('orders-tbody-historico');
-            if (historicoTbody && data.pedidos_historico) {
-                // Solo actualizar si estamos en la primera página
-                if (data.pedidos_historico.current_page === 1) {
-                    historicoTbody.innerHTML = '';
-                    
-                    data.pedidos_historico.data.forEach(order => {
-                        const row = createOrderRow(order, data.microturnos_hoy, true);
-                        historicoTbody.appendChild(row);
+            if (data.pedidos_hoy) {
+                if ($.fn.DataTable.isDataTable('#orders-table')) {
+                    const dt = $('#orders-table').DataTable();
+                    dt.clear();
+                    data.pedidos_hoy.forEach(order => {
+                        dt.row.add(createOrderRow(order, data.microturnos_hoy));
                     });
+                    dt.draw();
+                } else {
+                    const tbody = document.getElementById('orders-tbody-hoy');
+                    if (tbody) {
+                        tbody.innerHTML = '';
+                        data.pedidos_hoy.forEach(order => {
+                            const row = createOrderRow(order, data.microturnos_hoy);
+                            tbody.appendChild(row);
+                        });
+                    }
+                }
+            }
+
+            // Actualizar tabla de pedidos históricos si es necesario
+            if (data.pedidos_historico) {
+                const historico = Array.isArray(data.pedidos_historico)
+                    ? data.pedidos_historico
+                    : (data.pedidos_historico.data || []);
+
+                if ($.fn.DataTable.isDataTable('#orders-table-historico')) {
+                    const dt = $('#orders-table-historico').DataTable();
+                    dt.clear();
+                    historico.forEach(order => {
+                        dt.row.add(createOrderRow(order, data.microturnos_hoy, true));
+                    });
+                    dt.draw();
+                } else {
+                    const historicoTbody = document.getElementById('orders-tbody-historico');
+                    if (historicoTbody) {
+                        historicoTbody.innerHTML = '';
+                        historico.forEach(order => {
+                            const row = createOrderRow(order, data.microturnos_hoy, true);
+                            historicoTbody.appendChild(row);
+                        });
+                    }
                 }
             }
         }
@@ -3353,6 +3397,19 @@
         function createOrderRow(order, microturnosHoy, isHistorico = false) {
             const row = document.createElement('tr');
             row.dataset.orderNumber = order.order_number;
+            if (order.status === 'delivered') row.classList.add('order-row-delivered');
+
+            // Datos para WhatsApp y solicitud de reseña
+            const phone = (order.user && order.user.phone ? order.user.phone : order.contact_phone) || '';
+            let cleanPhone = phone.replace(/\D/g, '');
+            if (cleanPhone.length === 10 && !cleanPhone.startsWith('54')) {
+                cleanPhone = '54' + cleanPhone;
+            }
+            const wName = (order.user && order.user.name !== 'Invitado') ? order.user.name : (order.contact_name || 'Cliente');
+            const wText = encodeURIComponent(`Hola ${wName}, soy de T Cocina. Te escribo respecto a tu pedido #${order.order_number}.`);
+            const wLink = `https://wa.me/${cleanPhone}?text=${wText}`;
+            const rText = encodeURIComponent(`¡Hola ${wName}! ¿Te gustaron nuestras hamburguesas? Si tenés un minuto, nos ayudaría mucho tu opinión en Google: https://g.page/r/CepJ7XpQQOkyEBM/review`);
+            const rLink = `https://wa.me/${cleanPhone}?text=${rText}`;
 
             // Determinar el horario asignado
             let horarioAsignado = 'Sin horario';
@@ -3367,15 +3424,23 @@
             const statusClass = getStatusClass(order.status);
             const statusText = getStatusText(order.status);
             
+            const fechaCell = isHistorico ? `
+                <td data-label="Fecha">
+                    <small>${order.created_at ? new Date(order.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) : ''}</small>
+                    <br><small class="text-muted">${order.created_at ? new Date(order.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : ''}</small>
+                </td>
+            ` : '';
+
             row.innerHTML = `
                 <td>
                     <div class="form-check">
-                        <input type="checkbox" class="form-check-input order-checkbox" 
+                        <input type="checkbox" class="form-check-input order-checkbox"
                                value="${order.id}" data-order-number="${order.order_number}"
                                style="transform: scale(1.2);">
                         <label class="form-check-label visually-hidden">Seleccionar pedido</label>
                     </div>
                 </td>
+                ${fechaCell}
                 <td data-label="Cliente">
                     <div class="d-flex align-items-center">
                         <div class="modern-profile-icon-container">
@@ -3385,6 +3450,7 @@
                             <div class="fw-semibold d-flex align-items-center gap-1">
                                 ${order.user && order.user.name !== 'Invitado' ? order.user.name : (order.contact_name || 'Invitado')}
                                 ${order.user && order.user.google_id ? '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 18 18" style="flex-shrink:0;vertical-align:middle" title="Login con Google"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 7.293C4.672 5.163 6.656 3.58 9 3.58z"/></svg>' : ''}
+                                ${order.reviews && order.reviews.length > 0 ? '<i class="fas fa-star text-warning" style="font-size: 0.75rem;" title="Dejó reseña"></i>' : ''}
                             </div>
                             <small class="text-muted">${order.user && order.user.phone ? order.user.phone : (order.contact_phone || 'Sin teléfono')}</small>
                         </div>
@@ -3426,30 +3492,25 @@
                     ` : `
                         <span class="badge badge-schedule-professional">${horarioAsignado}</span>
                     `}
-                    ${order.status === 'delivered' && order.user_id && !jsOrderHasLoyaltyAwarded(order) ? `
+                    ${order.status === 'delivered' && order.user_id && order.user && order.user.email !== 'guest@tecocina.local' && !jsOrderHasLoyaltyAwarded(order) ? `
                         <div class="loyalty-blur-overlay">
-                            <div class="loyalty-overlay-card">
-                                <div class="loyalty-overlay-avatar"><i class="fas fa-user-circle"></i></div>
-                                <div class="loyalty-overlay-name">${(order.user && order.user.name) || (order.contact_name) || 'Usuario'}</div>
-                                <button type="button" class="btn btn-loyalty-green"
-                                    onclick="openAwardLoyaltyModal(${order.id})"
-                                    title="Repartir figuritas al usuario">
-                                    <i class="fas fa-envelope-open-text"></i>
-                                    <span>Repartir figuritas</span>
-                                </button>
-                            </div>
+                            <button type="button" class="btn btn-loyalty-green"
+                                onclick="openAwardLoyaltyModal(${order.id})"
+                                title="Repartir figuritas al usuario">
+                                <i class="fas fa-envelope-open-text"></i>
+                                <span>Repartir figuritas</span>
+                            </button>
                         </div>
                     ` : ''}
                 </td>
                 <td data-label="Estado">
-                    <select class="form-select order-edit" data-field="status" data-order-id="${order.id}">
+                    <select class="form-select form-select-sm status-select" data-order-id="${order.id}">
                         <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pendiente</option>
                         <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>Confirmado</option>
-                        <option value="preparing" ${order.status === 'preparing' ? 'selected' : ''}>Preparando</option>
-                        <option value="ready" ${order.status === 'ready' ? 'selected' : ''}>Listo</option>
+                        <option value="preparing" ${order.status === 'preparing' ? 'selected' : ''}>En Preparación</option>
+                        <option value="ready" ${order.status === 'ready' ? 'selected' : ''}>Listo ✓</option>
                         ${order.address_id ? `<option value="on_the_way" ${order.status === 'on_the_way' ? 'selected' : ''}>En camino 🛵</option>` : ''}
                         <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Entregado</option>
-                        <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelado</option>
                     </select>
                 </td>
                 <td data-label="Acciones">
@@ -3465,6 +3526,14 @@
                             <li><a class="dropdown-item" href="#" onclick="printOrder(${order.id})">
                                 <i class="fas fa-print me-2"></i>Imprimir
                             </a></li>
+                            ${phone && cleanPhone ? `
+                            <li><a class="dropdown-item text-success" href="${wLink}" target="_blank">
+                                <i class="fab fa-whatsapp me-2"></i>Enviar WhatsApp
+                            </a></li>
+                            <li><a class="dropdown-item text-warning" href="${rLink}" target="_blank" onclick="markReviewPrompted(${order.id})" id="review-btn-${order.id}">
+                                <i class="fas fa-star me-2"></i>Solicitar reseña
+                            </a></li>
+                            ` : ''}
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item text-danger" href="#" onclick="deleteOrder(${order.id})">
                                 <i class="fas fa-trash me-2"></i>Eliminar
@@ -4171,6 +4240,26 @@
             window.open(`/admin/orders/${orderId}/print`, '_blank');
         }
 
+        function markReviewPrompted(orderId) {
+            fetch(`/admin/orders/${orderId}/mark-review-prompted`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }).then(r => r.json()).then(data => {
+                if (data.success) {
+                    const btn = document.getElementById('review-btn-' + orderId);
+                    if (btn) {
+                        btn.classList.add('disabled', 'text-muted');
+                        btn.style.pointerEvents = 'none';
+                        btn.innerHTML = '<i class="fas fa-check me-2"></i>Reseña solicitada';
+                    }
+                }
+            }).catch(() => {});
+        }
+
         let _awardLoyaltyTargetId = null;
         let _awardLoyaltyBtnElement = null;
 
@@ -4601,7 +4690,9 @@
             // Event listeners para campos editables
             document.addEventListener('input', function(e) {
                 if (e.target.classList.contains('order-edit')) {
-                    const orderId = e.target.closest('.modal').id.replace('modalOrder', '');
+                    const modalEl = e.target.closest('.modal');
+                    if (!modalEl) return; // order-edit solo se auto-guarda dentro de un modal
+                    const orderId = modalEl.id.replace('modalOrder', '');
                     const field = e.target.getAttribute('data-field');
                     const value = e.target.value;
 
@@ -4618,7 +4709,9 @@
             document.addEventListener('change', function(e) {
                 // Excluir microturno-select del auto-save para evitar conflictos
                 if (e.target.classList.contains('order-edit') && e.target.tagName === 'SELECT' && !e.target.classList.contains('microturno-select')) {
-                    const orderId = e.target.closest('.modal').id.replace('modalOrder', '');
+                    const modalEl = e.target.closest('.modal');
+                    if (!modalEl) return; // order-edit solo se auto-guarda dentro de un modal
+                    const orderId = modalEl.id.replace('modalOrder', '');
                     const field = e.target.getAttribute('data-field');
                     const value = e.target.value;
 

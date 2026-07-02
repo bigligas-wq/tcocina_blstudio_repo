@@ -46,6 +46,9 @@
     $wallet          = $wallet ?? null;
     $currentStickers = $wallet?->current_stickers ?? 0;
     $targetStickers  = $setting?->target_stickers ?? 8;
+
+    // Mostrar prompt de reseña solo si está entregado y el usuario NO confirmó que ya dejó reseña
+    $showReviewPrompt = ($order->status === 'delivered') && !($order->user && $order->user->google_review_completed_at);
 @endphp
 
 <div class="tracker-page" id="tracker-page">
@@ -214,6 +217,71 @@
             <a href="{{ route('loyalty.dashboard') }}" class="btn-celebration-secondary">
                 <i class="fas fa-sun me-2"></i>Ver mis figuritas
             </a>
+        </div>
+
+        {{-- Review Prompt — solo la primera vez (anti-spam) --}}
+        <div class="celebration-review" id="celebration-review" style="display:none;opacity:0">
+            <div class="review-g-wrap">
+                <svg class="review-g" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                </svg>
+            </div>
+            <p class="review-question">¿Cómo estuvo tu experiencia?</p>
+            <div class="review-stars" id="review-stars">
+                @for($i = 1; $i <= 5; $i++)
+                <svg class="rv-star" data-val="{{ $i }}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                </svg>
+                @endfor
+            </div>
+        </div>
+
+        <!-- Modal review -->
+        <div class="review-modal" id="review-modal">
+            <div class="review-modal-backdrop"></div>
+            <div class="review-modal-box">
+                <button type="button" class="review-modal-close" id="review-modal-close" aria-label="Cerrar">&times;</button>
+                <div class="review-modal-fuse">
+                    <a href="https://g.page/r/CepJ7XpQQOkyEBM/review" target="_blank" rel="noopener" class="review-modal-btn" id="review-modal-cta">
+                        Escribir reseña en Google
+                    </a>
+                </div>
+                <button type="button" class="review-modal-completed" id="review-modal-completed">Ya dejé mi reseña en Google</button>
+            </div>
+            <!-- BLStudio credit debajo del modal -->
+            <div class="review-modal-studio" id="review-modal-studio">
+                <span class="review-modal-studio-label">desarrollado por</span>
+                <a href="http://stgrandesligas.com" target="_blank" rel="noopener" class="review-modal-studio-link">
+                    <svg class="review-modal-studio-svg" viewBox="0 0 260 70" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="bl-m2" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%"   stop-color="#d0d0d0"/>
+                                <stop offset="30%"  stop-color="#a0a0a0"/>
+                                <stop offset="55%"  stop-color="#c8c8c8"/>
+                                <stop offset="80%"  stop-color="#808080"/>
+                                <stop offset="100%" stop-color="#b0b0b0"/>
+                            </linearGradient>
+                            <linearGradient id="bl-g2" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%"   stop-color="#a8d400"/>
+                                <stop offset="100%" stop-color="#6a8a00"/>
+                            </linearGradient>
+                        </defs>
+                        <text x="15" y="56" font-family="'DM Sans','Helvetica Neue',Arial,sans-serif" font-size="50" font-weight="300" letter-spacing="-1.5" fill="url(#bl-m2)">blstudio</text>
+                        <circle cx="216" cy="44" r="3.5" fill="url(#bl-g2)"/>
+                        <circle cx="216" cy="44" r="3.5" fill="none" stroke="#8db600" stroke-width="0.8">
+                            <animate attributeName="r" values="3.5;14;3.5" dur="2.2s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.7;0;0.7" dur="2.2s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle cx="216" cy="44" r="3.5" fill="none" stroke="#8db600" stroke-width="0.5">
+                            <animate attributeName="r" values="3.5;22;3.5" dur="2.2s" begin="0.5s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.35;0;0.35" dur="2.2s" begin="0.5s" repeatCount="indefinite"/>
+                        </circle>
+                    </svg>
+                </a>
+            </div>
         </div>
     </div>
 </div>
@@ -646,7 +714,7 @@
 .celebration-content {
     position: relative;
     z-index: 2;
-    padding: 2rem;
+    padding: 1.2rem 1.5rem;
     max-width: 420px;
 }
 
@@ -701,7 +769,7 @@
     font-family: var(--font-body), 'DM Sans', sans-serif;
     color: rgba(255,255,255,.5);
     font-size: 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.4rem;
 }
 
 .celebration-actions {
@@ -784,6 +852,230 @@
 
 .btn-celebration-secondary:hover { color: rgba(255,255,255,.8); border-color: rgba(255,255,255,.3); }
 
+/* ─── REVIEW PROMPT (dentro de celebration) ─────────── */
+.celebration-review {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .35rem;
+    max-width: 360px;
+    width: 100%;
+    margin-top: .3rem;
+}
+
+.review-g-wrap { margin-bottom: 6px; }
+.review-g {
+    width: 32px; height: 32px;
+    display: block;
+}
+
+.review-question {
+    font-family: var(--font-body), 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #fff;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.review-stars {
+    display: inline-flex;
+    gap: 6px;
+    margin: .15rem 0 0;
+}
+.rv-star {
+    width: 28px; height: 28px;
+    cursor: pointer;
+    transition: transform .15s, fill .2s;
+    fill: rgba(255,255,255,.22);
+}
+.rv-star:hover { transform: scale(1.18); }
+.rv-star.active { fill: #fbbc05; }
+.rv-star.pulse { animation: rvStarPulse .35s ease; }
+@keyframes rvStarPulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.25); }
+    100% { transform: scale(1); }
+}
+
+/* ─── REVIEW MODAL (imagen profesional) ────────────── */
+.review-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity .3s;
+}
+.review-modal.open { display: flex; opacity: 1; }
+
+.review-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.55);
+    backdrop-filter: blur(4px);
+}
+
+.review-modal-box {
+    position: relative;
+    z-index: 1;
+    width: 90%;
+    max-width: 340px;
+    aspect-ratio: 765 / 1114;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    background: url('/images/modalreseñas.png') center center / cover no-repeat;
+    transform: translateY(12px) scale(.96);
+    transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+}
+.review-modal.open .review-modal-box {
+    transform: translateY(0) scale(1);
+}
+
+/* Botón + dismiss posicionados sobre la imagen */
+.review-modal-fuse {
+    position: absolute;
+    left: 50%;
+    bottom: 26%;
+    transform: translateX(-50%);
+    width: 82%;
+    border-radius: 28px;
+    padding: 3px;
+    overflow: hidden;
+    animation: fuseGlow 2.5s ease-in-out infinite;
+}
+.review-modal-fuse::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(from 0deg, #ff6b35, #ffd700, #ff4500, #ffd700, #ff6b35);
+    animation: fuseSpin 4s linear infinite;
+    z-index: 0;
+}
+.review-modal-btn {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 12px 20px;
+    border-radius: 25px;
+    border: none;
+    background: #fff;
+    color: #1a73e8;
+    font-family: var(--font-body), 'DM Sans', sans-serif;
+    font-size: .9rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,.12);
+}
+@keyframes fuseSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+@keyframes fuseGlow {
+    0%, 100% { box-shadow: 0 0 6px rgba(255,107,53,.25), 0 0 12px rgba(255,107,53,.1); }
+    50% { box-shadow: 0 0 12px rgba(255,107,53,.4), 0 0 24px rgba(255,107,53,.2); }
+}
+
+.review-modal-completed {
+    position: absolute;
+    left: 50%;
+    bottom: 16%;
+    transform: translateX(-50%);
+    font-family: var(--font-body), 'DM Sans', sans-serif;
+    font-size: .72rem;
+    color: rgba(255,255,255,.55);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 10px;
+    transition: color .2s;
+    white-space: nowrap;
+}
+.review-modal-completed:hover { color: rgba(255,255,255,.85); }
+
+/* X de cerrar */
+.review-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0,0,0,.25);
+    color: #fff;
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .2s, transform .15s;
+}
+.review-modal-close:hover {
+    background: rgba(0,0,0,.45);
+    transform: scale(1.08);
+}
+
+/* Botón hover */
+.review-modal-btn:hover {
+    transform: scale(1.03);
+    box-shadow: 0 4px 16px rgba(0,0,0,.2);
+}
+
+/* BLStudio credit debajo del modal */
+.review-modal-studio {
+    position: absolute;
+    left: 50%;
+    bottom: 5%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    opacity: 1;
+    transition: opacity .3s ease;
+    pointer-events: none;
+}
+.review-modal-studio-label {
+    font-family: var(--font-mono, monospace);
+    font-size: 9px;
+    letter-spacing: .25em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.75);
+    transition: color .3s ease;
+}
+.review-modal-studio-link {
+    display: block;
+    line-height: 0;
+    pointer-events: all;
+}
+.review-modal-studio-svg {
+    width: 160px;
+    filter: drop-shadow(0 0 5px rgba(255,255,255,.35));
+    transition: filter .3s ease;
+}
+.review-modal-studio:hover {
+    opacity: 1;
+}
+.review-modal-studio:hover .review-modal-studio-label {
+    color: rgba(255,255,255,.85);
+}
+.review-modal-studio:hover .review-modal-studio-svg {
+    filter: drop-shadow(0 0 12px rgba(255,255,255,.8));
+}
+
 /* ─── CONFETTI ──────────────────────────────────────── */
 .confetti-container {
     position: fixed;
@@ -826,6 +1118,9 @@
     const CSRF_TOKEN    = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
     const POLL_INTERVAL = 10000;
     const IS_DELIVERY   = @json($isDelivery);
+    const SHOW_REVIEW_PROMPT = @json($showReviewPrompt);
+    const DISMISS_URL    = `/gracias/${ORDER_NUMBER}/dismiss`;
+    const COMPLETED_URL  = `/gracias/${ORDER_NUMBER}/completada`;
 
     const STATUS_ORDER_DELIVERY = ['pending', 'confirmed', 'preparing', 'ready', 'on_the_way', 'delivered'];
     const STATUS_ORDER_PICKUP   = ['pending', 'confirmed', 'preparing', 'ready', 'delivered'];
@@ -904,8 +1199,8 @@
                 updateUI(data);
                 if (data.status === 'delivered') {
                     stopPolling();
-                    showOfflineBanner('delivered');
-                    setTimeout(showCelebration, 600);
+                    if (siteWasOffline) showOfflineBanner('delivered');
+                    setTimeout(() => showCelebration(data.show_review_prompt), 600);
                 } else if (siteWasOffline) {
                     // Actualizar texto del banner si el status cambió estando offline
                     showOfflineBanner(data.status);
@@ -977,7 +1272,7 @@
     }
 
     /* ── Celebration ─────────────────────────────── */
-    function showCelebration() {
+    function showCelebration(showReviewPrompt = SHOW_REVIEW_PROMPT) {
         const overlay = document.getElementById('celebration');
         if (!overlay) return;
         overlay.style.display = 'flex';
@@ -988,6 +1283,7 @@
         const title      = document.getElementById('celebration-title');
         const sub        = document.getElementById('celebration-sub');
         const actions    = document.getElementById('celebration-actions');
+        const reviewEl   = document.getElementById('celebration-review');
 
         // ── Fase 1: moto corre 4 segundos ──────────────────
         setTimeout(() => {
@@ -1028,7 +1324,18 @@
                     sub.style.transition = 'opacity .5s .45s';
                     sub.style.opacity    = '1';
                 }
-                if (actions) {
+
+                // ── Decidir qué acciones mostrar ────────────
+                if (showReviewPrompt && reviewEl) {
+                    if (actions) actions.style.display = 'none';
+                    reviewEl.style.display = 'flex';
+                    requestAnimationFrame(() => {
+                        reviewEl.style.transition = 'opacity .5s .65s';
+                        reviewEl.style.opacity    = '1';
+                    });
+                    initReviewStars();
+                    initReviewHandlers();
+                } else if (actions) {
                     actions.style.transition = 'opacity .5s .65s';
                     actions.style.opacity    = '1';
                 }
@@ -1038,6 +1345,120 @@
 
             }, 420);
         }, 4000);
+    }
+
+    /* ── Review stars interaction ──────────────────── */
+    function initReviewStars() {
+        const stars = document.querySelectorAll('.rv-star');
+        const modal = document.getElementById('review-modal');
+        let selected = 0;
+
+        function setStars(val) {
+            stars.forEach((s, i) => {
+                if (i < val) s.classList.add('active');
+                else s.classList.remove('active');
+            });
+        }
+
+        function openModal() {
+            if (!modal) return;
+            modal.style.display = 'flex';
+            requestAnimationFrame(() => modal.classList.add('open'));
+        }
+
+        stars.forEach(star => {
+            star.addEventListener('mouseenter', () => {
+                setStars(parseInt(star.dataset.val));
+            });
+            star.addEventListener('mouseleave', () => {
+                setStars(selected);
+            });
+            star.addEventListener('click', () => {
+                selected = parseInt(star.dataset.val);
+                setStars(selected);
+                star.classList.remove('pulse');
+                void star.offsetWidth;
+                star.classList.add('pulse');
+                openModal();
+            });
+        });
+    }
+
+    /* ── Review handlers (modal dismiss + CTA) ─────── */
+    function initReviewHandlers() {
+        const modalCta      = document.getElementById('review-modal-cta');
+        const modalClose     = document.getElementById('review-modal-close');
+        const modalCompleted = document.getElementById('review-modal-completed');
+        const modal          = document.getElementById('review-modal');
+        const reviewEl       = document.getElementById('celebration-review');
+        const actionsEl      = document.getElementById('celebration-actions');
+
+        function closeModal() {
+            if (!modal) return;
+            modal.classList.remove('open');
+            setTimeout(() => { modal.style.display = 'none'; }, 300);
+        }
+
+        function showOriginalButtons() {
+            closeModal();
+            if (reviewEl) {
+                reviewEl.style.transition = 'opacity .3s';
+                reviewEl.style.opacity = '0';
+                setTimeout(() => {
+                    reviewEl.style.display = 'none';
+                    if (actionsEl) {
+                        actionsEl.style.display = 'flex';
+                        requestAnimationFrame(() => {
+                            actionsEl.style.transition = 'opacity .4s';
+                            actionsEl.style.opacity = '1';
+                        });
+                    }
+                }, 300);
+            }
+        }
+
+        function markDismissed() {
+            fetch(DISMISS_URL, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': CSRF_TOKEN,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            }).catch(() => {});
+        }
+
+        function markCompleted() {
+            fetch(COMPLETED_URL, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': CSRF_TOKEN,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            }).catch(() => {});
+        }
+
+        if (modalCta) {
+            modalCta.addEventListener('click', () => {
+                markDismissed();
+            });
+        }
+
+        if (modalClose) {
+            modalClose.addEventListener('click', () => {
+                closeModal();
+            });
+        }
+
+        if (modalCompleted) {
+            modalCompleted.addEventListener('click', () => {
+                markCompleted();
+                showOriginalButtons();
+            });
+        }
     }
 
     function spawnConfetti() {

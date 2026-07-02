@@ -10,7 +10,7 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <!-- Bangers (misma fuente que los títulos del checkout) -->
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=DM+Sans:wght@500;700;800&display=swap" rel="stylesheet">
 
@@ -23,7 +23,7 @@
             --kd-prep: #00b4d8;      /* preparing → cyan de marca */
             --kd-conf: #f59e0b;      /* confirmed → naranja cálido */
             --kd-ready: #16a34a;
-            --kd-card-bg: rgba(255,255,255,.97);
+            --kd-card-bg: #ffffff;
         }
 
         html, body {
@@ -146,35 +146,21 @@
             border-radius: 14px;
             padding: 14px 16px;
             margin-bottom: 0;
-            box-shadow:
-                0 4px 12px rgba(0, 0, 0, .18),
-                0 12px 32px rgba(0, 0, 0, .15),
-                0 0 0 1px rgba(255, 255, 255, .4) inset;
-            border-left: 5px solid #cbd5e1;
-            transition: transform .2s, box-shadow .2s;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, .22);
+            border-left: 6px solid #cbd5e1;
+            transition: transform .15s, box-shadow .15s;
             display: flex;
             flex-direction: column;
             cursor: pointer;
-            backdrop-filter: blur(6px);
         }
         .order-card:hover {
-            transform: translateY(-3px);
-            box-shadow:
-                0 6px 16px rgba(0, 0, 0, .22),
-                0 20px 48px rgba(0, 0, 0, .2),
-                0 0 0 1px rgba(0, 180, 216, .22) inset,
-                0 0 30px rgba(0, 180, 216, .08);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 26px rgba(0, 0, 0, .28);
         }
 
-        /* Estados */
-        .order-card.confirmed {
-            border-left-color: var(--kd-conf);
-            background: linear-gradient(180deg, rgba(245, 158, 11, .04), var(--kd-card-bg) 60%);
-        }
-        .order-card.preparing {
-            border-left-color: var(--kd-prep);
-            background: linear-gradient(180deg, rgba(0, 180, 216, .06), var(--kd-card-bg) 60%);
-        }
+        /* Estados → solo el borde indica estado (sin degradados) */
+        .order-card.confirmed { border-left-color: var(--kd-conf); }
+        .order-card.preparing { border-left-color: var(--kd-prep); }
 
         /* Header del pedido (badge + tiempo) */
         .order-top {
@@ -227,16 +213,112 @@
             font-weight: 600;
         }
 
+        /* Renglón 1: nombre (izq) · chips (centro) · estado (der) */
+        .kd-card-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
         .customer-info {
             color: #0a2540;
-            margin-bottom: 6px;
             font-weight: 800;
             font-size: 1.15rem;
             letter-spacing: .3px;
             line-height: 1.15;
+            min-width: 0;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
+        .kd-head-status {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+            min-width: 0;
+        }
+
+        /* Renglón 2: entrega (izq) · turno asignado (der) */
+        .kd-meta-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .kd-pill.turno {
+            background: rgba(0, 180, 216, .12);
+            color: #075b6e;
+            border: 1px solid rgba(0, 180, 216, .4);
+            font-size: .82rem;
+        }
+
+        /* Resumen de cantidades por categoría (centrado) */
+        .kd-summary {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 0 0 auto;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .kd-sum-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 9px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            font-size: .95rem;
+            line-height: 1;
+        }
+        .kd-sum-chip i { font-size: .95rem; }
+        .kd-ic-svg {
+            display: inline-flex;
+            align-items: center;
+        }
+        .kd-ic-svg svg { display: block; }
+        .kd-sum-chip b {
+            font-weight: 800;
+            color: #0a2540;
+            font-size: 1rem;
+        }
+        /* Hamburguesas: chip resaltado */
+        .kd-sum-chip.burger {
+            background: #fff7ed;
+            border-color: #fdba74;
+        }
+        .kd-sum-chip.burger b { color: #c2410c; }
+
         .order-items { margin-bottom: 8px; }
+
+        /* Título de sección por categoría (Hamburguesas, Bebidas, etc.) */
+        .kd-cat-head {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: .82rem;
+            font-weight: 800;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+            color: #1e293b;
+            margin: 10px 0 2px;
+            padding-bottom: 3px;
+            border-bottom: 2px solid #cbd5e1;
+        }
+        .kd-cat-head:first-child { margin-top: 0; }
+        .kd-cat-head .kd-cat-ic { color: #64748b; font-size: .9rem; }
+        /* Hamburguesas: la sección más importante, acentuada */
+        .kd-cat-head.cat-hamburguesas {
+            color: #c2410c;
+            border-bottom-color: #fdba74;
+            font-size: .82rem;
+        }
+        .kd-cat-head.cat-hamburguesas .kd-cat-ic { color: #ea580c; }
 
         .order-item {
             display: flex;
@@ -252,10 +334,24 @@
             color: #0a2540;
             font-size: .98rem;
         }
+        /* Hamburguesas con nombre más grande/destacado */
+        .order-item.is-burger .item-name {
+            font-size: 1.12rem;
+            font-weight: 800;
+        }
         .item-details {
-            font-size: .82rem;
-            color: #6b7280;
-            margin-top: 2px;
+            font-size: .9rem;
+            color: #334155;
+            margin-top: 3px;
+            font-weight: 600;
+            line-height: 1.35;
+        }
+        /* Ingredientes de hamburguesas: más grandes y visibles para la cocina */
+        .order-item.is-burger .item-details {
+            font-size: 1.02rem;
+            color: #1e293b;
+            font-weight: 700;
+            line-height: 1.4;
         }
         .item-quantity {
             background: linear-gradient(135deg, var(--kd-cyan), var(--kd-cyan-dark));
@@ -569,6 +665,91 @@
             });
         }
 
+        // SVG de papas en cajita (estilo McDonald's) para acompañamientos
+        const FRIES_SVG = `<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 8V3.5"/><path d="M11 8V2.5"/><path d="M14 8V3"/><path d="M16 8V4.5"/><path d="M5 8h14l-1.4 12.2a1 1 0 0 1-1 .8H7.4a1 1 0 0 1-1-.8L5 8z"/><path d="M5.6 12h12.8"/></svg>`;
+
+        // ── Agrupación de items por categoría (hamburguesas siempre primero) ──
+        const KD_CAT_ORDER = [
+            { slug: 'hamburguesas',   label: 'Hamburguesas',          icon: 'fa-burger',        color: '#ea580c' },
+            { slug: 'combos',         label: 'Combos',                icon: 'fa-box',           color: '#7c3aed' },
+            { slug: 'acompanamientos', label: 'Acompañamientos extra', svg: FRIES_SVG,           color: '#0891b2' },
+            { slug: 'bebidas',        label: 'Bebidas',               icon: 'fa-bottle-water',  color: '#2563eb' },
+            { slug: 'postres',        label: 'Postres',               icon: 'fa-ice-cream',     color: '#db2777' },
+        ];
+
+        function getItemCatSlug(item) {
+            return (item.product && item.product.category && item.product.category.slug)
+                ? item.product.category.slug
+                : '__otros';
+        }
+
+        // Devuelve el HTML del ícono de la categoría (SVG custom o FontAwesome)
+        function catIconHtml(cat, cls, useColor) {
+            const colorStyle = useColor ? ` style="color:${cat.color}"` : '';
+            if (cat.svg) return `<span class="kd-ic-svg ${cls || ''}"${colorStyle}>${cat.svg}</span>`;
+            return `<i class="fas ${cat.icon} ${cls || ''}"${colorStyle}></i>`;
+        }
+
+        // Resumen de cantidades por categoría (chips ícono + número)
+        function renderCatSummary(items) {
+            const counts = {};
+            (items || []).forEach(it => {
+                const slug = getItemCatSlug(it);
+                counts[slug] = (counts[slug] || 0) + (parseInt(it.quantity) || 0);
+            });
+            let html = '';
+            KD_CAT_ORDER.forEach(cat => {
+                const n = counts[cat.slug];
+                if (!n) return;
+                const isBurger = cat.slug === 'hamburguesas';
+                html += `<span class="kd-sum-chip${isBurger ? ' burger' : ''}" title="${cat.label}: ${n}">
+                    ${catIconHtml(cat, '', true)}<b>${n}</b>
+                </span>`;
+            });
+            return html ? `<div class="kd-summary">${html}</div>` : '';
+        }
+
+        function renderItemRow(item, isBurger) {
+            return `
+                <div class="order-item${isBurger ? ' is-burger' : ''}">
+                    <div style="min-width:0;flex:1;">
+                        <div class="item-name">${item.product ? item.product.name : 'N/A'}</div>
+                        ${item.configuration_text ? `<div class="item-details">${item.configuration_text}</div>` : ''}
+                    </div>
+                    <div class="item-quantity">${item.quantity}</div>
+                </div>
+            `;
+        }
+
+        function renderItemsByCategory(items) {
+            const groups = {};
+            (items || []).forEach(it => {
+                const slug = getItemCatSlug(it);
+                (groups[slug] = groups[slug] || []).push(it);
+            });
+
+            let html = '';
+            const used = new Set();
+            KD_CAT_ORDER.forEach(cat => {
+                const list = groups[cat.slug];
+                if (!list || !list.length) return;
+                used.add(cat.slug);
+                html += `<div class="kd-cat-head cat-${cat.slug}">${catIconHtml(cat, 'kd-cat-ic', false)}${cat.label}</div>`;
+                html += list.map(item => renderItemRow(item, cat.slug === 'hamburguesas')).join('');
+            });
+
+            // Categorías no listadas o sin categoría → "Otros"
+            const otros = [];
+            Object.keys(groups).forEach(slug => {
+                if (!used.has(slug)) otros.push(...groups[slug]);
+            });
+            if (otros.length) {
+                html += `<div class="kd-cat-head"><i class="fas fa-utensils kd-cat-ic"></i>Otros</div>`;
+                html += otros.map(item => renderItemRow(item, false)).join('');
+            }
+            return html;
+        }
+
         function renderOrders(data) {
             const grid = document.getElementById('orders-grid');
             const header = document.querySelector('.kitchen-header');
@@ -643,26 +824,25 @@
                     ? `<span class="kd-pill delivery"><i class="fas fa-truck"></i>${addr}</span>`
                     : `<span class="kd-pill pickup"><i class="fas fa-store"></i>Retiro en local</span>`;
 
+                const turnoBadge = order.turno_label
+                    ? `<span class="kd-pill turno"><i class="fas fa-clock"></i>${order.turno_label}</span>`
+                    : '';
+
                 return `
                 <div class="order-card ${order.status}" style="height:${cardH}px;" onclick="openKdModal(${order.id})">
-                    <div class="order-top">
-                        ${badge}
-                        <div class="order-time">${formatTime(order.created_at)}</div>
+                    <div class="kd-card-head">
+                        <div class="customer-info">
+                            ${order.contact_name || (order.user ? order.user.name : 'Invitado')}
+                        </div>
+                        ${renderCatSummary(order.items)}
+                        <div class="kd-head-status">${badge}</div>
                     </div>
-                    <div class="customer-info">
-                        ${order.contact_name || (order.user ? order.user.name : 'Invitado')}
+                    <div class="kd-meta-row">
+                        ${addrBadge}
+                        ${turnoBadge}
                     </div>
-                    <div class="mb-2">${addrBadge}</div>
                     <div class="order-items card-scroll" style="max-height:${Math.max(40, cardH - 140)}px;">
-                        ${order.items.map(item => `
-                            <div class="order-item">
-                                <div style="min-width:0;flex:1;">
-                                    <div class="item-name">${item.product ? item.product.name : 'N/A'}</div>
-                                    ${item.configuration_text ? `<div class="item-details">${item.configuration_text}</div>` : ''}
-                                </div>
-                                <div class="item-quantity">${item.quantity}</div>
-                            </div>
-                        `).join('')}
+                        ${renderItemsByCategory(order.items)}
                         ${order.notes ? `<div class="order-notes"><i class="fas fa-exclamation-triangle me-1"></i>${order.notes}</div>` : ''}
                     </div>
                     <div class="order-actions">
@@ -684,9 +864,14 @@
             });
         }
 
-        // Load orders initially and then every 10 seconds
+        // Load orders initially and then every 5 seconds (refresco automático)
         loadOrders();
-        setInterval(loadOrders, 10000);
+        setInterval(loadOrders, 5000);
+
+        // Refrescar al instante cuando la pestaña vuelve a foco (ej: tras confirmar un pedido en otra ventana)
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') loadOrders();
+        });
 
         // Actions
         function startPreparation(orderId) {
@@ -817,15 +1002,7 @@
                         }
                     </div>
                     <div class="kd-section">
-                        ${order.items.map(item => `
-                            <div class="order-item">
-                                <div style="min-width:0;flex:1;">
-                                    <div class="item-name">${item.product ? item.product.name : 'Producto no disponible'}</div>
-                                    ${item.configuration_text ? `<div class="item-details">${item.configuration_text}</div>` : ''}
-                                </div>
-                                <div class="item-quantity">${item.quantity}</div>
-                            </div>
-                        `).join('')}
+                        ${renderItemsByCategory(order.items)}
                     </div>
                     ${order.notes ? `<div class="kd-section kd-note mt-2"><i class="fas fa-exclamation-triangle me-1"></i>${order.notes}</div>` : ''}
                     <div class="kd-section mt-3">

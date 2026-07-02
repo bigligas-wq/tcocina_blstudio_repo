@@ -8,9 +8,9 @@
    FONDO DEEP SPACE — negro con profundidad y nebulosas sutiles
    ===================================================================== */
 
-/* Base: negro con mínimo tinte índigo (no #000 plano, no #0f172a azulado) */
+/* Base: azul noche profundo — fondo del lab tras la card blanca */
 .lab-app {
-    background: #070b14 !important;
+    background: #0a1426 !important;
 }
 
 /* Capas de luz atmosférica */
@@ -18,23 +18,23 @@
     background:
         /* Nebulosa lima — marca BLStudio, esquina superior izquierda */
         radial-gradient(ellipse 70% 55% at -5% 5%,
-            rgba(191,255,0,.08), transparent 60%),
+            rgba(191,255,0,.06), transparent 60%),
 
         /* Nebulosa índigo profunda — esquina inferior derecha */
         radial-gradient(ellipse 65% 60% at 105% 100%,
-            rgba(99,60,200,.09), transparent 58%),
+            rgba(59,90,200,.12), transparent 58%),
 
         /* Resplandor cyan frío — borde superior derecho */
         radial-gradient(ellipse 45% 35% at 100% 0%,
-            rgba(34,211,238,.05), transparent 55%),
+            rgba(34,150,238,.06), transparent 55%),
 
         /* Calor ámbar muy sutil — centro inferior */
         radial-gradient(ellipse 80% 30% at 50% 115%,
-            rgba(251,191,36,.04), transparent 60%),
+            rgba(251,191,36,.03), transparent 60%),
 
         /* Viñeta de profundidad — oscurece bordes, focaliza el centro */
         radial-gradient(ellipse 130% 130% at 50% 50%,
-            transparent 30%, rgba(0,0,0,.7) 100%);
+            transparent 35%, rgba(0,0,0,.55) 100%);
 }
 
 /* Capa adicional: ruido sutil para romper el degradado plano */
