@@ -893,4 +893,16 @@ section{position:relative}
 
   // reveal on scroll
   if('IntersectionObserver' in window && !reduce){
-    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.ta
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.14,rootMargin:'0px 0px -6% 0px'});
+    document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+  }else{document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');});}
+
+  // posicionar el puntito verde del logo blstudio
+  (function(){
+    var svg=document.getElementById('logo-svg'),t=document.getElementById('logo-text'),els=['dot','pulse1','pulse2'].map(function(i){return document.getElementById(i);});
+    function place(){try{var b=t.getBBox(),x=b.x+b.width+10,y=b.y+b.height*0.72;svg.setAttribute('viewBox','0 0 '+(x+30)+' 160');els.forEach(function(el){el.setAttribute('cx',x);el.setAttribute('cy',y);});}catch(e){}}
+    document.fonts&&document.fonts.ready?document.fonts.ready.then(place):setTimeout(place,400);
+  })();
+</script>
+</body>
+</html>

@@ -2580,4 +2580,22 @@ class AdminController extends Controller
         $coupon = Coupon::findOrFail($id);
         $coupon->delete();
 
-        return redirect()->route(
+        return redirect()->route('admin.coupons')
+            ->with('success', 'Cupón eliminado exitosamente');
+    }
+
+    public function bulkDeleteCoupons(Request $request)
+    {
+        $request->validate(['ids' => 'required|array|min:1', 'ids.*' => 'integer']);
+        $count = Coupon::whereIn('id', $request->ids)->delete();
+
+        return redirect()->route('admin.coupons')
+            ->with('success', "{$count} cupón(es) eliminado(s) exitosamente");
+    }
+
+    public function getCoupon($id)
+    {
+        $coupon = Coupon::findOrFail($id);
+        return response()->json($coupon);
+    }
+}

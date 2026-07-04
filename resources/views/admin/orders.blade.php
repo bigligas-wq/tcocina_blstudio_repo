@@ -5310,3 +5310,311 @@
                         </button>
                     `;
                 }
+
+                buttons += `
+                    <button class="btn btn-outline-secondary text-start" onclick="executeAction(${orderId}, '${action}', 'keep')">
+                        <i class="fas fa-hand-paper me-2"></i>No tocar figuritas
+                        <div class="small text-muted">Solo ${action==='cancel'?'cancelar':'eliminar'} el pedido, dejar las figuritas como están</div>
+                    </button>
+                `;
+
+                opts.innerHTML = buttons;
+            } catch (e) {
+                document.getElementById('loyaltyDecisionText').innerHTML = 'No se pudo consultar el impacto. ¿Querés continuar igual?';
+                document.getElementById('loyaltyDecisionOptions').innerHTML = `
+                    <button class="btn btn-primary" onclick="executeAction(${orderId}, '${action}', 'keep')">Continuar sin verificar</button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                `;
+            }
+        }
+
+        // Ejecutar la acción (cancelar o eliminar) con la estrategia elegida
+        async function executeAction(orderId, action, strategy) {
+            const modalEl = document.getElementById('loyaltyDecisionModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+
+            if (action === 'delete') {
+                // Eliminar individual
+                try {
+                    const res = await fetch(`/admin/orders/${orderId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ loyalty_strategy: strategy })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showNotification('Pedido eliminado', 'success');
+                        setTimeout(() => location.reload(), 800);
+                    } else {
+                        showNotification(data.error || 'Error al eliminar', 'error');
+                    }
+                } catch (e) {
+                    showNotification('Error de conexión', 'error');
+                }
+            } else if (action === 'cancel') {
+                // Actualizar estado a cancelled
+                try {
+                    const res = await fetch(`/admin/orders/${orderId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ status: 'cancelled', loyalty_strategy: strategy })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showNotification('Pedido cancelado', 'success');
+                        setTimeout(() => location.reload(), 800);
+                    } else {
+                        showNotification(data.error || 'Error al cancelar', 'error');
+                    }
+                } catch (e) {
+                    showNotification('Error de conexión', 'error');
+                }
+            }
+        }
+
+        // Hook para el modal de eliminación individual (sobreescribir comportamiento)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Interceptar clicks en "Eliminar" de los modales individuales
+            document.querySelectorAll('[data-bs-target^="#modalDeleteOrder"]').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const modalId = this.getAttribute('data-bs-target');
+                    const orderId = modalId.replace('#modalDeleteOrder', '');
+                    const orderNumber = this.closest('tr')?.querySelector('td:nth-child(3)')?.textContent?.trim() || orderId;
+                    checkLoyaltyImpactAndDecide(orderId, 'delete', orderNumber);
+                });
+            });
+        });
+
+        // Eliminar paginación y select al final de la página
+        document.addEventListener('DOMContentLoaded', function() {
+            // ELIMINAR SVG ESPECÍFICOS CON ESOS PATHS
+            function eliminarSVGProblematico() {
+                const svgs = document.querySelectorAll('svg');
+                svgs.forEach(svg => {
+                    const viewBox = svg.getAttribute('viewBox');
+                    if (viewBox === '0 0 17 17') {
+                        const path1 = svg.querySelector('path[d*="M5.207 8.471"]');
+                        const path2 = svg.querySelector('path[d*="M13.207 8.472"]');
+                        if (path1 || path2) {
+                            svg.remove();
+                        }
+                    }
+                    // También buscar por el path directamente sin importar el viewBox
+                    const path1 = svg.querySelector('path[d*="M5.207 8.471"]');
+                    const path2 = svg.querySelector('path[d*="M13.207 8.472"]');
+                    if (path1 || path2) {
+                        svg.remove();
+                    }
+                });
+            }
+            
+            // Ejecutar inmediatamente
+            eliminarSVGProblematico();
+            
+            // Ejecutar después de un pequeño delay para elementos que se cargan después
+            setTimeout(eliminarSVGProblematico, 100);
+            setTimeout(eliminarSVGProblematico, 500);
+            setTimeout(eliminarSVGProblematico, 1000);
+            
+            // ELIMINAR ELEMENTOS DE FLATPICKR
+            function eliminarFlatpickr() {
+                // Eliminar elementos específicos de flatpickr
+                const flatpickrCurrentMonth = document.querySelector('.flatpickr-current-month');
+                if (flatpickrCurrentMonth) {
+                    flatpickrCurrentMonth.remove();
+                }
+                
+                const dayContainer = document.querySelector('.dayContainer');
+                if (dayContainer) {
+                    dayContainer.remove();
+                }
+                
+                const weekdayContainer = document.querySelector('.flatpickr-weekdaycontainer');
+                if (weekdayContainer) {
+                    weekdayContainer.remove();
+                }
+                
+                // Eliminar todo el contenedor de flatpickr si existe
+                const flatpickrCalendar = document.querySelector('.flatpickr-calendar');
+                if (flatpickrCalendar && flatpickrCalendar.closest('.modal') === null) {
+                    flatpickrCalendar.remove();
+                }
+            }
+            
+            // Observar cambios en el DOM para eliminar SVG y flatpickr que aparezcan después
+            const observer = new MutationObserver(function(mutations) {
+                eliminarSVGProblematico();
+                eliminarFlatpickr();
+            });
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+            
+            // Ejecutar eliminación de flatpickr
+            eliminarFlatpickr();
+            setTimeout(eliminarFlatpickr, 100);
+            setTimeout(eliminarFlatpickr, 500);
+            setTimeout(eliminarFlatpickr, 1000);
+            
+            // Eliminar elementos de paginación
+            const paginations = document.querySelectorAll('.pagination, .pagination-modern, nav[aria-label*="pagination"], nav[aria-label*="Pagination"]');
+            paginations.forEach(p => {
+                if (p.closest('.modal') === null) {
+                    p.remove();
+                }
+            });
+            
+            // Eliminar select de "per page" o similar
+            const selects = document.querySelectorAll('select[class*="per"], select[name*="per"], select[id*="per"], select[class*="page"], select[name*="page"]');
+            selects.forEach(s => {
+                if (s.closest('.modal') === null && s.closest('.table') === null && s.closest('.card-body') === null) {
+                    s.parentElement?.remove();
+                }
+            });
+            
+            // Eliminar cualquier elemento con clase pagination que esté al final del body
+            const allPagination = document.querySelectorAll('.pagination, [class*="pagination"]');
+            allPagination.forEach(el => {
+                if (el.closest('.modal') === null) {
+                    const rect = el.getBoundingClientRect();
+                    // Si está cerca del final de la página (últimos 200px)
+                    if (rect.top > window.innerHeight - 200) {
+                        el.remove();
+                    }
+                }
+            });
+        });
+
+        // ===== DATATABLES INITIALIZATION =====
+        // Load jQuery first (required by DataTables)
+        if (typeof jQuery === 'undefined') {
+            const jqueryScript = document.createElement('script');
+            jqueryScript.src = 'https://code.jquery.com/jquery-3.7.1.min.js';
+            jqueryScript.onload = function() {
+                loadDataTables();
+            };
+            document.head.appendChild(jqueryScript);
+        } else {
+            loadDataTables();
+        }
+
+        function loadDataTables() {
+            // Load DataTables libraries
+            const dataTablesScript = document.createElement('script');
+            dataTablesScript.src = 'https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js';
+            dataTablesScript.onload = function() {
+                const bootstrap5Script = document.createElement('script');
+                bootstrap5Script.src = 'https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js';
+                bootstrap5Script.onload = function() {
+                    const responsiveScript = document.createElement('script');
+                    responsiveScript.src = 'https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js';
+                    responsiveScript.onload = function() {
+                        const responsiveBootstrap5Script = document.createElement('script');
+                        responsiveBootstrap5Script.src = 'https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js';
+                        responsiveBootstrap5Script.onload = function() {
+                            initializeDataTables();
+                        };
+                        document.head.appendChild(responsiveBootstrap5Script);
+                    };
+                    document.head.appendChild(responsiveScript);
+                };
+                document.head.appendChild(bootstrap5Script);
+            };
+            document.head.appendChild(dataTablesScript);
+        }
+
+        function initializeDataTables() {
+            // Initialize today's orders table
+            if ($('#orders-table').length) {
+                $('#orders-table').DataTable({
+                    responsive: false,
+                    pageLength: 25,
+                    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'Todos']],
+                    language: {
+                        url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
+                    },
+                    columnDefs: [
+                        { responsivePriority: 1, targets: 0 }, // Checkbox
+                        { responsivePriority: 2, targets: 1 }, // Cliente
+                        { responsivePriority: 3, targets: 7 }, // Acciones
+                        { responsivePriority: 4, targets: 6 }, // Estado
+                        { responsivePriority: 5, targets: 2 }, // Items
+                        { responsivePriority: 6, targets: 3 }, // Total
+                        { responsivePriority: 7, targets: 5 }, // Horario
+                        { responsivePriority: 8, targets: 4, orderable: false }  // Pago
+                    ],
+                    order: [],
+                    dom: 'rt',
+                    paging: false
+                });
+            }
+
+            // Initialize historical orders table
+            if ($('#orders-table-historico').length) {
+                var isMobile = window.innerWidth <= 768;
+                $('#orders-table-historico').DataTable({
+                    responsive: false,
+                    pageLength: -1,
+                    lengthMenu: [[-1, 25, 50, 100], ['Todos', 25, 50, 100]],
+                    language: {
+                        lengthMenu: 'Mostrar _MENU_ registros',
+                        search: 'Buscar:',
+                        info: 'Mostrando _START_ a _END_ de _TOTAL_ pedidos',
+                        infoEmpty: 'Mostrando 0 a 0 de 0 pedidos',
+                        infoFiltered: '(filtrado de _MAX_ pedidos en total)',
+                        paginate: {
+                            first: 'Primero',
+                            last: 'Último',
+                            next: 'Siguiente',
+                            previous: 'Anterior'
+                        },
+                        zeroRecords: 'No se encontraron pedidos',
+                        emptyTable: 'No hay pedidos anteriores'
+                    },
+                    columnDefs: [
+                        { targets: 0, width: '50px' },
+                        { targets: 1, width: '100px' },
+                        { targets: 2, width: '200px' },
+                        { targets: 3, width: '120px' },
+                        { targets: 4, width: '120px' },
+                        { targets: 5, width: '120px', orderable: false },
+                        { targets: 6, width: '130px' },
+                        { targets: 7, width: '100px' },
+                        { targets: 8, width: '100px' }
+                    ],
+                    order: [[1, 'desc']],
+                    dom: '<"dt-controls-top"lf>rt<"dt-controls-bottom"ip>',
+                    scrollX: true,
+                    autoWidth: false
+                });
+            }
+
+            // Realinear columnas cada vez que el accordion abre
+            var collapseEl = document.getElementById('collapsePedidos');
+            if (collapseEl) {
+                collapseEl.addEventListener('shown.bs.collapse', function() {
+                    if ($.fn.DataTable.isDataTable('#orders-table-historico')) {
+                        $('#orders-table-historico').DataTable().columns.adjust().draw(false);
+                    }
+                });
+            }
+
+            // Realinear columnas al cambiar tamaño/orientación
+            window.addEventListener('resize', function() {
+                if ($.fn.DataTable.isDataTable('#orders-table-historico')) {
+                    $('#orders-table-historico').DataTable().columns.adjust();
+                }
+            });
+        }
+    </script>
+@endpush

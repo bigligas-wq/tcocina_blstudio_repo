@@ -411,4 +411,17 @@ php artisan optimize:clear
 **Sesión 2026-07-03 (tanda completa de correcciones del cliente — APLICADA):**
 1. **Hero:** burger central centrada y más grande, **sin efecto flotante**, 3 dips visibles en mobile, +espacio título→CTA, se borró "Ver el menú", CTA ahora dice **"Pedí Ahora"**.
 2. **Header:** el CTA "Pedí ahora" se oculta sobre el hero y aparece desde la 2.ª sección (IntersectionObserver).
-3. **Reseñas:** encabezado compacto en una línea (pill ★ 5.0 + badges web/Google), **carrusel cent
+3. **Reseñas:** encabezado compacto en una línea (pill ★ 5.0 + badges web/Google), **carrusel center mode de a una card** con la central resaltada y laterales atenuadas, drag con mouse en PC, botón "Ver más" con identidad Google (G oficial).
+4. **Menú:** 6 cards en orden **Rayito, La Joya, Cheese Bacon, Libra, 4 Quesos Azul, Piruco** (fuera Playita) + pill "todas vienen con papas + dip". ⚠️ Libra sin foto/precio/desc reales.
+5. **Textos:** banner cheese-pull → kicker **"100% calidad"**; posta paso 1 + "solo con sal, sin condimentos agregados"; **nuevo paso 3 del pan (Panadería Boston**, del día, local, sin conservantes); posta ahora tiene 4 pasos.
+6. **Historia reescrita:** 2021 en Mar del Plata → planchero → Hamburgo y La Hamburguesería → 3 años → TCO BURGER, + tira de 3 fotos del proceso (1 placeholder). Reemplaza el relato "2024 desde el quincho".
+7. **Acompañamientos:** badge ámbar grande "TODAS las hamburguesas vienen con papas + dip incluidos".
+8. **Copa:** de podio de 3 a **carrusel de 9 puestos con autoplay a la derecha** (1 Olavarría · 2 Libra · 3 La Joya · 4 Rayito · 5 Cheese Bacon · 6 4 Quesos Azul · 7 Cheese Gold · 8 4 Quesos Amarilla · 9 Piruco). Olavarría/Libra/Cheese Gold con placeholder de imagen.
+9. **Fidelización:** imagen del álbum reemplazada por placeholder "( falta imagen )".
+
+**Pendientes del cliente:** fotos de Olavarría/Libra/Cheese Gold, captura real del álbum, 1 foto más del proceso, precio+descripción de Libra, confirmar orden del ranking y el "desde 2024" del footer.
+
+**Pendiente comercial (trabajo presupuestado a Tcocina):** conectar en la sección de reseñas las reseñas reales del sistema propio de la web (modelo `Review`, todas 5★), combinables con las de Google; **votación web del ranking** (usuarios con Google, registro por producto) y orden automático del menú según ranking. Presupuesto BLStudio entregado por $150.000 (o $125.000 pago total).
+
+> Handoff detallado de marca, colores, fuentes, secciones y estado por sección en `_CONTEXTO_LANDING.md` (actualizado 03/07/2026).
+
