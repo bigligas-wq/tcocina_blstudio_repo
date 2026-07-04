@@ -274,6 +274,31 @@
         overflow: visible !important;
     }
 
+    /* Dropdown del filtro Pago: siempre por encima del listado de pedidos */
+    .pago-filter-menu {
+        z-index: 5000 !important;
+    }
+    th.pago-filter-th,
+    th.pago-filter-th .dropdown {
+        overflow: visible;
+    }
+    /* Elevar el th mientras el menú está abierto (gana a overlays/selects de las filas) */
+    th.pago-filter-th:has(.pago-filter-menu.show) {
+        position: relative;
+        z-index: 1060;
+    }
+    thead:has(.pago-filter-menu.show) {
+        position: relative;
+        z-index: 1060;
+    }
+    /* La tabla histórica clona el encabezado dentro de .dataTables_scrollHead (overflow hidden):
+       liberarlo mientras el menú está abierto para que no lo recorte */
+    #orders-table-historico_wrapper .dataTables_scrollHead:has(.pago-filter-menu.show) {
+        overflow: visible !important;
+        position: relative;
+        z-index: 1060;
+    }
+
     /* Hover en items del dropdown de acciones */
     .dropdown-menu .dropdown-item {
         transition: background-color 0.2s ease, color 0.2s ease;
@@ -443,12 +468,6 @@
                     <div class="card">
                         <div class="card-body">
                             <form id="orders-filter-form" method="GET" action="{{ route('admin.orders') }}">
-                                    @if(request('payment_method'))
-                                        <input type="hidden" name="payment_method" value="{{ request('payment_method') }}">
-                                    @endif
-                                    @if(request('selected_date'))
-                                        <input type="hidden" name="selected_date" value="{{ request('selected_date') }}">
-                                    @endif
                                     <label for="status" class="form-label">Estado</label>
                                     <select class="form-select" id="status" name="status" onchange="this.form.submit()">
                                         <option value="">Todos los estados</option>
@@ -472,12 +491,6 @@
                     <div class="card">
                         <div class="card-body">
                             <form id="orders-date-form" method="GET" action="{{ route('admin.orders') }}">
-                                @if(request('payment_method'))
-                                    <input type="hidden" name="payment_method" value="{{ request('payment_method') }}">
-                                @endif
-                                @if(request('status'))
-                                    <input type="hidden" name="status" value="{{ request('status') }}">
-                                @endif
                                 <label for="selected_date" class="form-label">Fecha</label>
                                 <input
                                     type="text"
@@ -565,34 +578,6 @@
                 }
             }
         @endphp
-    </div>
-
-    <!-- Filtro Método de Pago -->
-    @php
-        $pmBase = request()->only(['status', 'selected_date', 'date_from', 'date_to']);
-        $pmActual = request('payment_method');
-    @endphp
-    <div class="row mb-4" id="payment-method-filter">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body py-2 d-flex align-items-center flex-wrap gap-2">
-                    <span class="form-label mb-0 me-1"><i class="fas fa-wallet me-1"></i>Método de pago:</span>
-                    <div class="btn-group btn-group-sm" role="group" aria-label="Filtrar por método de pago">
-                        <a href="{{ route('admin.orders', $pmBase) }}"
-                           class="btn {{ !$pmActual ? 'btn-dark' : 'btn-outline-dark' }}">Todos</a>
-                        <a href="{{ route('admin.orders', array_merge($pmBase, ['payment_method' => 'cash'])) }}"
-                           class="btn {{ $pmActual === 'cash' ? 'btn-success' : 'btn-outline-success' }}">
-                            <i class="fas fa-money-bill-wave me-1"></i>Efectivo</a>
-                        <a href="{{ route('admin.orders', array_merge($pmBase, ['payment_method' => 'transfer'])) }}"
-                           class="btn {{ $pmActual === 'transfer' ? 'btn-info' : 'btn-outline-info' }}">
-                            <i class="fas fa-exchange-alt me-1"></i>Transferencia</a>
-                    </div>
-                    @if(in_array($pmActual, ['cash', 'transfer'], true))
-                        <small class="text-muted">Mostrando solo pedidos con {{ $pmActual === 'cash' ? 'efectivo' : 'transferencia' }}</small>
-                    @endif
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Acciones Masivas -->
@@ -1229,7 +1214,18 @@
                                         <th>Cliente</th>
                                         <th>Items</th>
                                         <th>Total</th>
-                                        <th>Pago</th>
+                                        <th class="pago-filter-th">
+                                            <div class="dropdown">
+                                                <span role="button" class="pago-filter-toggle text-nowrap" data-bs-toggle="dropdown"
+                                                      data-bs-boundary="window" data-bs-strategy="fixed" data-table="orders-table"
+                                                      title="Filtrar por método de pago">Pago <i class="fas fa-caret-down"></i></span>
+                                                <ul class="dropdown-menu pago-filter-menu" data-table="orders-table">
+                                                    <li><a class="dropdown-item pago-filter-option d-flex justify-content-between gap-3" href="#" data-method="">Todos <span class="pago-total text-muted small"></span></a></li>
+                                                    <li><a class="dropdown-item pago-filter-option d-flex justify-content-between gap-3" href="#" data-method="cash">Efectivo <span class="pago-total text-muted small"></span></a></li>
+                                                    <li><a class="dropdown-item pago-filter-option d-flex justify-content-between gap-3" href="#" data-method="transfer">Transferencia <span class="pago-total text-muted small"></span></a></li>
+                                                </ul>
+                                            </div>
+                                        </th>
                                         <th>Horario</th>
                                         <th>Estado</th>
                                         <th>Acciones</th>
@@ -1321,7 +1317,7 @@
                                             <td data-label="Pago">
                                                 @php $pmOrder = $order->payment_method ?: 'cash'; @endphp
                                                 <span class="badge payment-toggle {{ $pmOrder === 'transfer' ? 'bg-info text-dark' : ($pmOrder === 'card' ? 'bg-secondary' : 'bg-success') }}"
-                                                    data-order-id="{{ $order->id }}" data-method="{{ $pmOrder }}"
+                                                    data-order-id="{{ $order->id }}" data-method="{{ $pmOrder }}" data-amount="{{ $order->total_amount }}"
                                                     role="button" style="cursor: pointer;"
                                                     title="{{ $pmOrder === 'card' ? 'Tarjeta: se edita desde el detalle del pedido' : 'Click para alternar Efectivo/Transferencia' }}">
                                                     {{ $order->payment_method_label }}
@@ -1524,7 +1520,18 @@
                                                 <th>Cliente</th>
                                                 <th>Items</th>
                                                 <th>Total</th>
-                                                <th>Pago</th>
+                                                <th class="pago-filter-th">
+                                                    <div class="dropdown">
+                                                        <span role="button" class="pago-filter-toggle text-nowrap" data-bs-toggle="dropdown"
+                                                              data-bs-boundary="window" data-bs-strategy="fixed" data-table="orders-table-historico"
+                                                              title="Filtrar por método de pago">Pago <i class="fas fa-caret-down"></i></span>
+                                                        <ul class="dropdown-menu pago-filter-menu" data-table="orders-table-historico">
+                                                            <li><a class="dropdown-item pago-filter-option d-flex justify-content-between gap-3" href="#" data-method="">Todos <span class="pago-total text-muted small"></span></a></li>
+                                                            <li><a class="dropdown-item pago-filter-option d-flex justify-content-between gap-3" href="#" data-method="cash">Efectivo <span class="pago-total text-muted small"></span></a></li>
+                                                            <li><a class="dropdown-item pago-filter-option d-flex justify-content-between gap-3" href="#" data-method="transfer">Transferencia <span class="pago-total text-muted small"></span></a></li>
+                                                        </ul>
+                                                    </div>
+                                                </th>
                                                 <th>Horario</th>
                                                 <th>Estado</th>
                                                 <th>Acciones</th>
@@ -1639,7 +1646,7 @@
                                                     <td>
                                                         @php $pmOrderHist = $order->payment_method ?: 'cash'; @endphp
                                                         <span class="badge payment-toggle {{ $pmOrderHist === 'transfer' ? 'bg-info text-dark' : ($pmOrderHist === 'card' ? 'bg-secondary' : 'bg-success') }}"
-                                                            data-order-id="{{ $order->id }}" data-method="{{ $pmOrderHist }}"
+                                                            data-order-id="{{ $order->id }}" data-method="{{ $pmOrderHist }}" data-amount="{{ $order->total_amount }}"
                                                             role="button" style="cursor: pointer;"
                                                             title="{{ $pmOrderHist === 'card' ? 'Tarjeta: se edita desde el detalle del pedido' : 'Click para alternar Efectivo/Transferencia' }}">
                                                             {{ $order->payment_method_label }}
@@ -3540,7 +3547,7 @@
                 </td>
                 <td data-label="Pago">
                     <span class="badge payment-toggle ${order.payment_method === 'transfer' ? 'bg-info text-dark' : (order.payment_method === 'card' ? 'bg-secondary' : 'bg-success')}"
-                          data-order-id="${order.id}" data-method="${order.payment_method || 'cash'}"
+                          data-order-id="${order.id}" data-method="${order.payment_method || 'cash'}" data-amount="${order.total_amount}"
                           role="button" style="cursor: pointer;"
                           title="${order.payment_method === 'card' ? 'Tarjeta: se edita desde el detalle del pedido' : 'Click para alternar Efectivo/Transferencia'}">
                         ${order.payment_method === 'transfer' ? 'TRANSFERENCIA' : (order.payment_method === 'card' ? 'TARJETA' : 'EFECTIVO')}
@@ -4632,6 +4639,89 @@
             saveTimeouts.set(timeoutKey, timeout);
         }
 
+        // ===== Filtro por método de pago desde el encabezado de la columna Pago =====
+        const PAGO_LABELS = { cash: 'Efectivo', transfer: 'Transferencia', card: 'Tarjeta' };
+        const PAGO_CELL_TEXT = { cash: 'EFECTIVO', transfer: 'TRANSFERENCIA', card: 'TARJETA' };
+        const PAGO_COL_INDEX = { 'orders-table': 4, 'orders-table-historico': 5 };
+
+        function formatPagoMoney(n) {
+            return '$' + new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+        }
+
+        // Suma ingresos y cuenta pedidos por método, incluyendo filas filtradas/paginadas
+        function computePagoTotals(tableId) {
+            const totals = { '': { sum: 0, count: 0 }, cash: { sum: 0, count: 0 }, transfer: { sum: 0, count: 0 }, card: { sum: 0, count: 0 } };
+            let badges = [];
+            if (window.jQuery && $.fn.DataTable && $.fn.DataTable.isDataTable('#' + tableId)) {
+                $('#' + tableId).DataTable().rows().nodes().to$().find('.payment-toggle').each(function() {
+                    badges.push(this);
+                });
+            } else {
+                badges = Array.from(document.querySelectorAll('#' + tableId + ' tbody .payment-toggle'));
+            }
+            badges.forEach(b => {
+                const m = b.dataset.method || 'cash';
+                const amt = parseFloat(b.dataset.amount || '0') || 0;
+                totals[''].sum += amt;
+                totals[''].count++;
+                if (totals[m]) {
+                    totals[m].sum += amt;
+                    totals[m].count++;
+                }
+            });
+            return totals;
+        }
+
+        // Al abrir el menú, mostrar el total de ingreso de cada método
+        document.addEventListener('click', function(e) {
+            const toggle = e.target.closest('.pago-filter-toggle');
+            if (!toggle) return;
+            const totals = computePagoTotals(toggle.dataset.table);
+            const menu = toggle.parentElement.querySelector('.pago-filter-menu');
+            if (!menu) return;
+            menu.querySelectorAll('.pago-filter-option').forEach(opt => {
+                const t = totals[opt.dataset.method] || { sum: 0, count: 0 };
+                const span = opt.querySelector('.pago-total');
+                if (span) span.textContent = `${t.count} · ${formatPagoMoney(t.sum)}`;
+            });
+        });
+
+        // Al elegir una opción, filtrar la tabla y mostrar el total del grupo en el encabezado
+        document.addEventListener('click', function(e) {
+            const opt = e.target.closest('.pago-filter-option');
+            if (!opt) return;
+            e.preventDefault();
+            const menu = opt.closest('.pago-filter-menu');
+            const tableId = menu.dataset.table;
+            const method = opt.dataset.method;
+
+            if (window.jQuery && $.fn.DataTable && $.fn.DataTable.isDataTable('#' + tableId)) {
+                $('#' + tableId).DataTable()
+                    .column(PAGO_COL_INDEX[tableId])
+                    .search(method ? PAGO_CELL_TEXT[method] : '')
+                    .draw();
+            } else {
+                // Fallback sin DataTables: ocultar filas manualmente
+                document.querySelectorAll('#' + tableId + ' tbody tr').forEach(tr => {
+                    const b = tr.querySelector('.payment-toggle');
+                    tr.style.display = (!method || (b && b.dataset.method === method)) ? '' : 'none';
+                });
+            }
+
+            // Encabezado: "Pago" o "Efectivo · $total (n)"
+            const totals = computePagoTotals(tableId);
+            document.querySelectorAll(`.pago-filter-toggle[data-table="${tableId}"]`).forEach(tg => {
+                if (method) {
+                    const t = totals[method] || { sum: 0, count: 0 };
+                    tg.innerHTML = `${PAGO_LABELS[method]} · ${formatPagoMoney(t.sum)} (${t.count}) <i class="fas fa-caret-down"></i>`;
+                    tg.classList.add('text-primary', 'fw-bold');
+                } else {
+                    tg.innerHTML = 'Pago <i class="fas fa-caret-down"></i>';
+                    tg.classList.remove('text-primary', 'fw-bold');
+                }
+            });
+        });
+
         // Actualiza los badges de la columna Pago para un pedido
         function syncPaymentBadges(orderId, method) {
             const labels = { cash: 'EFECTIVO', transfer: 'TRANSFERENCIA', card: 'TARJETA' };
@@ -4647,6 +4737,15 @@
                     b.classList.add('bg-success');
                 }
             });
+
+            // Refrescar caché de DataTables para que el filtro de la columna Pago siga funcionando
+            if (window.jQuery && $.fn.DataTable) {
+                ['orders-table', 'orders-table-historico'].forEach(id => {
+                    if ($.fn.DataTable.isDataTable('#' + id)) {
+                        $('#' + id).DataTable().rows().invalidate();
+                    }
+                });
+            }
         }
 
         // Reflejar en el badge los cambios de forma de pago hechos desde el modal
@@ -5211,311 +5310,3 @@
                         </button>
                     `;
                 }
-
-                buttons += `
-                    <button class="btn btn-outline-secondary text-start" onclick="executeAction(${orderId}, '${action}', 'keep')">
-                        <i class="fas fa-hand-paper me-2"></i>No tocar figuritas
-                        <div class="small text-muted">Solo ${action==='cancel'?'cancelar':'eliminar'} el pedido, dejar las figuritas como están</div>
-                    </button>
-                `;
-
-                opts.innerHTML = buttons;
-            } catch (e) {
-                document.getElementById('loyaltyDecisionText').innerHTML = 'No se pudo consultar el impacto. ¿Querés continuar igual?';
-                document.getElementById('loyaltyDecisionOptions').innerHTML = `
-                    <button class="btn btn-primary" onclick="executeAction(${orderId}, '${action}', 'keep')">Continuar sin verificar</button>
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                `;
-            }
-        }
-
-        // Ejecutar la acción (cancelar o eliminar) con la estrategia elegida
-        async function executeAction(orderId, action, strategy) {
-            const modalEl = document.getElementById('loyaltyDecisionModal');
-            const modal = bootstrap.Modal.getInstance(modalEl);
-            if (modal) modal.hide();
-
-            if (action === 'delete') {
-                // Eliminar individual
-                try {
-                    const res = await fetch(`/admin/orders/${orderId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ loyalty_strategy: strategy })
-                    });
-                    const data = await res.json();
-                    if (data.success) {
-                        showNotification('Pedido eliminado', 'success');
-                        setTimeout(() => location.reload(), 800);
-                    } else {
-                        showNotification(data.error || 'Error al eliminar', 'error');
-                    }
-                } catch (e) {
-                    showNotification('Error de conexión', 'error');
-                }
-            } else if (action === 'cancel') {
-                // Actualizar estado a cancelled
-                try {
-                    const res = await fetch(`/admin/orders/${orderId}/status`, {
-                        method: 'PUT',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ status: 'cancelled', loyalty_strategy: strategy })
-                    });
-                    const data = await res.json();
-                    if (data.success) {
-                        showNotification('Pedido cancelado', 'success');
-                        setTimeout(() => location.reload(), 800);
-                    } else {
-                        showNotification(data.error || 'Error al cancelar', 'error');
-                    }
-                } catch (e) {
-                    showNotification('Error de conexión', 'error');
-                }
-            }
-        }
-
-        // Hook para el modal de eliminación individual (sobreescribir comportamiento)
-        document.addEventListener('DOMContentLoaded', function() {
-            // Interceptar clicks en "Eliminar" de los modales individuales
-            document.querySelectorAll('[data-bs-target^="#modalDeleteOrder"]').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const modalId = this.getAttribute('data-bs-target');
-                    const orderId = modalId.replace('#modalDeleteOrder', '');
-                    const orderNumber = this.closest('tr')?.querySelector('td:nth-child(3)')?.textContent?.trim() || orderId;
-                    checkLoyaltyImpactAndDecide(orderId, 'delete', orderNumber);
-                });
-            });
-        });
-
-        // Eliminar paginación y select al final de la página
-        document.addEventListener('DOMContentLoaded', function() {
-            // ELIMINAR SVG ESPECÍFICOS CON ESOS PATHS
-            function eliminarSVGProblematico() {
-                const svgs = document.querySelectorAll('svg');
-                svgs.forEach(svg => {
-                    const viewBox = svg.getAttribute('viewBox');
-                    if (viewBox === '0 0 17 17') {
-                        const path1 = svg.querySelector('path[d*="M5.207 8.471"]');
-                        const path2 = svg.querySelector('path[d*="M13.207 8.472"]');
-                        if (path1 || path2) {
-                            svg.remove();
-                        }
-                    }
-                    // También buscar por el path directamente sin importar el viewBox
-                    const path1 = svg.querySelector('path[d*="M5.207 8.471"]');
-                    const path2 = svg.querySelector('path[d*="M13.207 8.472"]');
-                    if (path1 || path2) {
-                        svg.remove();
-                    }
-                });
-            }
-            
-            // Ejecutar inmediatamente
-            eliminarSVGProblematico();
-            
-            // Ejecutar después de un pequeño delay para elementos que se cargan después
-            setTimeout(eliminarSVGProblematico, 100);
-            setTimeout(eliminarSVGProblematico, 500);
-            setTimeout(eliminarSVGProblematico, 1000);
-            
-            // ELIMINAR ELEMENTOS DE FLATPICKR
-            function eliminarFlatpickr() {
-                // Eliminar elementos específicos de flatpickr
-                const flatpickrCurrentMonth = document.querySelector('.flatpickr-current-month');
-                if (flatpickrCurrentMonth) {
-                    flatpickrCurrentMonth.remove();
-                }
-                
-                const dayContainer = document.querySelector('.dayContainer');
-                if (dayContainer) {
-                    dayContainer.remove();
-                }
-                
-                const weekdayContainer = document.querySelector('.flatpickr-weekdaycontainer');
-                if (weekdayContainer) {
-                    weekdayContainer.remove();
-                }
-                
-                // Eliminar todo el contenedor de flatpickr si existe
-                const flatpickrCalendar = document.querySelector('.flatpickr-calendar');
-                if (flatpickrCalendar && flatpickrCalendar.closest('.modal') === null) {
-                    flatpickrCalendar.remove();
-                }
-            }
-            
-            // Observar cambios en el DOM para eliminar SVG y flatpickr que aparezcan después
-            const observer = new MutationObserver(function(mutations) {
-                eliminarSVGProblematico();
-                eliminarFlatpickr();
-            });
-            observer.observe(document.body, {
-                childList: true,
-                subtree: true
-            });
-            
-            // Ejecutar eliminación de flatpickr
-            eliminarFlatpickr();
-            setTimeout(eliminarFlatpickr, 100);
-            setTimeout(eliminarFlatpickr, 500);
-            setTimeout(eliminarFlatpickr, 1000);
-            
-            // Eliminar elementos de paginación
-            const paginations = document.querySelectorAll('.pagination, .pagination-modern, nav[aria-label*="pagination"], nav[aria-label*="Pagination"]');
-            paginations.forEach(p => {
-                if (p.closest('.modal') === null) {
-                    p.remove();
-                }
-            });
-            
-            // Eliminar select de "per page" o similar
-            const selects = document.querySelectorAll('select[class*="per"], select[name*="per"], select[id*="per"], select[class*="page"], select[name*="page"]');
-            selects.forEach(s => {
-                if (s.closest('.modal') === null && s.closest('.table') === null && s.closest('.card-body') === null) {
-                    s.parentElement?.remove();
-                }
-            });
-            
-            // Eliminar cualquier elemento con clase pagination que esté al final del body
-            const allPagination = document.querySelectorAll('.pagination, [class*="pagination"]');
-            allPagination.forEach(el => {
-                if (el.closest('.modal') === null) {
-                    const rect = el.getBoundingClientRect();
-                    // Si está cerca del final de la página (últimos 200px)
-                    if (rect.top > window.innerHeight - 200) {
-                        el.remove();
-                    }
-                }
-            });
-        });
-
-        // ===== DATATABLES INITIALIZATION =====
-        // Load jQuery first (required by DataTables)
-        if (typeof jQuery === 'undefined') {
-            const jqueryScript = document.createElement('script');
-            jqueryScript.src = 'https://code.jquery.com/jquery-3.7.1.min.js';
-            jqueryScript.onload = function() {
-                loadDataTables();
-            };
-            document.head.appendChild(jqueryScript);
-        } else {
-            loadDataTables();
-        }
-
-        function loadDataTables() {
-            // Load DataTables libraries
-            const dataTablesScript = document.createElement('script');
-            dataTablesScript.src = 'https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js';
-            dataTablesScript.onload = function() {
-                const bootstrap5Script = document.createElement('script');
-                bootstrap5Script.src = 'https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js';
-                bootstrap5Script.onload = function() {
-                    const responsiveScript = document.createElement('script');
-                    responsiveScript.src = 'https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js';
-                    responsiveScript.onload = function() {
-                        const responsiveBootstrap5Script = document.createElement('script');
-                        responsiveBootstrap5Script.src = 'https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js';
-                        responsiveBootstrap5Script.onload = function() {
-                            initializeDataTables();
-                        };
-                        document.head.appendChild(responsiveBootstrap5Script);
-                    };
-                    document.head.appendChild(responsiveScript);
-                };
-                document.head.appendChild(bootstrap5Script);
-            };
-            document.head.appendChild(dataTablesScript);
-        }
-
-        function initializeDataTables() {
-            // Initialize today's orders table
-            if ($('#orders-table').length) {
-                $('#orders-table').DataTable({
-                    responsive: false,
-                    pageLength: 25,
-                    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'Todos']],
-                    language: {
-                        url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
-                    },
-                    columnDefs: [
-                        { responsivePriority: 1, targets: 0 }, // Checkbox
-                        { responsivePriority: 2, targets: 1 }, // Cliente
-                        { responsivePriority: 3, targets: 7 }, // Acciones
-                        { responsivePriority: 4, targets: 6 }, // Estado
-                        { responsivePriority: 5, targets: 2 }, // Items
-                        { responsivePriority: 6, targets: 3 }, // Total
-                        { responsivePriority: 7, targets: 5 }, // Horario
-                        { responsivePriority: 8, targets: 4 }  // Pago
-                    ],
-                    order: [],
-                    dom: 'rt',
-                    paging: false
-                });
-            }
-
-            // Initialize historical orders table
-            if ($('#orders-table-historico').length) {
-                var isMobile = window.innerWidth <= 768;
-                $('#orders-table-historico').DataTable({
-                    responsive: false,
-                    pageLength: -1,
-                    lengthMenu: [[-1, 25, 50, 100], ['Todos', 25, 50, 100]],
-                    language: {
-                        lengthMenu: 'Mostrar _MENU_ registros',
-                        search: 'Buscar:',
-                        info: 'Mostrando _START_ a _END_ de _TOTAL_ pedidos',
-                        infoEmpty: 'Mostrando 0 a 0 de 0 pedidos',
-                        infoFiltered: '(filtrado de _MAX_ pedidos en total)',
-                        paginate: {
-                            first: 'Primero',
-                            last: 'Último',
-                            next: 'Siguiente',
-                            previous: 'Anterior'
-                        },
-                        zeroRecords: 'No se encontraron pedidos',
-                        emptyTable: 'No hay pedidos anteriores'
-                    },
-                    columnDefs: [
-                        { targets: 0, width: '50px' },
-                        { targets: 1, width: '100px' },
-                        { targets: 2, width: '200px' },
-                        { targets: 3, width: '120px' },
-                        { targets: 4, width: '120px' },
-                        { targets: 5, width: '120px' },
-                        { targets: 6, width: '130px' },
-                        { targets: 7, width: '100px' },
-                        { targets: 8, width: '100px' }
-                    ],
-                    order: [[1, 'desc']],
-                    dom: '<"dt-controls-top"lf>rt<"dt-controls-bottom"ip>',
-                    scrollX: true,
-                    autoWidth: false
-                });
-            }
-
-            // Realinear columnas cada vez que el accordion abre
-            var collapseEl = document.getElementById('collapsePedidos');
-            if (collapseEl) {
-                collapseEl.addEventListener('shown.bs.collapse', function() {
-                    if ($.fn.DataTable.isDataTable('#orders-table-historico')) {
-                        $('#orders-table-historico').DataTable().columns.adjust().draw(false);
-                    }
-                });
-            }
-
-            // Realinear columnas al cambiar tamaño/orientación
-            window.addEventListener('resize', function() {
-                if ($.fn.DataTable.isDataTable('#orders-table-historico')) {
-                    $('#orders-table-historico').DataTable().columns.adjust();
-                }
-            });
-        }
-    </script>
-@endpush

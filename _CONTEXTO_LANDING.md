@@ -57,10 +57,4 @@ Orden real en la página:
 ## 7. PRÓXIMOS PASOS
 1. **Conseguir del cliente:** fotos faltantes (§6), **precio + descripción de LIBRA**, confirmar orden exacto del ranking (la numeración del txt era ambigua; se aplicó orden secuencial 1-9) y qué hacer con "desde 2024" del footer.
 2. **De la tanda 1 pendiente (`correccioneslanding.txt`):** plan de **votación web** (usuarios logueados con Google, guardar registro, reseñas individuales por producto para el catálogo) y **ordenar el menú automáticamente según ranking** — requiere backend, no es solo landing.
-3. **Reemplazar emojis 🍟/🔥 por SVG** en tags/pills (regla ui-ux del proyecto).
-4. **PORTEO A LARAVEL:** vista Blade + ruta `GET /inicio`; copiar assets a `public/images/landing/`; al aprobar, repuntar `/`. NO tocar `/catalog`.
-5. Pulido opcional: contadores, "ABIERTO AHORA", WhatsApp flotante, barra sticky mobile.
-
-## 8. Notas técnicas
-- Validar siempre: responsive 375/768/1024/1440, solo transform/opacity en animaciones, `prefers-reduced-motion`, no emojis como íconos en la versión final.
-- **Checklist post-edición (por el bug de OneDrive):** archivo termina en `</html>` → `node --check` del script → `cp` a `public/landing/` → Ctrl+F5 en el navegador.
+3. **Reemplazar emojis 🍟/🔥 por SVG** en tags/pills (regla ui-ux del pro
