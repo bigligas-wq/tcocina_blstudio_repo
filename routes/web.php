@@ -19,6 +19,16 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 // Rutas públicas
+// Precios reales para la landing estática (public/landing/index.html)
+Route::get('/landing-data/products.json', function () {
+    return response()->json(
+        \App\Models\Product::query()
+            ->where('is_available', true)
+            ->get(['name', 'base_price'])
+            ->map(fn ($p) => ['name' => $p->name, 'price' => (float) $p->base_price])
+    );
+})->name('landing.products');
+
 Route::get('/', [ProductController::class, 'index'])->name('home');
 Route::get('/catalog', [ProductController::class, 'index'])->name('catalog');
 Route::get('/category/{slug}', [ProductController::class, 'category'])->name('category');
