@@ -274,6 +274,31 @@
         overflow: visible !important;
     }
 
+    /* Dropdown del filtro Pago: siempre por encima del listado de pedidos */
+    .pago-filter-menu {
+        z-index: 5000 !important;
+    }
+    th.pago-filter-th,
+    th.pago-filter-th .dropdown {
+        overflow: visible;
+    }
+    /* Elevar el th mientras el menú está abierto (gana a overlays/selects de las filas) */
+    th.pago-filter-th:has(.pago-filter-menu.show) {
+        position: relative;
+        z-index: 1060;
+    }
+    thead:has(.pago-filter-menu.show) {
+        position: relative;
+        z-index: 1060;
+    }
+    /* La tabla histórica clona el encabezado dentro de .dataTables_scrollHead (overflow hidden):
+       liberarlo mientras el menú está abierto para que no lo recorte */
+    #orders-table-historico_wrapper .dataTables_scrollHead:has(.pago-filter-menu.show) {
+        overflow: visible !important;
+        position: relative;
+        z-index: 1060;
+    }
+
     /* Hover en items del dropdown de acciones */
     .dropdown-menu .dropdown-item {
         transition: background-color 0.2s ease, color 0.2s ease;
@@ -1189,6 +1214,18 @@
                                         <th>Cliente</th>
                                         <th>Items</th>
                                         <th>Total</th>
+                                        <th class="pago-filter-th">
+                                            <div class="dropdown">
+                                                <span role="button" class="pago-filter-toggle text-nowrap" data-bs-toggle="dropdown"
+                                                      data-bs-boundary="window" data-bs-strategy="fixed" data-table="orders-table"
+                                                      title="Filtrar por método de pago">Pago <i class="fas fa-caret-down"></i></span>
+                                                <ul class="dropdown-menu pago-filter-menu" data-table="orders-table">
+                                                    <li><a class="dropdown-item pago-filter-option d-flex justify-content-between gap-3" href="#" data-method="">Todos <span class="pago-total text-muted small"></span></a></li>
+                                                    <li><a class="dropdown-item pago-filter-option d-flex justify-content-between gap-3" href="#" data-method="cash">Efectivo <span class="pago-total text-muted small"></span></a></li>
+                                                    <li><a class="dropdown-item pago-filter-option d-flex justify-content-between gap-3" href="#" data-method="transfer">Transferencia <span class="pago-total text-muted small"></span></a></li>
+                                                </ul>
+                                            </div>
+                                        </th>
                                         <th>Horario</th>
                                         <th>Estado</th>
                                         <th>Acciones</th>
@@ -1276,6 +1313,15 @@
                                                     <small class="text-primary d-block modern-discount-font">{{ $order->coupon->name }}</small>
                                                 @endif
                                                 </div>
+                                            </td>
+                                            <td data-label="Pago">
+                                                @php $pmOrder = $order->payment_method ?: 'cash'; @endphp
+                                                <span class="badge payment-toggle {{ $pmOrder === 'transfer' ? 'bg-info text-dark' : ($pmOrder === 'card' ? 'bg-secondary' : 'bg-success') }}"
+                                                    data-order-id="{{ $order->id }}" data-method="{{ $pmOrder }}" data-amount="{{ $order->total_amount }}"
+                                                    role="button" style="cursor: pointer;"
+                                                    title="{{ $pmOrder === 'card' ? 'Tarjeta: se edita desde el detalle del pedido' : 'Click para alternar Efectivo/Transferencia' }}">
+                                                    {{ $order->payment_method_label }}
+                                                </span>
                                             </td>
                                             <td data-label="Horario" class="position-relative" style="min-width:130px;">
                                                 @if ($order->status === 'pending')
@@ -1474,6 +1520,18 @@
                                                 <th>Cliente</th>
                                                 <th>Items</th>
                                                 <th>Total</th>
+                                                <th class="pago-filter-th">
+                                                    <div class="dropdown">
+                                                        <span role="button" class="pago-filter-toggle text-nowrap" data-bs-toggle="dropdown"
+                                                              data-bs-boundary="window" data-bs-strategy="fixed" data-table="orders-table-historico"
+                                                              title="Filtrar por método de pago">Pago <i class="fas fa-caret-down"></i></span>
+                                                        <ul class="dropdown-menu pago-filter-menu" data-table="orders-table-historico">
+                                                            <li><a class="dropdown-item pago-filter-option d-flex justify-content-between gap-3" href="#" data-method="">Todos <span class="pago-total text-muted small"></span></a></li>
+                                                            <li><a class="dropdown-item pago-filter-option d-flex justify-content-between gap-3" href="#" data-method="cash">Efectivo <span class="pago-total text-muted small"></span></a></li>
+                                                            <li><a class="dropdown-item pago-filter-option d-flex justify-content-between gap-3" href="#" data-method="transfer">Transferencia <span class="pago-total text-muted small"></span></a></li>
+                                                        </ul>
+                                                    </div>
+                                                </th>
                                                 <th>Horario</th>
                                                 <th>Estado</th>
                                                 <th>Acciones</th>
@@ -1584,6 +1642,15 @@
                                                             <small class="text-primary d-block modern-discount-font">{{ $order->coupon->name }}</small>
                                                         @endif
                                                         </div>
+                                                    </td>
+                                                    <td>
+                                                        @php $pmOrderHist = $order->payment_method ?: 'cash'; @endphp
+                                                        <span class="badge payment-toggle {{ $pmOrderHist === 'transfer' ? 'bg-info text-dark' : ($pmOrderHist === 'card' ? 'bg-secondary' : 'bg-success') }}"
+                                                            data-order-id="{{ $order->id }}" data-method="{{ $pmOrderHist }}" data-amount="{{ $order->total_amount }}"
+                                                            role="button" style="cursor: pointer;"
+                                                            title="{{ $pmOrderHist === 'card' ? 'Tarjeta: se edita desde el detalle del pedido' : 'Click para alternar Efectivo/Transferencia' }}">
+                                                            {{ $order->payment_method_label }}
+                                                        </span>
                                                     </td>
                                                     <td class="position-relative" style="min-width:130px;">
                                                         @php
@@ -3478,6 +3545,14 @@
                         ${order.coupon ? `<small class="text-primary d-block modern-discount-font">${order.coupon.name}</small>` : ''}
                     </div>
                 </td>
+                <td data-label="Pago">
+                    <span class="badge payment-toggle ${order.payment_method === 'transfer' ? 'bg-info text-dark' : (order.payment_method === 'card' ? 'bg-secondary' : 'bg-success')}"
+                          data-order-id="${order.id}" data-method="${order.payment_method || 'cash'}" data-amount="${order.total_amount}"
+                          role="button" style="cursor: pointer;"
+                          title="${order.payment_method === 'card' ? 'Tarjeta: se edita desde el detalle del pedido' : 'Click para alternar Efectivo/Transferencia'}">
+                        ${order.payment_method === 'transfer' ? 'TRANSFERENCIA' : (order.payment_method === 'card' ? 'TARJETA' : 'EFECTIVO')}
+                    </span>
+                </td>
                 <td data-label="Horario" class="position-relative">
                     ${order.status === 'pending' ? `
                         <select class="form-select microturno-select" data-order-id="${order.id}">
@@ -4564,6 +4639,167 @@
             saveTimeouts.set(timeoutKey, timeout);
         }
 
+        // ===== Filtro por método de pago desde el encabezado de la columna Pago =====
+        const PAGO_LABELS = { cash: 'Efectivo', transfer: 'Transferencia', card: 'Tarjeta' };
+        const PAGO_CELL_TEXT = { cash: 'EFECTIVO', transfer: 'TRANSFERENCIA', card: 'TARJETA' };
+        const PAGO_COL_INDEX = { 'orders-table': 4, 'orders-table-historico': 5 };
+
+        function formatPagoMoney(n) {
+            return '$' + new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+        }
+
+        // Suma ingresos y cuenta pedidos por método, incluyendo filas filtradas/paginadas
+        function computePagoTotals(tableId) {
+            const totals = { '': { sum: 0, count: 0 }, cash: { sum: 0, count: 0 }, transfer: { sum: 0, count: 0 }, card: { sum: 0, count: 0 } };
+            let badges = [];
+            if (window.jQuery && $.fn.DataTable && $.fn.DataTable.isDataTable('#' + tableId)) {
+                $('#' + tableId).DataTable().rows().nodes().to$().find('.payment-toggle').each(function() {
+                    badges.push(this);
+                });
+            } else {
+                badges = Array.from(document.querySelectorAll('#' + tableId + ' tbody .payment-toggle'));
+            }
+            badges.forEach(b => {
+                const m = b.dataset.method || 'cash';
+                const amt = parseFloat(b.dataset.amount || '0') || 0;
+                totals[''].sum += amt;
+                totals[''].count++;
+                if (totals[m]) {
+                    totals[m].sum += amt;
+                    totals[m].count++;
+                }
+            });
+            return totals;
+        }
+
+        // Al abrir el menú, mostrar el total de ingreso de cada método
+        document.addEventListener('click', function(e) {
+            const toggle = e.target.closest('.pago-filter-toggle');
+            if (!toggle) return;
+            const totals = computePagoTotals(toggle.dataset.table);
+            const menu = toggle.parentElement.querySelector('.pago-filter-menu');
+            if (!menu) return;
+            menu.querySelectorAll('.pago-filter-option').forEach(opt => {
+                const t = totals[opt.dataset.method] || { sum: 0, count: 0 };
+                const span = opt.querySelector('.pago-total');
+                if (span) span.textContent = `${t.count} · ${formatPagoMoney(t.sum)}`;
+            });
+        });
+
+        // Al elegir una opción, filtrar la tabla y mostrar el total del grupo en el encabezado
+        document.addEventListener('click', function(e) {
+            const opt = e.target.closest('.pago-filter-option');
+            if (!opt) return;
+            e.preventDefault();
+            const menu = opt.closest('.pago-filter-menu');
+            const tableId = menu.dataset.table;
+            const method = opt.dataset.method;
+
+            if (window.jQuery && $.fn.DataTable && $.fn.DataTable.isDataTable('#' + tableId)) {
+                $('#' + tableId).DataTable()
+                    .column(PAGO_COL_INDEX[tableId])
+                    .search(method ? PAGO_CELL_TEXT[method] : '')
+                    .draw();
+            } else {
+                // Fallback sin DataTables: ocultar filas manualmente
+                document.querySelectorAll('#' + tableId + ' tbody tr').forEach(tr => {
+                    const b = tr.querySelector('.payment-toggle');
+                    tr.style.display = (!method || (b && b.dataset.method === method)) ? '' : 'none';
+                });
+            }
+
+            // Encabezado: "Pago" o "Efectivo · $total (n)"
+            const totals = computePagoTotals(tableId);
+            document.querySelectorAll(`.pago-filter-toggle[data-table="${tableId}"]`).forEach(tg => {
+                if (method) {
+                    const t = totals[method] || { sum: 0, count: 0 };
+                    tg.innerHTML = `${PAGO_LABELS[method]} · ${formatPagoMoney(t.sum)} (${t.count}) <i class="fas fa-caret-down"></i>`;
+                    tg.classList.add('text-primary', 'fw-bold');
+                } else {
+                    tg.innerHTML = 'Pago <i class="fas fa-caret-down"></i>';
+                    tg.classList.remove('text-primary', 'fw-bold');
+                }
+            });
+        });
+
+        // Actualiza los badges de la columna Pago para un pedido
+        function syncPaymentBadges(orderId, method) {
+            const labels = { cash: 'EFECTIVO', transfer: 'TRANSFERENCIA', card: 'TARJETA' };
+            document.querySelectorAll(`.payment-toggle[data-order-id="${orderId}"]`).forEach(b => {
+                b.dataset.method = method;
+                b.textContent = labels[method] || 'EFECTIVO';
+                b.classList.remove('bg-success', 'bg-info', 'text-dark', 'bg-secondary');
+                if (method === 'transfer') {
+                    b.classList.add('bg-info', 'text-dark');
+                } else if (method === 'card') {
+                    b.classList.add('bg-secondary');
+                } else {
+                    b.classList.add('bg-success');
+                }
+            });
+
+            // Refrescar caché de DataTables para que el filtro de la columna Pago siga funcionando
+            if (window.jQuery && $.fn.DataTable) {
+                ['orders-table', 'orders-table-historico'].forEach(id => {
+                    if ($.fn.DataTable.isDataTable('#' + id)) {
+                        $('#' + id).DataTable().rows().invalidate();
+                    }
+                });
+            }
+        }
+
+        // Reflejar en el badge los cambios de forma de pago hechos desde el modal
+        document.addEventListener('change', function(e) {
+            if (!e.target.matches('select.order-edit[data-field="payment_method"]')) return;
+            const modalEl = e.target.closest('.modal');
+            if (!modalEl || !modalEl.id.startsWith('modalOrder')) return;
+            syncPaymentBadges(modalEl.id.replace('modalOrder', ''), e.target.value);
+        });
+
+        // Toggle rápido de método de pago (Efectivo <-> Transferencia) desde la columna Pago
+        document.addEventListener('click', async function(e) {
+            const badge = e.target.closest('.payment-toggle');
+            if (!badge) return;
+
+            const currentMethod = badge.dataset.method;
+            if (currentMethod === 'card') return; // Tarjeta se edita desde el modal
+            if (badge.dataset.saving === '1') return;
+
+            const orderId = badge.dataset.orderId;
+            const newMethod = currentMethod === 'transfer' ? 'cash' : 'transfer';
+            badge.dataset.saving = '1';
+            badge.style.opacity = '0.5';
+
+            try {
+                const response = await fetch(`/admin/orders/${orderId}/details`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({ payment_method: newMethod })
+                });
+
+                const data = await response.json();
+                if (!data.success) throw new Error(data.message || 'Error al guardar');
+
+                // Actualizar todos los badges de este pedido (hoy + histórico)
+                syncPaymentBadges(orderId, newMethod);
+
+                // Sincronizar el select del modal para no quedar desactualizado
+                const modalSelect = document.querySelector(`#modalOrder${orderId} select[data-field="payment_method"]`);
+                if (modalSelect) modalSelect.value = newMethod;
+
+                showNotification(`Método de pago cambiado a ${newMethod === 'transfer' ? 'Transferencia' : 'Efectivo'}`, 'success');
+            } catch (error) {
+                console.error('❌ Error cambiando método de pago:', error);
+                showNotification(`Error al cambiar método de pago: ${error.message}`, 'error');
+            } finally {
+                delete badge.dataset.saving;
+                badge.style.opacity = '';
+            }
+        });
+
         // Función para manejar campos de dirección (nested)
         function autoSaveAddressField(orderId, field, value, element) {
             const timeoutKey = `${orderId}-address-${field}`;
@@ -5310,11 +5546,12 @@
                     columnDefs: [
                         { responsivePriority: 1, targets: 0 }, // Checkbox
                         { responsivePriority: 2, targets: 1 }, // Cliente
-                        { responsivePriority: 3, targets: 6 }, // Acciones
-                        { responsivePriority: 4, targets: 5 }, // Estado
+                        { responsivePriority: 3, targets: 7 }, // Acciones
+                        { responsivePriority: 4, targets: 6 }, // Estado
                         { responsivePriority: 5, targets: 2 }, // Items
                         { responsivePriority: 6, targets: 3 }, // Total
-                        { responsivePriority: 7, targets: 4 }  // Horario
+                        { responsivePriority: 7, targets: 5 }, // Horario
+                        { responsivePriority: 8, targets: 4, orderable: false }  // Pago
                     ],
                     order: [],
                     dom: 'rt',
@@ -5350,9 +5587,10 @@
                         { targets: 2, width: '200px' },
                         { targets: 3, width: '120px' },
                         { targets: 4, width: '120px' },
-                        { targets: 5, width: '130px' },
-                        { targets: 6, width: '100px' },
-                        { targets: 7, width: '100px' }
+                        { targets: 5, width: '120px', orderable: false },
+                        { targets: 6, width: '130px' },
+                        { targets: 7, width: '100px' },
+                        { targets: 8, width: '100px' }
                     ],
                     order: [[1, 'desc']],
                     dom: '<"dt-controls-top"lf>rt<"dt-controls-bottom"ip>',

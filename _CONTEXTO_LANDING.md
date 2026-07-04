@@ -1,71 +1,66 @@
 # 📋 CONTEXTO — Rediseño Landing T Cocina (handoff)
 
-## 1. Qué es el proyecto
-- **T Cocina** = hamburguesería **smash artesanal** en **Olavarría**. App **Laravel 12 + Blade + Tailwind v4 + Vite + JS vanilla**, EN PRODUCCIÓN (pedidos online, admin/CRM, cocina, lealtad "figuritas", cupones, reseñas, tracking en tiempo real).
-- **Ruta:** `C:\Users\BigLigas\Desktop\Proyectos\tcocina\13-5-26`
-- **Objetivo:** crear una **LANDING nueva y espectacular** para `/`. Hoy `/` y `/catalog` muestran ambas el catálogo (no hay landing).
-- **REGLA DE ORO:** el **catálogo `/catalog` NO se toca** (es el motor que vende). La landing es la vidriera y **linkea a `/catalog`**.
+> **Última actualización: 03/07/2026** — aplicada la tanda completa de correcciones del cliente (hero, header, reseñas, menú, textos, historia, acompañamientos, ranking, álbum).
 
-## 2. Cómo se trabaja
-- Primero **PROTOTIPO ESTÁTICO** (un `index.html` con CSS+JS inline) para iterar rápido, luego se **porta a Blade** en `/inicio` (sin tocar la home), y al aprobar se repunta `/`.
-- **Prototipo:** `tcocina\13-5-26\_landing_preview\` → `index.html`, `assets/`, `assets/burgers/`, `assets/foto/`, `assets/scene/`.
-- **Ver en vivo:** abrir `file:///C:/Users/BigLigas/Desktop/Proyectos/tcocina/13-5-26/_landing_preview/index.html`. (Server preview python config "tcocina" puerto 8123 en `Cowork_claude/.claude/launch.json`.)
-- ⚠️ El **screenshot del preview venía fallando** → verificar por `eval` (getBoundingClientRect, elementFromPoint, computed styles).
-- Método: `C:\Users\BigLigas\Desktop\Proyectos\PLANTILLA-WEB-MAGICA.md`.
+## 1. Qué es el proyecto
+- **T Cocina / TCO BURGER** = hamburguesería **smash artesanal** en **Olavarría**. App **Laravel 12 + Blade + Tailwind v4 + Vite + JS vanilla**, EN PRODUCCIÓN (pedidos online, admin/CRM, cocina, lealtad "figuritas", cupones, reseñas, tracking en tiempo real).
+- **Repo actual:** `C:\Users\usuario\OneDrive\Documents\tcocina\tcocina_blstudio_repo`
+- **Objetivo:** LANDING nueva para `/`. Hoy `/` y `/catalog` muestran el catálogo.
+- **REGLA DE ORO:** el **catálogo `/catalog` NO se toca**. La landing es la vidriera y **linkea a `/catalog`**.
+
+## 2. Cómo se trabaja — ⚠️ HAY DOS COPIAS
+- **Prototipo (fuente de trabajo):** `_landing_preview/index.html` (CSS+JS inline, un solo archivo).
+- **Copia servida (la que ve el cliente):** `public/landing/index.html` → `http://127.0.0.1:8000/landing/index.html`.
+- **Ambas deben sincronizarse a mano** tras cada cambio: `cp _landing_preview/index.html public/landing/index.html` (los `assets/` ya existen duplicados en ambas carpetas y están completos).
+- ⚠️ **OneDrive truncó el archivo 2 veces durante ediciones** (se perdió el final del HTML). Tras editar, verificar SIEMPRE que el archivo termine en `</html>` y que el `<script>` esté completo. Ideal: pausar la sincronización de OneDrive mientras se edita.
+- Correcciones del cliente: `_landing_preview/correccioneslanding.txt` (tanda 1, aplicada parcialmente) + txt "hola" del 03/07/2026 (tanda 2, **aplicada completa**).
 
 ## 3. Marca (LOCKED)
-- **Colores:** navy `#0a0e1a` / `#0f1628` (del login/tracking), **ámbar `#E8A020`** y `#F2B133`, blanco, glow azul `#284497`. (NO el celeste "beach" del catálogo actual.)
-- **Fuentes (mezcladas):** **Bangers** (display, la del checkout), **Anton** (condensada), **Archivo Black** (nombres/stats), **Archivo** (body), **DM Sans** (solo logo blstudio).
-- **Logo:** `public/branding/logo_left.png` (wordmark "Tcocina" blanco), `logo.png` (la T sola).
-- **Vibe:** futbolera/argentina, sol de mayo, "Copa Hamburguesa", "estar adentro de una hamburguesería a pleno que dé hambre".
-- **Mascota firma:** sol-hamburguesa boxeador con zapatillas (grabado) → `public/productos/fondo/burger.png`. Números: `1tcocina.png`, `2tcocina.png`.
-- **Descuento efectivo: 10%** (no 15).
+- **Colores:** navy `#0a0e1a` / `#0f1628`, **ámbar `#E8A020`** y `#F2B133`, blanco, glow azul `#284497`.
+- **Fuentes:** **Bangers** (display), **Anton** (condensada, H1 hero), **Archivo Black** (nombres/stats), **Archivo** (body), **DM Sans** (solo logo blstudio).
+- **Vibe:** futbolera/argentina, sol de mayo, "Copa Hamburguesa".
+- **Descuento efectivo: 10%.**
 - **Datos:** Av. Pringles 3768, Olavarría · Miér a dom 19:30–22:30 · Delivery + retiro · IG @t_cocina_ · tcocina.org · Tel 2284 647634.
-- **Copy real:** "la hamburguesería artesanal de Olavarría especializada en smash burgers… blend de carnes propio… las mejores de Olavarría". **Origen: 2024, desde el quincho de la casa.**
-- **Menú (9):** Rayito $15.500 · BBQ Especial $15.500 · Solo Cheese $15.000 · La Joya $17.000 · Cheese Bacon $15.500 · 4 Quesos Azul $15.500 · 4 Quesos Amarilla $15.500 · Playita $16.500 · Piruco $15.500. (+veggie $15.500. "Tosca" = especial.) Todas con papas+dip.
+- **HISTORIA OFICIAL (actualizada por el cliente, reemplaza al "2024 desde el quincho"):** arrancó en **2021 en Mar del Plata** buscando aprender, haciendo todo desde cero (hasta los panes); después planchero en otro emprendimiento, luego en **Hamburgo** y **La Hamburguesería**; **3 años de aprendizaje** hasta arrancar **T Cocina · TCO BURGER**. (El footer aún dice "desde 2024" — revisar con el cliente.)
+- **El pan:** elaborado en el día por **Panadería Boston** (productor local), sin conservantes.
+- **La carne:** doble medallón 120 g, solo sal, sin condimentos agregados.
+- **Todas las burgers vienen con papas + dip** (destacado en menú y sección acompañamientos).
 
-## 4. Secciones YA construidas (`_landing_preview/index.html`)
-1. Header fijo glass (logo + nav Menú/Cómo se hace/Historia/Local + CTA "Pedí ahora" → /catalog).
-2. HERO (en upgrade a ESCENA, ver §5). Título Bangers "LAS MEJORES SMASH DE OLAVARRÍA", eyebrow "★ Hamburguesas artesanales · Olavarría", stats (+124 en una noche · ★4,9 · 2024 desde el quincho), 2 CTAs.
-3. Marquee ámbar con nombres de burgers.
-4. MENÚ "Nuestras estrellas" — 9 cards con fotos PRO fondo azul (`assets/burgers/`), nombre Archivo Black, precio Bangers ámbar, flag "★ La más pedida" en Rayito, hover, → /catalog. Nota "10% OFF".
-5. Banner CHEESE-PULL full-bleed (`assets/foto/cheesepull.jpg`) "CADA BOCADO, UNA FIESTA" + parallax scroll.
-6. "LA POSTA / Cómo se hace" — sección CREMA `#f4f1e8` texto navy, foto del smasheo en plancha (`assets/foto/smasheo.jpg`), 3 pasos. Bordes ámbar.
-7. HISTORIA "Del quincho a la cancha" (navy) — mascota sol-burger flotando + relato 2024.
-8. ACOMPAÑAMIENTOS — sección CREMA, papas y aros (`assets/foto/papasyaros.jpg`), lista.
-9. STATS band (azul, bordes ámbar): +124 · ★4,9 · 4.8k IG · 10% OFF.
-10. LOCAL — Pringles 3768, horarios, mapa Google embed, CTA.
-11. FOOTER (navy) — logo, IG, dirección, horarios, pedidos.
-12. Barrita BLSTUDIO (sello) — "¿Querés una web como ésta? · Ver planes" + logo blstudio animado → stgrandesligas.com.
+## 4. Secciones — ESTADO ACTUAL (`_landing_preview/index.html`, ~897 líneas)
+Orden real en la página:
+1. **HEADER** fijo glass — logo + nav + CTA "Pedí ahora". **El CTA está oculto sobre el hero y aparece recién al scrollear a la 2ª sección** (IntersectionObserver + clase `.show-cta`).
+2. **HERO** — burger central **centrada y grande** (l-hero left:14% top:12% w:72%; mobile w:78%), **sin efecto flotante** (se eliminó `floaty` de toda la escena; queda entrada `layerIn` + parallax mouse). En mobile se ven **los 3 dips** (mayo/cheddar/bbq) y se ocultan las 2 burgers traseras. **Un solo CTA: "Pedí Ahora"** (se borró "Ver el menú"). Espacio título→botones: 44px.
+3. **MARQUEE** ámbar con nombres (sin tocar — todavía nombra Playita, Solo Cheese, etc.).
+4. **RESEÑAS** (crema) — encabezado compacto: título + **una sola línea** con pill "★★★★★ 5.0 · +60 reseñas · 100% en 5 estrellas" + badges "Verificadas en la web" y "Google" (`.resenas__bar`). **Carrusel center mode de a UNA card** en todas las resoluciones: card centrada resaltada (`.is-center`, borde ámbar + halo), laterales atenuadas (opacity .55, scale .95). Cards de hasta 560px, texto 17px. **Drag con mouse en PC** con snap a la más cercana. Dots de a 1. CTA "Ver más reseñas en Google" con **G oficial multicolor** (`.btn-google`, blanco estilo Google).
+5. **MENÚ** — **solo 6 cards en este orden: Rayito, La Joya, Cheese Bacon, LIBRA, 4 Quesos Azul, Piruco** (se quitó Playita). Pill "🍟 Todas vienen con papas + dip incluidos" bajo el título. Drag con mouse en PC (`#menuGrid`). ⚠️ **LIBRA: sin foto (placeholder "( falta imagen )"), sin precio y descripción genérica** — pedir datos al cliente.
+6. **CHEESE-PULL banner** — kicker ahora dice **"100% calidad"** (antes "Queso que se estira" → "Ingredientes de primera calidad" → "100% calidad").
+7. **LA POSTA** — ahora **4 pasos**: 1) Doble medallón 120 g + "solo con sal, sin condimentos agregados" · 2) Blend propio · 3) **NUEVO: "El mejor pan de la ciudad" (Panadería Boston, del día, local, sin conservantes)** · 4) Armada al momento.
+8. **HISTORIA** — título "Tres años de aprendizaje, una obsesión", relato nuevo 2021/Mar del Plata/planchero/Hamburgo/La Hamburguesería/TCO BURGER + **tira de 3 fotos del proceso** (`smasheo2.jpg`, `abierta.jpg`, 1 placeholder). La mascota sol-burger sigue (con floaty, intencional).
+9. **ACOMPAÑAMIENTOS** (crema) — **badge ámbar grande "🍟 TODAS las hamburguesas vienen con papas + dip incluidos"** (resuelve la duda del cliente) + lista.
+10. **COPA HAMBURGUESA** — ya NO es podio de 3: **carrusel de 9 puestos** (`#copaTrack`) con **autoplay hacia la derecha cada 3,5 s** (pausa en hover/touch/drag, loop al inicio). Ranking: **1 Olavarría · 2 Libra · 3 La Joya · 4 Rayito · 5 Cheese Bacon · 6 4 Quesos Azul · 7 Cheese Gold · 8 4 Quesos Amarilla · 9 Piruco**. ⚠️ Olavarría, Libra y Cheese Gold con placeholder "( falta imagen )".
+11. **STATS band** (sin tocar).
+12. **FIDELIZACIÓN "Tu álbum T Cocina"** — la imagen se reemplazó por **placeholder "( falta imagen )"** (el cliente quiere una captura real del álbum).
+13. **LOCAL** + **FOOTER** + **barra BLSTUDIO** (sin tocar).
 
-**Ritmo:** navy → navy(menú) → banner oscuro → crema(posta) → navy(historia) → crema(acomp) → azul(stats) → navy(local) → navy(footer).
+## 5. JS actual (inline al final del HTML)
+- Header scrolled + **show-cta por IntersectionObserver del hero**.
+- `dragScroll(el)`: drag con mouse + snap a card más cercana, aplicado a `#resGrid`, `#menuGrid`, `#copaTrack` (clase `.dragging` desactiva snap y pointer-events de cards).
+- Autoplay del ranking Copa (setInterval 3,5 s, scrollBy +268px, loop).
+- Parallax escena hero (mouse) + parallax cheese-pull.
+- Dots de reseñas (1 por card) + **detección de card centrada → `.is-center`**.
+- Reveal on scroll + puntito verde blstudio.
 
-## 5. HERO SCENE — el corazón
-**Concepto:** escena "hamburguesería a pleno" con recortes reales PNG en capas: smash central + 2 burgers atrás + papas + aros + 3 dips, + sol de rayos ámbar girando + halo.
-**3 niveles anidados por capa (sin conflicto de transform):**
-- `.layer`: entrada `layerIn` (.85s `cubic-bezier(.34,1.45,.5,1)` forwards, opacity+translateY(48px)+scale(.85)→none) con stagger (`animation-delay`).
-- `.pll`: parallax mouse vía JS (`data-depth`).
-- `img`: flote idle `floaty` infinito (duraciones distintas).
-- Fondo: `.sunrays` (conic-gradient ámbar, `spin` 80s) + `.halo` (glow).
+## 6. Assets
+- Ambas copias (`_landing_preview/assets/` y `public/landing/assets/`) tienen: `scene/` (8 recortes + mascot), `foto/` (7 fotos proceso/producto), `burgers/` (11 fotos fondo azul).
+- **Fotos que FALTAN (pedir al cliente):** burger **Olavarría**, burger **Libra**, burger **Cheese Gold**, **captura real del álbum** de figuritas, **1 foto más del proceso** para historia.
 
-**Capas (desktop, scene ~496×560):** l-hero (burger-hero, left:18% top:22% w:60% z5 depth10) · l-lajoya (left:-5% top:1% w:42% z2 depth16) · l-tosca (right:-7% top:-3% w:44% z2 depth18) · l-papas (left:-9% bottom:3% w:31% z6 depth26) · l-aros (right:-9% bottom:7% w:32% z4 depth24) · l-dip1/mayo (left:7% bottom:-3% w:15% z8 depth36) · l-dip2/cheddar (left:41% bottom:-6% w:16% z9 depth40) · l-dip3/bbq (right:9% bottom:-3% w:15% z8 depth34).
-**Mobile (≤880):** oculta l-lajoya/l-tosca/l-dip3; recentra hero; papas/aros/2 dips más grandes.
-**ESTADO:** construido. **papas.png YA ESTÁ** (assets/scene/papas.png). **FALTA afinar visualmente** las posiciones (que no se pisen, márgenes).
-
-## 6. Assets (recortes)
-- Prototipo `assets/scene/`: burger-hero, burger-lajoya, burger-tosca, **papas**, aros, dip-mayo, dip-cheddar, dip-bbq, mascot. ✅ TODOS.
-- `assets/foto/`: smasheo, smasheo2, cheesepull, abierta, papasyaros, lajoya-pro, cheesebacon-pro.
-- `assets/burgers/`: 9 del menú (fondo azul) + bbq-especial + papas + aros.
-- Originales en `public/images/fotografo/` y `public/images/products/`.
-
-## 7. PRÓXIMOS PASOS (lo que falta hacer)
-1. **Terminar/afinar la HERO SCENE:** tunear posiciones (overlaps/márgenes/tamaños), pulir coreografía; opcional vapor + papel cuadrillé azul "mostrador" + mascota asomando; test mobile.
-2. **Sección COPA HAMBURGUESA:** podio/ranking con números ilustrados (`1tcocina.png`/`2tcocina.png`) → "campeona del mes" + 1°/2°/3° + CTA "votá en IG". Sin backend.
-3. **Sección RESEÑAS + FIDELIZACIÓN:** tarjetas de reseñas Google (★4,9, pedir 4-6 textos) + teaser figuritas (diferencial) con `public/images/rewards/`.
-4. **Pulido opcional:** contadores que cuentan, "ABIERTO AHORA" en vivo, WhatsApp flotante, barra sticky "Pedí ahora" mobile.
-5. **PORTEO A LARAVEL:** vista Blade + ruta `GET /inicio` (CSS inline → portear casi tal cual); copiar `assets/` a `public/images/landing/` y ajustar paths; CTAs → `/catalog`; al aprobar, repuntar `/` (hoy `ProductController@index` sirve catálogo en `/` y `/catalog`). NO tocar `/catalog`.
-6. **Bonus:** video con Remotion (intro .mp4) si hay footage. (Remotion = video, NO el hero interactivo.)
+## 7. PRÓXIMOS PASOS
+1. **Conseguir del cliente:** fotos faltantes (§6), **precio + descripción de LIBRA**, confirmar orden exacto del ranking (la numeración del txt era ambigua; se aplicó orden secuencial 1-9) y qué hacer con "desde 2024" del footer.
+2. **De la tanda 1 pendiente (`correccioneslanding.txt`):** plan de **votación web** (usuarios logueados con Google, guardar registro, reseñas individuales por producto para el catálogo) y **ordenar el menú automáticamente según ranking** — requiere backend, no es solo landing.
+3. **Reemplazar emojis 🍟/🔥 por SVG** en tags/pills (regla ui-ux del proyecto).
+4. **PORTEO A LARAVEL:** vista Blade + ruta `GET /inicio`; copiar assets a `public/images/landing/`; al aprobar, repuntar `/`. NO tocar `/catalog`.
+5. Pulido opcional: contadores, "ABIERTO AHORA", WhatsApp flotante, barra sticky mobile.
 
 ## 8. Notas técnicas
-- Skill /ui-ux-pro-max valida: "Vibrant & Block-based" (bold/energético), tipografía grande, micro 200–300ms, solo transform/opacity, `prefers-reduced-motion`, responsive 375/768/1024/1440, cursor-pointer, **no emojis como íconos** (reemplazar 🔥 de tags por SVG en final).
-- Prompts reutilizables: retoque de burgers (idéntica, limpiar, iluminar, 3/4 frente, transparente, una por vez) + dips (envase real de referencia, cambiar solo salsa) + papas (aislar caja y completar).
+- Validar siempre: responsive 375/768/1024/1440, solo transform/opacity en animaciones, `prefers-reduced-motion`, no emojis como íconos en la versión final.
+- **Checklist post-edición (por el bug de OneDrive):** archivo termina en `</html>` → `node --check` del script → `cp` a `public/landing/` → Ctrl+F5 en el navegador.
