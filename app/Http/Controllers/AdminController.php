@@ -154,6 +154,11 @@ class AdminController extends Controller
     {
         $hoy = now()->format('Y-m-d');
 
+        // Filtro por método de pago (efectivo / transferencia / tarjeta)
+        $paymentMethod = in_array($request->payment_method, ['cash', 'transfer', 'card'], true)
+            ? $request->payment_method
+            : null;
+
         // Pedidos de hoy
         $queryHoy = Order::with(['user', 'items.product', 'address', 'coupon', 'reviews'])
             ->whereDate('created_at', $hoy);
@@ -161,6 +166,10 @@ class AdminController extends Controller
         // Filtros para pedidos de hoy
         if ($request->status) {
             $queryHoy->where('status', $request->status);
+        }
+
+        if ($paymentMethod) {
+            $queryHoy->where('payment_method', $paymentMethod);
         }
 
         $pedidosHoy = $queryHoy->orderBy('created_at', 'desc')->get();
@@ -173,6 +182,10 @@ class AdminController extends Controller
         // Filtros para pedidos históricos
         if ($request->status) {
             $queryHistorico->where('status', $request->status);
+        }
+
+        if ($paymentMethod) {
+            $queryHistorico->where('payment_method', $paymentMethod);
         }
 
         if ($request->date_from) {
@@ -192,10 +205,14 @@ class AdminController extends Controller
 
         // Filtro de fecha para totales
         if ($selectedDate) {
-            $pedidosFecha = Order::with(['user', 'items.product', 'address', 'coupon', 'reviews'])
-                ->whereDate('created_at', $selectedDate)
-                ->orderBy('created_at', 'desc')
-                ->get();
+            $queryFecha = Order::with(['user', 'items.product', 'address', 'coupon', 'reviews'])
+                ->whereDate('created_at', $selectedDate);
+
+            if ($paymentMethod) {
+                $queryFecha->where('payment_method', $paymentMethod);
+            }
+
+            $pedidosFecha = $queryFecha->orderBy('created_at', 'desc')->get();
         } else {
             $pedidosFecha = $pedidosHoy;
         }

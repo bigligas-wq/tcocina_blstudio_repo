@@ -443,6 +443,12 @@
                     <div class="card">
                         <div class="card-body">
                             <form id="orders-filter-form" method="GET" action="{{ route('admin.orders') }}">
+                                    @if(request('payment_method'))
+                                        <input type="hidden" name="payment_method" value="{{ request('payment_method') }}">
+                                    @endif
+                                    @if(request('selected_date'))
+                                        <input type="hidden" name="selected_date" value="{{ request('selected_date') }}">
+                                    @endif
                                     <label for="status" class="form-label">Estado</label>
                                     <select class="form-select" id="status" name="status" onchange="this.form.submit()">
                                         <option value="">Todos los estados</option>
@@ -466,6 +472,12 @@
                     <div class="card">
                         <div class="card-body">
                             <form id="orders-date-form" method="GET" action="{{ route('admin.orders') }}">
+                                @if(request('payment_method'))
+                                    <input type="hidden" name="payment_method" value="{{ request('payment_method') }}">
+                                @endif
+                                @if(request('status'))
+                                    <input type="hidden" name="status" value="{{ request('status') }}">
+                                @endif
                                 <label for="selected_date" class="form-label">Fecha</label>
                                 <input
                                     type="text"
@@ -553,6 +565,34 @@
                 }
             }
         @endphp
+    </div>
+
+    <!-- Filtro Método de Pago -->
+    @php
+        $pmBase = request()->only(['status', 'selected_date', 'date_from', 'date_to']);
+        $pmActual = request('payment_method');
+    @endphp
+    <div class="row mb-4" id="payment-method-filter">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body py-2 d-flex align-items-center flex-wrap gap-2">
+                    <span class="form-label mb-0 me-1"><i class="fas fa-wallet me-1"></i>Método de pago:</span>
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Filtrar por método de pago">
+                        <a href="{{ route('admin.orders', $pmBase) }}"
+                           class="btn {{ !$pmActual ? 'btn-dark' : 'btn-outline-dark' }}">Todos</a>
+                        <a href="{{ route('admin.orders', array_merge($pmBase, ['payment_method' => 'cash'])) }}"
+                           class="btn {{ $pmActual === 'cash' ? 'btn-success' : 'btn-outline-success' }}">
+                            <i class="fas fa-money-bill-wave me-1"></i>Efectivo</a>
+                        <a href="{{ route('admin.orders', array_merge($pmBase, ['payment_method' => 'transfer'])) }}"
+                           class="btn {{ $pmActual === 'transfer' ? 'btn-info' : 'btn-outline-info' }}">
+                            <i class="fas fa-exchange-alt me-1"></i>Transferencia</a>
+                    </div>
+                    @if(in_array($pmActual, ['cash', 'transfer'], true))
+                        <small class="text-muted">Mostrando solo pedidos con {{ $pmActual === 'cash' ? 'efectivo' : 'transferencia' }}</small>
+                    @endif
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Acciones Masivas -->
@@ -1189,6 +1229,7 @@
                                         <th>Cliente</th>
                                         <th>Items</th>
                                         <th>Total</th>
+                                        <th>Pago</th>
                                         <th>Horario</th>
                                         <th>Estado</th>
                                         <th>Acciones</th>
@@ -1276,6 +1317,15 @@
                                                     <small class="text-primary d-block modern-discount-font">{{ $order->coupon->name }}</small>
                                                 @endif
                                                 </div>
+                                            </td>
+                                            <td data-label="Pago">
+                                                @php $pmOrder = $order->payment_method ?: 'cash'; @endphp
+                                                <span class="badge payment-toggle {{ $pmOrder === 'transfer' ? 'bg-info text-dark' : ($pmOrder === 'card' ? 'bg-secondary' : 'bg-success') }}"
+                                                    data-order-id="{{ $order->id }}" data-method="{{ $pmOrder }}"
+                                                    role="button" style="cursor: pointer;"
+                                                    title="{{ $pmOrder === 'card' ? 'Tarjeta: se edita desde el detalle del pedido' : 'Click para alternar Efectivo/Transferencia' }}">
+                                                    {{ $order->payment_method_label }}
+                                                </span>
                                             </td>
                                             <td data-label="Horario" class="position-relative" style="min-width:130px;">
                                                 @if ($order->status === 'pending')
@@ -1474,6 +1524,7 @@
                                                 <th>Cliente</th>
                                                 <th>Items</th>
                                                 <th>Total</th>
+                                                <th>Pago</th>
                                                 <th>Horario</th>
                                                 <th>Estado</th>
                                                 <th>Acciones</th>
@@ -1584,6 +1635,15 @@
                                                             <small class="text-primary d-block modern-discount-font">{{ $order->coupon->name }}</small>
                                                         @endif
                                                         </div>
+                                                    </td>
+                                                    <td>
+                                                        @php $pmOrderHist = $order->payment_method ?: 'cash'; @endphp
+                                                        <span class="badge payment-toggle {{ $pmOrderHist === 'transfer' ? 'bg-info text-dark' : ($pmOrderHist === 'card' ? 'bg-secondary' : 'bg-success') }}"
+                                                            data-order-id="{{ $order->id }}" data-method="{{ $pmOrderHist }}"
+                                                            role="button" style="cursor: pointer;"
+                                                            title="{{ $pmOrderHist === 'card' ? 'Tarjeta: se edita desde el detalle del pedido' : 'Click para alternar Efectivo/Transferencia' }}">
+                                                            {{ $order->payment_method_label }}
+                                                        </span>
                                                     </td>
                                                     <td class="position-relative" style="min-width:130px;">
                                                         @php
@@ -3478,6 +3538,14 @@
                         ${order.coupon ? `<small class="text-primary d-block modern-discount-font">${order.coupon.name}</small>` : ''}
                     </div>
                 </td>
+                <td data-label="Pago">
+                    <span class="badge payment-toggle ${order.payment_method === 'transfer' ? 'bg-info text-dark' : (order.payment_method === 'card' ? 'bg-secondary' : 'bg-success')}"
+                          data-order-id="${order.id}" data-method="${order.payment_method || 'cash'}"
+                          role="button" style="cursor: pointer;"
+                          title="${order.payment_method === 'card' ? 'Tarjeta: se edita desde el detalle del pedido' : 'Click para alternar Efectivo/Transferencia'}">
+                        ${order.payment_method === 'transfer' ? 'TRANSFERENCIA' : (order.payment_method === 'card' ? 'TARJETA' : 'EFECTIVO')}
+                    </span>
+                </td>
                 <td data-label="Horario" class="position-relative">
                     ${order.status === 'pending' ? `
                         <select class="form-select microturno-select" data-order-id="${order.id}">
@@ -4564,6 +4632,75 @@
             saveTimeouts.set(timeoutKey, timeout);
         }
 
+        // Actualiza los badges de la columna Pago para un pedido
+        function syncPaymentBadges(orderId, method) {
+            const labels = { cash: 'EFECTIVO', transfer: 'TRANSFERENCIA', card: 'TARJETA' };
+            document.querySelectorAll(`.payment-toggle[data-order-id="${orderId}"]`).forEach(b => {
+                b.dataset.method = method;
+                b.textContent = labels[method] || 'EFECTIVO';
+                b.classList.remove('bg-success', 'bg-info', 'text-dark', 'bg-secondary');
+                if (method === 'transfer') {
+                    b.classList.add('bg-info', 'text-dark');
+                } else if (method === 'card') {
+                    b.classList.add('bg-secondary');
+                } else {
+                    b.classList.add('bg-success');
+                }
+            });
+        }
+
+        // Reflejar en el badge los cambios de forma de pago hechos desde el modal
+        document.addEventListener('change', function(e) {
+            if (!e.target.matches('select.order-edit[data-field="payment_method"]')) return;
+            const modalEl = e.target.closest('.modal');
+            if (!modalEl || !modalEl.id.startsWith('modalOrder')) return;
+            syncPaymentBadges(modalEl.id.replace('modalOrder', ''), e.target.value);
+        });
+
+        // Toggle rápido de método de pago (Efectivo <-> Transferencia) desde la columna Pago
+        document.addEventListener('click', async function(e) {
+            const badge = e.target.closest('.payment-toggle');
+            if (!badge) return;
+
+            const currentMethod = badge.dataset.method;
+            if (currentMethod === 'card') return; // Tarjeta se edita desde el modal
+            if (badge.dataset.saving === '1') return;
+
+            const orderId = badge.dataset.orderId;
+            const newMethod = currentMethod === 'transfer' ? 'cash' : 'transfer';
+            badge.dataset.saving = '1';
+            badge.style.opacity = '0.5';
+
+            try {
+                const response = await fetch(`/admin/orders/${orderId}/details`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({ payment_method: newMethod })
+                });
+
+                const data = await response.json();
+                if (!data.success) throw new Error(data.message || 'Error al guardar');
+
+                // Actualizar todos los badges de este pedido (hoy + histórico)
+                syncPaymentBadges(orderId, newMethod);
+
+                // Sincronizar el select del modal para no quedar desactualizado
+                const modalSelect = document.querySelector(`#modalOrder${orderId} select[data-field="payment_method"]`);
+                if (modalSelect) modalSelect.value = newMethod;
+
+                showNotification(`Método de pago cambiado a ${newMethod === 'transfer' ? 'Transferencia' : 'Efectivo'}`, 'success');
+            } catch (error) {
+                console.error('❌ Error cambiando método de pago:', error);
+                showNotification(`Error al cambiar método de pago: ${error.message}`, 'error');
+            } finally {
+                delete badge.dataset.saving;
+                badge.style.opacity = '';
+            }
+        });
+
         // Función para manejar campos de dirección (nested)
         function autoSaveAddressField(orderId, field, value, element) {
             const timeoutKey = `${orderId}-address-${field}`;
@@ -5310,11 +5447,12 @@
                     columnDefs: [
                         { responsivePriority: 1, targets: 0 }, // Checkbox
                         { responsivePriority: 2, targets: 1 }, // Cliente
-                        { responsivePriority: 3, targets: 6 }, // Acciones
-                        { responsivePriority: 4, targets: 5 }, // Estado
+                        { responsivePriority: 3, targets: 7 }, // Acciones
+                        { responsivePriority: 4, targets: 6 }, // Estado
                         { responsivePriority: 5, targets: 2 }, // Items
                         { responsivePriority: 6, targets: 3 }, // Total
-                        { responsivePriority: 7, targets: 4 }  // Horario
+                        { responsivePriority: 7, targets: 5 }, // Horario
+                        { responsivePriority: 8, targets: 4 }  // Pago
                     ],
                     order: [],
                     dom: 'rt',
@@ -5350,9 +5488,10 @@
                         { targets: 2, width: '200px' },
                         { targets: 3, width: '120px' },
                         { targets: 4, width: '120px' },
-                        { targets: 5, width: '130px' },
-                        { targets: 6, width: '100px' },
-                        { targets: 7, width: '100px' }
+                        { targets: 5, width: '120px' },
+                        { targets: 6, width: '130px' },
+                        { targets: 7, width: '100px' },
+                        { targets: 8, width: '100px' }
                     ],
                     order: [[1, 'desc']],
                     dom: '<"dt-controls-top"lf>rt<"dt-controls-bottom"ip>',
