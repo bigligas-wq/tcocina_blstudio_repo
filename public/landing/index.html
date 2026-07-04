@@ -152,7 +152,8 @@ section{position:relative}
 .bcard__name{font-family:var(--black);font-size:21px;letter-spacing:.01em;line-height:1}
 .bcard__desc{color:var(--muted);font-size:13.5px;margin-top:9px;flex:1;line-height:1.5}
 .bcard__foot{display:flex;align-items:center;justify-content:space-between;margin-top:16px;gap:10px}
-.bcard__price{font-family:var(--display);font-size:30px;color:var(--amber);line-height:.9;letter-spacing:.02em}
+.bcard__price{font-family:var(--display);font-size:30px;color:var(--amber);line-height:.9;letter-spacing:.02em;opacity:0;transition:opacity .25s ease}
+body.prices-ready .bcard__price{opacity:1}
 .bcard__add{background:#fff;color:var(--bg-950);font-weight:800;font-size:13px;padding:10px 16px;border-radius:999px;transition:background .16s,transform .16s}
 .bcard__add:hover{background:var(--amber);transform:translateY(-2px)}
 .menu__cta{text-align:center;margin-top:clamp(34px,5vw,52px)}
@@ -415,7 +416,7 @@ section{position:relative}
   <div class="hero__grid-tex"></div>
   <div class="wrap hero__grid">
     <div class="hero__copy">
-      <h1>La mejor hamburguesa<br><span class="smash">smash</span><br>de <span class="a">Olavarría</span></h1>
+      <h1>La única hamburguesa<br><span class="smash">smash</span><br>de <span class="a">Olavarría</span></h1>
       <div class="hero__cta">
         <a href="/catalog" class="btn btn-wow">Pedí Ahora <span class="arw">→</span></a>
       </div>
@@ -578,10 +579,10 @@ section{position:relative}
       <img src="assets/mascot.png" alt="Sol hamburguesa T Cocina">
     </div>
     <div class="historia__copy">
-      <div class="s-head reveal"><span class="kicker">Nuestra historia</span><h2 class="s-title">Tres años de aprendizaje,<br>una <span class="a">obsesión</span></h2></div>
-      <p class="reveal d1">Todo arrancó en <span class="a">2021, en Mar del Plata</span>, con una idea fija: aprender. Al principio hacíamos todo desde cero, hasta los panes.</p>
-      <p class="reveal d2">Después vino el laburo de planchero en otro emprendimiento, y más tarde en <span class="a">Hamburgo</span> y <span class="a">La Hamburguesería</span>, sumando algo de cada lugar. Fueron 3 años de aprendizaje hasta animarnos a lo propio: T Cocina.</p>
-      <p class="reveal d2">Hoy <span class="a">somos</span> el resultado de ese camino: argentinos, futboleros y obsesionados con que cada hamburguesa salga perfecta.</p>
+      <div class="s-head reveal"><span class="kicker">Nuestra historia</span><h2 class="s-title">Muchos años de aprendizaje,<br>una <span class="a">obsesión</span></h2></div>
+      <p class="reveal d1">Todo arrancó en <span class="a">2021</span>, con una idea fija: aprender. Al principio hacíamos todo desde cero, probamos muchas ideas, formas y técnicas.</p>
+      <p class="reveal d2">Entendimos que la clave de nuestro producto tenía que ser la <span class="a">calidad y también la cantidad</span>: buena materia prima y abundante.</p>
+      <p class="reveal d2">Hoy <span class="a">somos</span> el resultado de ese camino, obsesionados con que cada hamburguesa salga perfecta.</p>
       <div class="historia__fotos reveal d3">
         <figure><img src="assets/foto/smasheo2.jpg" alt="Smasheando en la plancha" loading="lazy"></figure>
         <figure><img src="assets/foto/abierta.jpg" alt="Smash abierta, proceso de armado" loading="lazy"></figure>
@@ -819,6 +820,28 @@ section{position:relative}
   dragScroll(document.getElementById('resGrid'));
   dragScroll(document.getElementById('menuGrid'));
   dragScroll(document.getElementById('copaTrack'));
+
+  // Precios reales desde la base de datos (endpoint Laravel /landing-data/products.json).
+  // Los precios arrancan ocultos (CSS) y se muestran recién cuando llega el dato real,
+  // así no se ve el salto del precio viejo al nuevo. Fallback: a los 1.5s se muestran igual.
+  (function(){
+    function ready(){document.body.classList.add('prices-ready');}
+    var failsafe=setTimeout(ready,1500);
+    function norm(s){return s.normalize('NFD').replace(/[̀-ͯ]/g,'').trim().toUpperCase();}
+    fetch('/landing-data/products.json').then(function(r){return r.ok?r.json():null}).then(function(list){
+      if(list&&list.length){
+        var map={};
+        list.forEach(function(p){map[norm(p.name)]=p.price;});
+        document.querySelectorAll('.bcard').forEach(function(card){
+          var nameEl=card.querySelector('.bcard__name'),priceEl=card.querySelector('.bcard__price');
+          if(!nameEl||!priceEl) return;
+          var price=map[norm(nameEl.textContent)];
+          if(price>0) priceEl.textContent='$'+Math.round(price).toLocaleString('es-AR');
+        });
+      }
+      clearTimeout(failsafe);ready();
+    }).catch(function(){clearTimeout(failsafe);ready();});
+  })();
 
   // Ranking Copa: deslizamiento automático hacia la derecha
   (function(){
