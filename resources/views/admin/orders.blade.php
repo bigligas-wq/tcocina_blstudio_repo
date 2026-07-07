@@ -1921,6 +1921,13 @@
     <!-- Flatpickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
     <script>
+        // Evita que los enlaces de acciones (href="#") dejen un "#" pegado en la URL
+        // al hacer click (Ver pedido, Imprimir, Eliminar, etc. dentro de "Acciones").
+        document.addEventListener('click', function (e) {
+            const link = e.target.closest('a[href="#"]');
+            if (link) e.preventDefault();
+        });
+
         document.addEventListener('DOMContentLoaded', function () {
             const input = document.getElementById('selected_date');
             if (input && window.flatpickr) {
